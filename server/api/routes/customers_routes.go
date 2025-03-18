@@ -1,16 +1,13 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/restaurent_table_booking/internal/services"
+)
 
 func CustomerRoutes(server *gin.Engine) {
 	// CUSTOMER ROUTES
-	server.POST("/restaurants/:restaurant_id/bookings", CreateBooking)
-	server.GET("/customers/:customer_id/bookings", GetBookingsByCustomerID)
-}
-
-func CreateBooking(context *gin.Context) {
-
-}
-func GetBookingsByCustomerID(context *gin.Context) {
-
+	server.GET("/restaurants", services.GetAllRestaurants)
+	server.POST("/restaurants/:restaurant_id/bookings", services.CreateBooking)
+	server.GET("/customers/:customer_id/bookings", services.GetBookingsByCustomerID)
 }

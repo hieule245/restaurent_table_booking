@@ -28,7 +28,7 @@ func GetAllRestaurants() ([]Restaurant, error) {
 	for rows.Next() {
 		var e Restaurant
 		err = rows.Scan(&e.Id, &e.Name, &e.Description, &e.Started, &e.Ended, &e.Owner_id)
-		if err != nil {
+		if err != nil { 
 			return res, errors.New("Can't catch any information")
 		}
 		res = append(res, e)
