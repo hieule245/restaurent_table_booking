@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/restaurent_table_booking/db"
+	"github.com/restaurent_table_booking/internal/db"
 )
 
 type Restaurant struct {

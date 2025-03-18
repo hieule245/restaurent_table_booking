@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	"github.com/restaurent_table_booking/middlewares" // Import middleware
-	"github.com/restaurent_table_booking/models"
+	"github.com/restaurent_table_booking/internal/middlewares" // Import middleware
+	"github.com/restaurent_table_booking/internal/models"
 
 	"github.com/gin-gonic/gin"
 )

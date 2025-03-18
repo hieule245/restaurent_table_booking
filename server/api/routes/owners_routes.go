@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/restaurent_table_booking/models"
+	"github.com/restaurent_table_booking/internal/models"
 )
 
 func OwnerRoutes(server *gin.Engine) {

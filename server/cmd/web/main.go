@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/restaurent_table_booking/db"
-	"github.com/restaurent_table_booking/routes"
+	"github.com/restaurent_table_booking/api/routes"
+	"github.com/restaurent_table_booking/internal/db"
 )
 
 func main() {
@@ -20,8 +20,8 @@ func main() {
 	}))
 
 	// Đăng ký các routes
-	routes.Routes(server)      // Các route chung
-	 // Các route yêu cầu quyền Admin
+	routes.Routes(server) // Các route chung
+	// Các route yêu cầu quyền Admin
 
 	server.Run()
 	// timeN := "2000-03-17 8:00:00"

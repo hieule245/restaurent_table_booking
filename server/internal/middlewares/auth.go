@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/restaurent_table_booking/utils"
+	"github.com/restaurent_table_booking/internal/utils"
 )
 
 func AuthMiddleware() gin.HandlerFunc {

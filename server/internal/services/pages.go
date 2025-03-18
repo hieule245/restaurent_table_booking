@@ -1,4 +1,4 @@
-package routes
+package services
 
 import (
 	"github.com/gin-gonic/gin"
