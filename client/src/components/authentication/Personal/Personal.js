@@ -40,6 +40,7 @@ const PersonalPage = () => {
           )}
         </div>
       </div>
+
       <button className="btn btn-primary mt-3" onClick={() => navigate("/")}>
         Back to Home
       </button>
