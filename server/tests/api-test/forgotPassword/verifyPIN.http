@@ -1,0 +1,7 @@
+POST http://localhost:8080/verify-pin
+content-Type: application/json
+
+{
+    "email": "hieuln245@gmail.com",
+    "pin": 189707
+}

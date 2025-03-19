@@ -34,11 +34,6 @@ const LoginPage = () => {
       });
   }, []);
 
-  const isValidPhone = (phone) => {
-    const phoneRegex = /^(0[1-9][0-9]{8})$/;
-    return phoneRegex.test(phone);
-  };
-
   const isValidPassword = (password) => {
     const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return passwordRegex.test(password);
