@@ -11,7 +11,7 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := c.Cookie("token")
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
 			c.Abort()
 			return
 		}
@@ -32,11 +32,36 @@ func AuthMiddleware() gin.HandlerFunc {
 
 func AdminOnly(c *gin.Context) {
 	role, exists := c.Get("role")
-	if !exists || role != "admin" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Access denied"})
-		c.Abort() // Dừng request nếu không có quyền admin
+	if !exists {
+		c.JSON(http.StatusForbidden, gin.H{"error": "No role found"})
+		c.Abort()
 		return
 	}
 
-	c.Next() // Tiếp tục xử lý nếu là admin
+	roleStr, ok := role.(string) // Ép kiểu về string
+	if !ok || roleStr != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin Access denied"})
+		c.Abort()
+		return
+	}
+
+	c.Next() // Tiếp tục request nếu là admin
+}
+
+func OwnerOnly(c *gin.Context) {
+	role, exists := c.Get("role")
+	if !exists {
+		c.JSON(http.StatusForbidden, gin.H{"error": "No role found"})
+		c.Abort()
+		return
+	}
+
+	roleStr, ok := role.(string)
+	if !ok || roleStr != "owner" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Owner Access denied"})
+		c.Abort()
+		return
+	}
+
+	c.Next() // Tiếp tục request nếu là owner
 }

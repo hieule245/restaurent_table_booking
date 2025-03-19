@@ -20,5 +20,6 @@ func Routes(server *gin.Engine) {
 
 	AdminRoutes(server) // Các route yêu cầu quyền Admin
 	OwnerRoutes(server)
+	CustomerRoutes(server)
 
 }
