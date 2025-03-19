@@ -15,22 +15,21 @@ func SendMailSimple(email string, pin int) {
 		"smtp.gmail.com",
 	)
 
-	msg := fmt.Sprintf(`From: 
-	To: hieuln245@gmail.com
-	Subject: Mã PIN xác nhận đặt lại mật khẩu
-	MIME-Version: 1.0
-	Content-Type: text/html; charset="UTF-8"
+	msg := fmt.Sprintf(`From: golangtraining2025@gmail.com
+To: %s
+Subject: Mã PIN xác nhận đặt lại mật khẩu
+MIME-Version: 1.0
+Content-Type: text/html; charset="UTF-8"
 
-	<html>
-		<body style="font-family: Arial, sans-serif; line-height: 1.6;">
-			<p>Kính gửi <strong>%s</strong>,</p>
-			<p>Mã PIN xác nhận của bạn là:</p>
-			<p style="font-size: 20px; font-weight: bold; color: #ff0000;">%d</p>
-			<p>Mã PIN này sẽ hết hạn sau <strong>5 phút</strong>. Vui lòng không chia sẻ mã PIN này với bất kỳ ai.</p>
-			<p>Trân trọng,</p>
-			<p><strong>[Tên công ty]</strong></p>
-		</body>
-	</html>`, email, pin)
+<html>
+	<body style="font-family: Arial, sans-serif; line-height: 1.6;">
+		<p>Kính gửi <strong>%s</strong>,</p>
+		<p>Mã PIN xác nhận của bạn là:</p>
+		<p style="font-size: 20px; font-weight: bold; color: #ff0000;">%d</p>
+		<p>Mã PIN này sẽ hết hạn sau <strong>5 phút</strong>. Vui lòng không chia sẻ mã PIN này với bất kỳ ai.</p>
+		<p>Trân trọng</p>
+	</body>
+</html>`, email, email, pin)
 
 	err := smtp.SendMail(
 		"smtp.gmail.com:587",
