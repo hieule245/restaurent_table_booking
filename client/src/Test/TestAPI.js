@@ -34,7 +34,10 @@ const TestAPI = () => {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+    <div
+      style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}
+      className="text-center"
+    >
       <h2>🔍 Test REST API bằng Axios</h2>
 
       {/* Phần test cho các API khác (ví dụ login, nhà hàng, bàn ăn) */}
