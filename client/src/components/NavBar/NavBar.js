@@ -3,6 +3,7 @@ import { Link as LinkS } from "react-scroll";
 import { links } from "../../data";
 import { HiOutlineMenuAlt1 } from "react-icons/hi";
 import { FaTimes } from "react-icons/fa";
+import { FaUtensils } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import "./NavBar.styles.css";
 import HandleLogout from "../authentication/Logout/Logout";
@@ -102,19 +103,14 @@ const NavBar = () => {
 
   return (
     <>
-      <header ref={navRef}>
-        <nav className="nav-container">
-          <LinkS
-            to="hero"
-            smooth="true"
-            duration={550}
-            onClick={handleClick}
-            aria-label="On Click"
-          >
-            <img src="./Logo.svg" alt="logo" className="logo" />
-          </LinkS>
+      <header ref={navRef} >
+        <nav className="container d-flex justify-content-center align-items-center pt-3">
+          <div className="pb-2">
+            <FaUtensils className="nav-icon fs-1" />
+            <span className="nav-title">TableBooker App</span>
+          </div>
 
-          <ul className="nav-links-container">{navLinks}</ul>
+          <ul className="nav-links-container col-10 justify-content-end">{navLinks}</ul>
           {/* HAMBURGER MENU */}
           <div onClick={() => setNav(!nav)} aria-label="On Click">
             <HiOutlineMenuAlt1

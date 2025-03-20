@@ -2,11 +2,11 @@
 .hero {
   height: 100vh;
   padding: 8rem 2rem;
-  background-color: #495e57;
+  background-color: #F2CED1;
   display: grid;
   grid-template-columns: 1fr;
   font-family: 'Markazi Text', serif;
-  color: #edefee;
+  color: black;
   text-align: center;
   place-items: center;
 }
@@ -18,7 +18,7 @@
 .display-title {
   font-weight: 500;
   font-size: 48px;
-  color: #f4ce14;
+  color: black;
 }
 
 .display-subtitle {
@@ -27,7 +27,8 @@
 }
 
 .display-text {
-  font-size: 24px;
+  /* font-size: 24px; */
+  font-weight: 100 !important;
   margin-bottom: 2rem;
 }
 
@@ -45,11 +46,11 @@
 
 .reserve-button {
   font-family: 'Karla', sans-serif;
-  font-weight: 800;
-  background-color: #f4ce14;
-  color: #333;
+  font-weight: 400;
+  background-color: #DF192A;
+  color: #fff;
   padding: 1rem 2rem;
-  border-radius: 0.5rem;
+  border-radius: 10rem;
   cursor: pointer;
 }
 

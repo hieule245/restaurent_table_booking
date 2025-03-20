@@ -6,5 +6,5 @@ content-Type: application/json
 	"Email": "lamtvt@runsystem.net",
 	"Password":"1",
 	"Phone": "0921658465",
-	"Role":  "admin"
+	"Role":  "customer"
 }

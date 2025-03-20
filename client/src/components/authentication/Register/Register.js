@@ -66,7 +66,7 @@ const RegisterPage = () => {
       validationErrors.password = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&).";
     }
     if (!confirmPassword) {
-      validationErrors.password = "Confirm password is required.";
+      validationErrors.confirmpassword = "Confirm password is required.";
     }
     if (password !== confirmPassword) {
       validationErrors.confirmPassword = "Passwords do not match.";
