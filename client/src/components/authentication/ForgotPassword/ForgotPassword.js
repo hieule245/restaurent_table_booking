@@ -5,7 +5,7 @@ import axios from "axios";
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [message] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();

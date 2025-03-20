@@ -4,7 +4,7 @@ import axios from "axios";
 
 const EnterPin = () => {
   const [pin, setPin] = useState(["", "", "", "", "", ""]);
-  const [error, setError] = useState("");
+  const [error] = useState("");
   const inputRefs = useRef([]);
   const navigate = useNavigate();
   const email = localStorage.getItem("resetEmail");

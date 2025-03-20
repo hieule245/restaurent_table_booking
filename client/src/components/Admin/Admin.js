@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { restaurants } from "../../data";
 import HandleLogout from "../authentication/Logout/Logout";
 const Admin = () => {
-  const [reservations, setReservations] = useState([]);
+  const [reservations] = useState([]);
   const [users, setUsers] = useState([]);
   //   const [restaurants, setRestaurants] = useState([]);
   const navigate = useNavigate();
@@ -57,12 +57,12 @@ const Admin = () => {
             <h1 className="mb-4">Admin Page</h1>
           </div>
           <div className="col-auto">
-            <a className="btn btn-danger" onClick={() => HandleLogout()}>
+            <button className="btn btn-danger" onClick={() => HandleLogout()}>
               Logout
-            </a>
-            <a className="btn btn-primary" onClick={() => navigate("/")}>
+            </button>
+            <button className="btn btn-primary" onClick={() => navigate("/")}>
               Home
-            </a>
+            </button>
           </div>
         </div>
         <hr className="border-light"></hr>
