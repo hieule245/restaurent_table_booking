@@ -68,8 +68,8 @@ const LoginPage = () => {
           });
       }
     } catch (error) {
-      console.error("Login error:", error);
-      toast.error("Error during login. Please try again.");
+      toast.error(error.response.data.message);
+      // toast.error("Error during login. Please try again.");
     }
   };
 
