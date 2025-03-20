@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -131,8 +132,11 @@ func (u *Account) RegisterStaff() error {
 }
 
 func (u *Account) Login() error {
-	retrievedPassword, _ := CheckAccount(u)
-	ok := utils.PasswordVerify(u.Password, retrievedPassword)
+	retrievedPassword, ok := checkAccount(u)
+	if ok {
+		return errors.New("Email does not exist")
+	}
+	ok = utils.PasswordVerify(u.Password, retrievedPassword)
 	if !ok {
 		return errors.New("Invalid Password!")
 	}
@@ -236,4 +240,37 @@ func GetAllAccounts() ([]Account, error) {
 		users = append(users, u)
 	}
 	return users, nil
+}
+
+func GetUserInformationById(userId int64, role string) (Account, error) {
+	var query string
+	var user Account // Định nghĩa struct chứa dữ liệu user
+
+	// Xác định bảng cần query dựa trên role
+	switch role {
+	case "customer":
+		query = `SELECT id, name, gmail, phone FROM customers WHERE id = ?`
+	case "staff":
+		query = `SELECT id, name, gmail, phone FROM staffs WHERE id = ?`
+	case "admin":
+		query = `SELECT id, name, gmail, phone FROM admin WHERE id = ?`
+	case "owner":
+		query = `SELECT id, name, gmail, phone FROM owners WHERE id = ?`
+	default:
+		return user, errors.New("invalid role")
+	}
+
+	// Thực hiện query
+	row := db.DB.QueryRow(query, userId)
+	err := row.Scan(&user.Id, &user.Name, &user.Email, &user.Phone)
+	if err != nil {
+		return user, errors.New(err.Error())
+	}
+	if err == sql.ErrNoRows {
+		return user, errors.New(err.Error())
+	}
+
+	user.Role = role
+
+	return user, nil
 }

@@ -99,24 +99,13 @@ func createTable() {
 	CREATE TABLE IF NOT EXISTS tables (
 		id INTEGER PRIMARY KEY AUTO_INCREMENT,
 		name NVARCHAR(50) NOT NULL, 
-		type INTEGER NOT NULL,
-		seats NVARCHAR(50) NOT NULL,
+		type NVARCHAR(50) NOT NULL,
+		seats INTEGER NOT NULL,
 		restaurant_id INTEGER NOT NULL,
 		FOREIGN KEY (restaurant_id) REFERENCES restaurants(id)
 	)	
 	`
 	_, err = DB.Exec(TableQuery)
-	if err != nil {
-		panic(err)
-	}
-
-	StatusQuery := `
-	CREATE TABLE IF NOT EXISTS status (
-		id INTEGER PRIMARY KEY AUTO_INCREMENT,
-		name NVARCHAR(50) NOT NULL
-	)	
-	`
-	_, err = DB.Exec(StatusQuery)
 	if err != nil {
 		panic(err)
 	}
@@ -135,8 +124,7 @@ func createTable() {
 		FOREIGN KEY (table_id) REFERENCES tables(id),
 		customer_id INTEGER NOT NULL,
 		FOREIGN KEY (customer_id) REFERENCES customers(id),
-		status_id INTEGER NOT NULL,
-		FOREIGN KEY (status_id) REFERENCES status(id)
+		status INTEGER NOT NULL
 	)	
 	`
 	_, err = DB.Exec(ReservationQuery)

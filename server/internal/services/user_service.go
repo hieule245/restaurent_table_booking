@@ -14,19 +14,18 @@ func Login(context *gin.Context) {
 	var u models.Account
 	err := context.ShouldBindBodyWithJSON(&u)
 	if err != nil {
-		panic(err)
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
 		return
 	}
 	err = u.Login()
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't login"})
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 	// create token
 	token, err := utils.GenerateToken(u.Id, u.Email, u.Role)
 	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"Message": "Can't generate token"})
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Can't generate token"})
 		return
 	}
 
@@ -35,6 +34,14 @@ func Login(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!", "tokens": token, "role": u.Role})
 	// context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!"})
+}
+func Logout(c *gin.Context) {
+	// Xóa cookie bằng cách đặt giá trị rỗng và thời gian hết hạn đã qua
+	c.SetCookie("token", "", -1, "/", "localhost", false, true)
+
+	// Trả về phản hồi JSON
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
+
 }
 
 func Register(context *gin.Context) {
@@ -158,20 +165,25 @@ func GetAllAccounts(context *gin.Context) {
 }
 
 func GetUserProfile(c *gin.Context) {
-	role, exists := c.Get("role")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	c.GetString("role")
+	role := c.GetString("role")
+	if role == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get role"})
+		return
+	}
+	c.GetInt64("userID")
+	userID := c.GetInt64("userID")
+	if userID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get user id"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"role": role})
-}
+	var user models.Account
+	user, err := models.GetUserInformationById(userID, role)
+	if err != nil {
+		// "Can not find user"
+		c.JSON(http.StatusUnauthorized, gin.H{"error (get User Profile)": err.Error()})
+	}
 
-// LogoutHandler xử lý đăng xuất
-func Logout(c *gin.Context) {
-	// Xóa cookie bằng cách đặt giá trị rỗng và thời gian hết hạn đã qua
-	c.SetCookie("token", "", -1, "/", "localhost", false, true)
-
-	// Trả về phản hồi JSON
-	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
+	c.JSON(http.StatusOK, gin.H{"user": user})
 }

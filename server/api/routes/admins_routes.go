@@ -9,6 +9,9 @@ import (
 
 func AdminRoutes(server *gin.Engine) {
 	admin := server.Group("/admin")
+	admin.Use(middlewares.AuthMiddleware()) // Bắt buộc phải đăng nhập trước
+	admin.Use(middlewares.AdminOnly)        // Gắn middleware vào nhóm router admin
+
 	{
 		admin.GET("/users", services.AdminGetUsers)
 		admin.GET("/users/:user_id", services.AdminGetUserByID)

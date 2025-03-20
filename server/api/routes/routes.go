@@ -23,5 +23,6 @@ func Routes(server *gin.Engine) {
 	// Users routes (View - Add - Edit - Delete)
 	AdminRoutes(server) // Các route yêu cầu quyền Admin
 	OwnerRoutes(server)
+	CustomerRoutes(server)
 
 }
