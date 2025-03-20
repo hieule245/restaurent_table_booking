@@ -132,7 +132,7 @@ func (u *Account) RegisterStaff() error {
 }
 
 func (u *Account) Login() error {
-	retrievedPassword, ok := checkAccount(u)
+	retrievedPassword, ok := CheckAccount(u)
 	if ok {
 		return errors.New("Email does not exist")
 	}
