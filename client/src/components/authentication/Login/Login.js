@@ -7,19 +7,22 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const LoginPage = () => {
   const navigate = useNavigate(); // Dùng để chuyển hướng trang
   let [email, setEmail] = useState("");
   let [password, setPassword] = useState("");
   let [showPassword, setShowPassword] = useState(false); // State for showing password
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     import("bootstrap/dist/js/bootstrap.bundle.min");
     axios
       .get("http://localhost:8080/me", { withCredentials: true })
       .then((res) => {
-        setTimeout(() => {}, 2000);
+        setTimeout(() => { }, 2000);
         if (res.data.role === "admin") {
           navigate("/admin");
         } else {
@@ -31,9 +34,40 @@ const LoginPage = () => {
       });
   }, []);
 
+  const isValidPhone = (phone) => {
+    const phoneRegex = /^(0[1-9][0-9]{8})$/;
+    return phoneRegex.test(phone);
+  };
+
+  const isValidPassword = (password) => {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  };
+
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+
+
   const HandleLogin = async (e) => {
     e.preventDefault();
-
+    let validationErrors = {};
+    if (!email) {
+      validationErrors.email = "Email is required.";
+    } else if (!isValidEmail(email)) {
+      validationErrors.email = "Invalid email format.";
+    }
+    if (!password) {
+      validationErrors.password = "Password is required.";
+    } else if (!isValidPassword(password)) {
+      validationErrors.password = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&).";
+    }
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     try {
       let res = await axios.post(
         "http://localhost:8080/login",
@@ -104,32 +138,30 @@ const LoginPage = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
+                  {errors.email && (
+                    <small className="text-danger">{errors.email}</small>
+                  )}
                 </div>
                 <div className="form-group my-2">
-                  <label className="form-label">Password</label>{" "}
-                  {/* Added Bootstrap class "form-label" */}
-                  <input
-                    type={showPassword ? "text" : "password"} // Toggle input type based on showPassword state
-                    className="form-control"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-                <div className="form-check form-switch d-flex justify-content-end">
-                  <input
-                    className="form-check-input "
-                    type="checkbox"
-                    role="switch"
-                    checked={showPassword}
-                    onChange={() => setShowPassword(!showPassword)}
-                  />{" "}
-                  <div
-                    class="form-check-label mx-2"
-                    for="flexSwitchCheckDefault"
-                  >
-                    Show Password
+                  <label className="form-label">Password</label>
+                  <div className="input-group">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      className="form-control"
+                      placeholder="Password"
+                      style={{ borderRight: 0 }}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <span
+                      className="input-group-text bg-white"
+                      style={{ cursor: "pointer", borderLeft: 0 }}
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+                    </span>
                   </div>
+                  {errors.password && <small className="text-danger">{errors.password}</small>}
                 </div>
                 <div className="form-group my-2">
                   <a href="/forgot-password">

@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion"; // Import animation
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -15,11 +17,28 @@ const RegisterPage = () => {
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("customer");
   const [confirmPassword, setConfirmPassword] = useState(""); // New state for confirm password
+  let [showPassword, setShowPassword] = useState(false); // State for showing password
+  let [showConfirmPassword, setShowConfirmPassword] = useState(false); // State for showing password
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     import("bootstrap/dist/js/bootstrap.bundle.min");
   }, []);
+
+  const isValidPhone = (phone) => {
+    const phoneRegex = /^(0[1-9][0-9]{8})$/;
+    return phoneRegex.test(phone);
+  };
+
+  const isValidPassword = (password) => {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  };
+
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -28,15 +47,26 @@ const RegisterPage = () => {
     // Validation checks
     if (!name) {
       validationErrors.name = "Name is required.";
+    } else if (name.length > 50) {
+      validationErrors.name = "Name must not exceed 50 characters.";
     }
     if (!email) {
       validationErrors.email = "Email is required.";
+    } else if (!isValidEmail(email)) {
+      validationErrors.email = "Invalid email format.";
     }
     if (!phone) {
       validationErrors.phone = "Phone number is required.";
+    } else if (!isValidPhone(phone)) {
+      validationErrors.phone = "Phone number must be exactly 10 digits.(e.g. 093*******)";
     }
     if (!password) {
       validationErrors.password = "Password is required.";
+    } else if (!isValidPassword(password)) {
+      validationErrors.password = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&).";
+    }
+    if (!confirmPassword) {
+      validationErrors.password = "Confirm password is required.";
     }
     if (password !== confirmPassword) {
       validationErrors.confirmPassword = "Passwords do not match.";
@@ -99,6 +129,7 @@ const RegisterPage = () => {
                     className="form-control"
                     placeholder="Email"
                     value={email}
+                    required
                     onChange={(e) => setEmail(e.target.value)}
                   />
                   {errors.email && (
@@ -107,26 +138,46 @@ const RegisterPage = () => {
                 </div>
                 <div className="form-group my-2">
                   <label className="form-label">Password</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+                  <div className="input-group">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      className="form-control"
+                      placeholder="Password"
+                      style={{ borderRight: 0 }}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <span
+                      className="input-group-text bg-white"
+                      style={{ cursor: "pointer", borderLeft: 0 }}
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+                    </span>
+                  </div>
                   {errors.password && (
                     <small className="text-danger">{errors.password}</small>
                   )}
                 </div>
                 <div className="form-group my-2">
                   <label className="form-label">Confirm Password</label>
+                  <div className="input-group">
                   <input
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     className="form-control"
                     placeholder="Confirm Password"
+                    style={{ borderRight: 0 }}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
+                  <span
+                      className="input-group-text bg-white"
+                      style={{ cursor: "pointer", borderLeft: 0 }}
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
+                    </span>
+                  </div>
                   {errors.confirmPassword && (
                     <small className="text-danger">
                       {errors.confirmPassword}

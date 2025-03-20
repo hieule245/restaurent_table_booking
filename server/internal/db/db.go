@@ -70,6 +70,7 @@ func createTable() {
 		description VARCHAR(250) NOT NULL,
 		time_start TIME NOT NULL,
 		time_end TIME NOT NULL,
+		location NVARCHAR(250) NOT NULL,
 		owner_id INTEGER NOT NULL,
 		FOREIGN KEY (owner_id) REFERENCES owners(id)
 	)	

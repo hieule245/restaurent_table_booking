@@ -1,12 +1,16 @@
 import './Card.styles.css';
 import { specials } from '../../data';
 import { RiEBike2Line } from 'react-icons/ri';
+import { useNavigate } from 'react-router-dom';
 
 const Card = () => {
+  const navigate = useNavigate();
   const specialties = specials.map(
     ({ id, image, name, price, description }) => {
       return (
-        <div key={id} className='card-container'>
+        <div key={id} 
+        className='card-container'
+        onClick={() => navigate('/restaurants/:id/detail')}>
           <div className='specials-image-container'>
             <img src={image} alt={name} className='specials-image' />
           </div>
