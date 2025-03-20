@@ -1,7 +1,10 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/restaurent_table_booking/internal/middlewares" // Import middleware
+	"github.com/restaurent_table_booking/internal/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +16,7 @@ func AdminRoutes(server *gin.Engine) {
 
 	{
 		admin.GET("/users", AdminGetUsers)
-		admin.GET("/users/:user_id", AdminGetUserByID)
+		admin.GET("/users/:user_id", AdminGetUser)
 
 		admin.GET("/owners", AdminGetOwners)
 		admin.GET("/owners/:owner_id", AdminGetOwner)
@@ -32,4 +35,54 @@ func AdminRoutes(server *gin.Engine) {
 	admin.GET("/dashboard", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "Welcome to Admin Dashboard!"})
 	})
+
+	// ADMIN ROUTES
+
+	// adminRoutes.GET("/dashboard", AdminDashboardHandler)
+}
+
+func AdminGetUsers(context *gin.Context) {
+	res, err := models.GetAllRestaurants()
+	if err != nil {
+		context.JSON(http.StatusBadGateway, gin.H{"message": "Can't take any restaurants"})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"restaurants": res})
+}
+
+func AdminGetUser(context *gin.Context) {
+	context.JSON(200, gin.H{"message": "ok"})
+
+}
+func AdminGetOwners(context *gin.Context) {
+	context.JSON(200, gin.H{"message": "ok"})
+
+}
+func AdminGetOwner(context *gin.Context) {
+	context.JSON(200, gin.H{"message": "ok"})
+
+}
+func AdminGetCustomers(context *gin.Context) {
+	context.JSON(200, gin.H{"message": "ok"})
+
+}
+func AdminGetCustomer(context *gin.Context) {
+	context.JSON(200, gin.H{"message": "ok"})
+
+}
+func AdminGetRestaurants(context *gin.Context) {
+	context.JSON(200, gin.H{"message": "ok"})
+
+}
+func AdminGetRestaurant(context *gin.Context) {
+	context.JSON(200, gin.H{"message": "ok"})
+
+}
+func AdminGetTables(context *gin.Context) {
+	context.JSON(200, gin.H{"message": "ok"})
+
+}
+func AdminGetTable(context *gin.Context) {
+	context.JSON(200, gin.H{"message": "ok"})
+
 }
