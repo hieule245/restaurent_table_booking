@@ -18,19 +18,19 @@ func OwnerRoutes(server *gin.Engine) {
 	{
 		restaurant := owner.Group("/restaurants")
 		{
-			restaurant.GET("", GetAllRestaurants)
-			restaurant.GET("/:restaurant_id", GetRestaurantByID)
-			restaurant.POST("", CreateRestaurant)
-			restaurant.PUT("/:restaurant_id", EditRestaurant)
-			restaurant.DELETE("/:restaurant_id", DeleteRestaurant)
+			restaurant.GET("", services.GetAllOwnRestaurants)
+			restaurant.GET("/:restaurant_id", services.GetRestaurantByID)
+			restaurant.POST("", services.CreateRestaurant)
+			restaurant.PUT("/:restaurant_id", services.EditRestaurant)
+			restaurant.DELETE("/:restaurant_id", services.DeleteRestaurant)
 
 			table := restaurant.Group("/:restaurant_id/tables")
 			{
-				table.GET("", GetAllTables)
-				table.GET("/:table_id", GetTableByID)
-				table.POST("", CreateTable)
-				table.PUT("/:table_id", EditTable)
-				table.DELETE("/:table_id", DeleteTable)
+				table.GET("", services.GetAllTables)
+				table.GET("/:table_id", services.GetTableByID)
+				table.POST("", services.CreateTable)
+				table.PUT("/:table_id", services.EditTable)
+				table.DELETE("/:table_id", services.DeleteTable)
 			}
 		}
 	}

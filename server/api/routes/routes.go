@@ -13,11 +13,14 @@ func Routes(server *gin.Engine) {
 	// Authentication
 	server.POST("/login", services.Login)
 	server.POST("/register", services.Register)
+	server.POST("/forgot-password", services.ForgotPassword)
+	server.POST("/verify-pin", services.CheckPin)
+	server.POST("/reset-password", services.ResetPassword)
 	server.POST("/logout", services.Logout)
 	server.GET("/me", middlewares.AuthMiddleware(), services.GetUserProfile)
+	CustomerRoutes(server)
 
 	// Users routes (View - Add - Edit - Delete)
-
 	AdminRoutes(server) // Các route yêu cầu quyền Admin
 	OwnerRoutes(server)
 	CustomerRoutes(server)
