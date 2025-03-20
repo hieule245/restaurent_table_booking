@@ -19,7 +19,7 @@ type Account struct {
 }
 
 func (u *Account) RegisterCustomer() error {
-	_, check := checkAccount(u)
+	_, check := CheckAccount(u)
 	if !check {
 		return errors.New("This gmail already create account before!!")
 	}
@@ -47,7 +47,7 @@ func (u *Account) RegisterCustomer() error {
 }
 
 func (u *Account) RegisterOwner() error {
-	_, check := checkAccount(u)
+	_, check := CheckAccount(u)
 	if !check {
 		return errors.New("This gmail already create account before!!")
 	}
@@ -75,7 +75,7 @@ func (u *Account) RegisterOwner() error {
 }
 
 func (u *Account) RegisterAdmin() error {
-	_, check := checkAccount(u)
+	_, check := CheckAccount(u)
 	if !check {
 		return errors.New("This gmail already create account before!!")
 	}
@@ -103,7 +103,7 @@ func (u *Account) RegisterAdmin() error {
 }
 
 func (u *Account) RegisterStaff() error {
-	_, check := checkAccount(u)
+	_, check := CheckAccount(u)
 	if !check {
 		return errors.New("This gmail already create account before!!")
 	}
@@ -131,7 +131,7 @@ func (u *Account) RegisterStaff() error {
 }
 
 func (u *Account) Login() error {
-	retrievedPassword, _ := checkAccount(u)
+	retrievedPassword, _ := CheckAccount(u)
 	ok := utils.PasswordVerify(u.Password, retrievedPassword)
 	if !ok {
 		return errors.New("Invalid Password!")
@@ -139,7 +139,7 @@ func (u *Account) Login() error {
 	return nil
 }
 
-func checkAccount(a *Account) (string, bool) {
+func CheckAccount(a *Account) (string, bool) {
 	CumtomersQuery := `
 	SELECT id, password FROM customers
 	WHERE gmail = ?
@@ -193,6 +193,24 @@ func checkAccount(a *Account) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func (u *Account) ResetPassword() error {
+	query := `UPDATE customers SET password = ? WHERE gmail = ?`
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		panic(err)
+	}
+	defer stmt.Close()
+	hashPassword, err := utils.HashPassword(u.Password)
+	if err != nil {
+		panic(err)
+	}
+	_, err = stmt.Exec(hashPassword, u.Email)
+	if err != nil {
+		panic(err)
+	}
+	return nil
 }
 
 func GetAllAccounts() ([]Account, error) {

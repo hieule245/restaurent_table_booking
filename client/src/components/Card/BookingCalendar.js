@@ -12,6 +12,7 @@ const BookingCalendar = () => {
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [selectedDay, setSelectedDay] = useState(null);
     const [bookings, setBookings] = useState({});
+    const [hasBooking, setHasBooking] = useState(false); // Kiểm tra xem có chọn giờ không
 
     const getDaysInMonth = (month) => new Date(currentYear, month, 0).getDate();
     const days = Array.from({ length: getDaysInMonth(selectedMonth) }, (_, i) => i + 1);
@@ -25,12 +26,14 @@ const BookingCalendar = () => {
         if (!selectedDay) return;
 
         const key = `${selectedMonth}-${selectedDay}`;
-        setBookings((prev) => ({
-            ...prev,
-            [key]: prev[key]?.includes(timeSlot)
+        setBookings((prev) => {
+            const updatedBookings = prev[key]?.includes(timeSlot)
                 ? prev[key].filter((t) => t !== timeSlot)
-                : [...(prev[key] || []), timeSlot],
-        }));
+                : [...(prev[key] || []), timeSlot];
+
+            setHasBooking(updatedBookings.length > 0); // Kiểm tra nếu có ít nhất 1 khung giờ
+            return { ...prev, [key]: updatedBookings };
+        });
     };
 
     return (
@@ -101,6 +104,13 @@ const BookingCalendar = () => {
                                         );
                                     })}
                                 </div>
+                            </div>
+                        )}
+
+                        {/* Nút xác nhận */}
+                        {hasBooking && (
+                            <div className="text-center mt-4">
+                                <button className="btn btn-primary fw-bold">Xác nhận đặt bàn</button>
                             </div>
                         )}
                     </div>
