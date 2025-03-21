@@ -27,7 +27,8 @@ func createTable() {
 		gmail VARCHAR(50) NOT NULL UNIQUE,
 		name NVARCHAR(50) NOT NULL, 
 		phone VARCHAR(50) NOT NULL,
-		password VARCHAR(250) NOT NULL
+		password VARCHAR(64) NOT NULL,
+		status VARCHAR(10) NOT NULL
 	)	
 	`
 	_, err := DB.Exec(CustomerQuery)
@@ -41,7 +42,7 @@ func createTable() {
 		gmail VARCHAR(50) NOT NULL UNIQUE,
 		name NVARCHAR(50) NOT NULL, 
 		phone VARCHAR(50) NOT NULL,
-		password VARCHAR(250) NOT NULL
+		password VARCHAR(64) NOT NULL
 	)	
 	`
 	_, err = DB.Exec(AdminQuery)
@@ -55,7 +56,8 @@ func createTable() {
 		gmail VARCHAR(50) NOT NULL UNIQUE,
 		name NVARCHAR(50) NOT NULL, 
 		phone VARCHAR(50) NOT NULL,
-		password VARCHAR(250) NOT NULL
+		password VARCHAR(64) NOT NULL,
+		status VARCHAR(10) NOT NULL
 	)	
 	`
 	_, err = DB.Exec(OwnerQuery)
@@ -67,10 +69,10 @@ func createTable() {
 	CREATE TABLE IF NOT EXISTS restaurants (
 		id INTEGER PRIMARY KEY AUTO_INCREMENT,
 		name NVARCHAR(50) NOT NULL, 
-		description VARCHAR(250) NOT NULL,
+		description TEXT,
 		time_start TIME NOT NULL,
 		time_end TIME NOT NULL,
-		location NVARCHAR(250) NOT NULL,
+		location TEXT NOT NULL,
 		owner_id INTEGER NOT NULL,
 		FOREIGN KEY (owner_id) REFERENCES owners(id)
 	)	
@@ -86,7 +88,8 @@ func createTable() {
 		gmail VARCHAR(50) NOT NULL UNIQUE,
 		name NVARCHAR(50) NOT NULL, 
 		phone VARCHAR(50) NOT NULL,
-		password VARCHAR(250) NOT NULL,
+		status VARCHAR(10) NOT NULL,
+		password VARCHAR(64) NOT NULL,
 		restaurant_id INTEGER NOT NULL,
 		FOREIGN KEY (restaurant_id) REFERENCES restaurants(id)
 	)`
@@ -99,24 +102,14 @@ func createTable() {
 	CREATE TABLE IF NOT EXISTS tables (
 		id INTEGER PRIMARY KEY AUTO_INCREMENT,
 		name NVARCHAR(50) NOT NULL, 
-		type INTEGER NOT NULL,
-		seats NVARCHAR(50) NOT NULL,
+		type NVARCHAR(50) NOT NULL,
+		seats INTEGER NOT NULL,
+		description TEXT NOT NULL,
 		restaurant_id INTEGER NOT NULL,
 		FOREIGN KEY (restaurant_id) REFERENCES restaurants(id)
 	)	
 	`
 	_, err = DB.Exec(TableQuery)
-	if err != nil {
-		panic(err)
-	}
-
-	StatusQuery := `
-	CREATE TABLE IF NOT EXISTS status (
-		id INTEGER PRIMARY KEY AUTO_INCREMENT,
-		name NVARCHAR(50) NOT NULL
-	)	
-	`
-	_, err = DB.Exec(StatusQuery)
 	if err != nil {
 		panic(err)
 	}
@@ -128,15 +121,16 @@ func createTable() {
 		book_date DATE NOT NULL, 
 		time_start TIME NOT NULL,
 		time_end TIME NOT NULL,
-		actual_end TIME NOT NULL,
-		price FLOAT NOT NULL,
+		actual_end TIME,
+		price FLOAT,
 		customer_email VARCHAR(50) NOT NULL,
 		table_id INTEGER NOT NULL,
 		FOREIGN KEY (table_id) REFERENCES tables(id),
-		customer_id INTEGER NOT NULL,
+		staff_id INTEGER, 	
+		FOREIGN KEY (staff_id) REFERENCES staffs(id),
+		customer_id INTEGER,
 		FOREIGN KEY (customer_id) REFERENCES customers(id),
-		status_id INTEGER NOT NULL,
-		FOREIGN KEY (status_id) REFERENCES status(id)
+		status INTEGER NOT NULL
 	)	
 	`
 	_, err = DB.Exec(ReservationQuery)

@@ -6,14 +6,13 @@ const Hero = () => {
   return (
     <section className='hero'>
       <div className='display-container'>
-        <h1 className='display-title'>Little Lemon</h1>
-        <h3 className='display-subtitle'>Chicago</h3>
-        <h4 className='display-text'>
-          We are a family owned Mediterranean restaurant, focused on traditional
-          recipes served with a modern twist.
+        <h1 className='display-title'>Welcome to TableBooker</h1>
+        <h3 className='display-subtitle fs-3'>VietNam</h3>
+        <h4 className='display-text fs-4'>
+          Discover and book tables at top restaurants with ease. From cozy cafes to elegant eateries, find the perfect spot for any occasion.
         </h4>
         <LinkR to='/bookings' className='reserve-button'>
-          Reserve a Table
+          Search
         </LinkR>
       </div>
       <div className='image-container'>

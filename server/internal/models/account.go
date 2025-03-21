@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -15,6 +16,7 @@ type Account struct {
 	Phone     string
 	Password  string
 	Role      string
+	Status    string
 	Orther_id int64
 }
 
@@ -23,8 +25,8 @@ func (u *Account) RegisterCustomer() error {
 	if !check {
 		return errors.New("This gmail already create account before!!")
 	}
-	query := `INSERT INTO customers(name,gmail, phone, password) 
-		VALUES (?,?,?,?)`
+	query := `INSERT INTO customers(name, gmail, phone, password, status) 
+		VALUES (?,?,?,?,?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		panic(err)
@@ -36,7 +38,8 @@ func (u *Account) RegisterCustomer() error {
 		panic(err)
 		return err
 	}
-	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword)
+	u.Status = "active"
+	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword, u.Status)
 	if err != nil {
 		panic(err)
 		return err
@@ -51,8 +54,8 @@ func (u *Account) RegisterOwner() error {
 	if !check {
 		return errors.New("This gmail already create account before!!")
 	}
-	query := `INSERT INTO owners(name, gmail, phone, password) 
-		VALUES (?,?,?,?)`
+	query := `INSERT INTO owners(name, gmail, phone, password, status) 
+		VALUES (?,?,?,?,?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		panic(err)
@@ -64,7 +67,8 @@ func (u *Account) RegisterOwner() error {
 		panic(err)
 		return err
 	}
-	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword)
+	u.Status = "active"
+	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword, u.Status)
 	if err != nil {
 		panic(err)
 		return err
@@ -79,8 +83,8 @@ func (u *Account) RegisterAdmin() error {
 	if !check {
 		return errors.New("This gmail already create account before!!")
 	}
-	query := `INSERT INTO admin(name, gmail, phone, password) 
-		VALUES (?,?,?,?)`
+	query := `INSERT INTO admin(name, gmail, phone, password, status) 
+		VALUES (?,?,?,?, ?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		panic(err)
@@ -92,7 +96,7 @@ func (u *Account) RegisterAdmin() error {
 		panic(err)
 		return err
 	}
-	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword)
+	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword, u.Status)
 	if err != nil {
 		panic(err)
 		return err
@@ -107,8 +111,8 @@ func (u *Account) RegisterStaff() error {
 	if !check {
 		return errors.New("This gmail already create account before!!")
 	}
-	query := `INSERT INTO staffs(name, gmail, phone, password, restaurant_id) 
-		VALUES (?,?,?,?,?)`
+	query := `INSERT INTO staffs(name, gmail, phone, password, status, restaurant_id) 
+		VALUES (?,?,?,?,?,?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		panic(err)
@@ -120,7 +124,8 @@ func (u *Account) RegisterStaff() error {
 		panic(err)
 		return err
 	}
-	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword, u.Orther_id)
+	u.Status = "active"
+	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword, u.Status, u.Orther_id)
 	if err != nil {
 		panic(err)
 		return err
@@ -131,8 +136,18 @@ func (u *Account) RegisterStaff() error {
 }
 
 func (u *Account) Login() error {
-	retrievedPassword, _ := CheckAccount(u)
-	ok := utils.PasswordVerify(u.Password, retrievedPassword)
+	retrievedPassword, ok := CheckAccount(u)
+	if ok {
+		return errors.New("Email does not exist")
+	}
+	if u.Status == "inactive" {
+		return errors.New("This account is locked for security. Check your email and contact us.")
+	} else if u.Status == "ban" && u.Role == "staff" {
+		return errors.New("Account deleted. Contact the restaurant owner to restore.")
+	} else if u.Status == "ban" && u.Role == "owner" || u.Status == "ban" && u.Role == "customer" {
+		return errors.New("This account is locked for violation. Check your email and contact us.")
+	}
+	ok = utils.PasswordVerify(u.Password, retrievedPassword)
 	if !ok {
 		return errors.New("Invalid Password!")
 	}
@@ -141,13 +156,13 @@ func (u *Account) Login() error {
 
 func CheckAccount(a *Account) (string, bool) {
 	CumtomersQuery := `
-	SELECT id, password FROM customers
+	SELECT id, password, status FROM customers
 	WHERE gmail = ?
 	`
 	rowCustomer := db.DB.QueryRow(CumtomersQuery, a.Email)
 
 	staffsQuery := `
-	SELECT id, password FROM staffs
+	SELECT id, password, status FROM staffs
 	WHERE gmail = ?
 	`
 	rowStaff := db.DB.QueryRow(staffsQuery, a.Email)
@@ -159,7 +174,7 @@ func CheckAccount(a *Account) (string, bool) {
 	rowAdmin := db.DB.QueryRow(adminsQuery, a.Email)
 
 	ownersQuery := `
-	SELECT id, password FROM owners
+	SELECT id, password, status FROM owners
 	WHERE gmail = ?
 	`
 	rowOwner := db.DB.QueryRow(ownersQuery, a.Email)
@@ -171,17 +186,17 @@ func CheckAccount(a *Account) (string, bool) {
 		a.Role = "admin"
 		return retrievedPassword, false
 	} else {
-		err = rowStaff.Scan(&a.Id, &retrievedPassword)
+		err = rowStaff.Scan(&a.Id, &retrievedPassword, &a.Status)
 		if err == nil {
 			a.Role = "staff"
 			return retrievedPassword, false
 		} else {
-			err = rowOwner.Scan(&a.Id, &retrievedPassword)
+			err = rowOwner.Scan(&a.Id, &retrievedPassword, &a.Status)
 			if err == nil {
 				a.Role = "owner"
 				return retrievedPassword, false
 			} else {
-				err = rowCustomer.Scan(&a.Id, &retrievedPassword)
+				err = rowCustomer.Scan(&a.Id, &retrievedPassword, &a.Status)
 				if err == nil {
 					a.Role = "customer"
 					return retrievedPassword, false
@@ -236,4 +251,37 @@ func GetAllAccounts() ([]Account, error) {
 		users = append(users, u)
 	}
 	return users, nil
+}
+
+func GetUserInformationById(userId int64, role string) (Account, error) {
+	var query string
+	var user Account // Định nghĩa struct chứa dữ liệu user
+
+	// Xác định bảng cần query dựa trên role
+	switch role {
+	case "customer":
+		query = `SELECT id, name, gmail, phone FROM customers WHERE id = ?`
+	case "staff":
+		query = `SELECT id, name, gmail, phone FROM staffs WHERE id = ?`
+	case "admin":
+		query = `SELECT id, name, gmail, phone FROM admin WHERE id = ?`
+	case "owner":
+		query = `SELECT id, name, gmail, phone FROM owners WHERE id = ?`
+	default:
+		return user, errors.New("invalid role")
+	}
+
+	// Thực hiện query
+	row := db.DB.QueryRow(query, userId)
+	err := row.Scan(&user.Id, &user.Name, &user.Email, &user.Phone)
+	if err != nil {
+		return user, errors.New(err.Error())
+	}
+	if err == sql.ErrNoRows {
+		return user, errors.New(err.Error())
+	}
+
+	user.Role = role
+
+	return user, nil
 }

@@ -18,50 +18,85 @@ const Personal = () => {
   }, []);
 
   return (
-    <div>
-      <h1>Personal Information</h1>
+    <div className="container mt-5">
+      <h1 className="text-center mb-4">Personal Information</h1>
       {user ? (
-        <>
-          <p>Name: {user.Name}</p>
-          <p>Role: {user.Role}</p>
-          {user.Role === "customer" && (
+        <div className="card p-4 shadow">
+          <p>
+            <strong>Name:</strong> {user.Name}
+          </p>
+          <p>
+            <strong>Role:</strong> {user.role}
+          </p>
+          {user.role === "customer" && (
             <>
-              <p>Email: {user.Email}</p>
-              <p>Phone: {user.Phone}</p>
-              <p>Other ID: {user.orther_id}</p>
-              <a href="/reset-password">Reset Password</a>
+              <p>
+                <strong>Email:</strong> {user.Email}
+              </p>
+              <p>
+                <strong>Phone:</strong> {user.Phone}
+              </p>
+              <p>
+                <strong>Other ID:</strong> {user.orther_id}
+              </p>
+              <a href="/reset-password" className="btn btn-primary mt-3">
+                Reset Password
+              </a>
             </>
           )}
-          {user.Role === "owner" && (
+          {user.role === "owner" && (
             <>
-              <p>Email: {user.Email}</p>
-              <p>Phone: {user.Phone}</p>
-              <p>Other ID: {user.orther_id}</p>
-              <p>Owner-specific information here</p>
+              <p>
+                <strong>Email:</strong> {user.Email}
+              </p>
+              <p>
+                <strong>Phone:</strong> {user.Phone}
+              </p>
+              <p>
+                <strong>Other ID:</strong> {user.orther_id}
+              </p>
+              <p className="text-muted">Owner-specific information here</p>
             </>
           )}
-          {user.Role === "staff" && (
+          {user.role === "staff" && (
             <>
-              <p>Email: {user.Email}</p>
-              <p>Phone: {user.Phone}</p>
-              <p>Other ID: {user.orther_id}</p>
-              <p>Staff-specific information here</p>
+              <p>
+                <strong>Email:</strong> {user.Email}
+              </p>
+              <p>
+                <strong>Phone:</strong> {user.Phone}
+              </p>
+              <p>
+                <strong>Other ID:</strong> {user.orther_id}
+              </p>
+              <p className="text-muted">Staff-specific information here</p>
             </>
           )}
-          {user.Role === "admin" && (
+          {user.role === "admin" && (
             <>
-              <p>Email: {user.Email}</p>
-              <p>Phone: {user.Phone}</p>
-              <p>Other ID: {user.orther_id}</p>
-              <p>Admin-specific information here</p>
+              <p>
+                <strong>Email:</strong> {user.Email}
+              </p>
+              <p>
+                <strong>Phone:</strong> {user.Phone}
+              </p>
+              <p>
+                <strong>Other ID:</strong> {user.orther_id}
+              </p>
+              <p className="text-muted">Admin-specific information here</p>
             </>
           )}
-        </>
+        </div>
       ) : (
-        <>
-          <p>Chưa đăng nhập</p>
-          <button onClick={() => navigate("/login")}>Login</button>
-        </>
+        <div className="text-center">
+          <p className="text-danger">Chưa đăng nhập</p>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </button>
+        </div>
       )}
     </div>
   );
