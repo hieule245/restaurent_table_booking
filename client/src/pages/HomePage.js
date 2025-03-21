@@ -1,9 +1,11 @@
 import NavBar from '../components/NavBar/NavBar';
 import Hero from '../components/Hero/Hero';
+import KeyFeatures from '../components/KeyFeatures/KeyFeatures';
 import Specials from '../components/Specials/Specials';
 import Testimonials from '../components/Testimonials/Testimonials';
 import About from '../components/About/About';
 import Footer from '../components/Footer/Footer';
+import Carousel from '../components/CarouselCard/CarouselCard';
 
 const HomePage = () => {
   return (
@@ -11,6 +13,8 @@ const HomePage = () => {
       <NavBar />
       <main>
         <Hero />
+        <KeyFeatures />
+        <Carousel />
         <Specials />
         <Testimonials />
         <About />

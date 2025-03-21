@@ -285,3 +285,25 @@ func GetUserInformationById(userId int64, role string) (Account, error) {
 
 	return user, nil
 }
+
+func SetAccountStatusInactive(email, role string) error {
+	var query string
+	switch role {
+	case "customer":
+		query = `UPDATE customers SET status = 'inactive' WHERE gmail = ?`
+	case "staff":
+		query = `UPDATE staffs SET status = 'inactive' WHERE gmail = ?`
+	case "owner":
+		query = `UPDATE owners SET status = 'inactive' WHERE gmail = ?`
+	}
+
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(email)
+	return err
+}

@@ -4,6 +4,7 @@ header {
   width: 100%;
   background-color: #F2CED1;
   border-bottom: 1px black;
+  z-index: 1000;
 }
 
 /* NAV */

@@ -57,10 +57,10 @@ const ResetPassword = () => {
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card shadow p-4 w-50">
         <div className="card-body">
-          <h3 className="text-center mb-4">Đặt Lại Mật Khẩu</h3>
+          <h3 className="text-center mb-4">Reset your password</h3>
           <form onSubmit={handleSubmit}>
             <div className="input-group mb-3">
-              <label htmlFor="password" className="form-label">Mật Khẩu Mới</label>
+              <label htmlFor="password" className="form-label">New password</label>
               <div className="input-group">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -85,7 +85,7 @@ const ResetPassword = () => {
                   )}
             </div>
             <div className="input-group mb-3">
-              <label htmlFor="confirmPassword" className="form-label">Xác Nhận Mật Khẩu</label>
+              <label htmlFor="confirmPassword" className="form-label">Confim new password</label>
               <div className="input-group">
                 <input
                   type={showConfirmPassword ? "text" : "password"}
@@ -107,7 +107,7 @@ const ResetPassword = () => {
               </div>
               {error.confirmpassword && <small className="text-danger">{error.confirmpassword}</small>}
             </div>
-            <button type="submit" className="btn btn-success w-100">Đặt Lại Mật Khẩu</button>
+            <button type="submit" className="btn btn-success w-100">Reset Password</button>
           </form>
         </div>
       </div>

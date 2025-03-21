@@ -94,7 +94,7 @@ const NavBar = () => {
         duration={550}
         onClick={() => HandleLogout()}
         aria-label="Signup"
-        className=" mx-5 btn btn-danger"
+        className="ms-2 btn btn-danger"
       >
         Logout
       </Link>
@@ -103,25 +103,26 @@ const NavBar = () => {
 
   return (
     <>
-      <header ref={navRef} >
-        <nav className="container d-flex justify-content-center align-items-center pt-3">
-          <div className="pb-2">
-            <FaUtensils className="nav-icon fs-1" />
-            <span className="nav-title">TableBooker App</span>
-          </div>
-
-          <ul className="nav-links-container col-10 justify-content-end">{navLinks}</ul>
-          {/* HAMBURGER MENU */}
-          <div onClick={() => setNav(!nav)} aria-label="On Click">
-            <HiOutlineMenuAlt1
-              size={30}
-              style={{
-                position: "fixed",
-                top: "25",
-                right: "10",
-              }}
-              className={`${nav ? "hamburger-off" : "hamburger-on"}`}
-            />
+      <header className="shadow-sm" ref={navRef} >
+        <nav className="container ">
+          <div className="d-flex justify-content-between align-items-center">
+            <div className="">
+              <FaUtensils className="nav-icon fs-1" />
+            </div>
+            <div className="d-flex justify-content-center">
+              <span className="fw-bolder fs-3">TableBooker App</span>
+            </div>
+            <div className="pt-3">
+              <ul className="d-flex align-items-center">{navLinks}</ul>
+              <div onClick={() => setNav(!nav)} aria-label="On Click">
+                <HiOutlineMenuAlt1
+                style={{
+                  position: "fixed",
+                }}
+                  className={`${nav ? "hamburger-off" : "hamburger-on"}`}
+                />
+              </div>
+            </div>
           </div>
         </nav>
       </header>
@@ -132,9 +133,6 @@ const NavBar = () => {
           size={30}
           style={{
             color: "#edefee",
-            position: "fixed",
-            top: "38",
-            right: "10",
             zIndex: "99",
             cursor: "pointer",
           }}
