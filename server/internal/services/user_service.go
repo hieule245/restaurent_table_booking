@@ -161,6 +161,7 @@ func Register(context *gin.Context) {
 	} else {
 		err = u.RegisterStaff()
 		if err != nil {
+			
 			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}

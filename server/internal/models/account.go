@@ -83,8 +83,8 @@ func (u *Account) RegisterAdmin() error {
 	if !check {
 		return errors.New("This gmail already create account before!!")
 	}
-	query := `INSERT INTO admin(name, gmail, phone, password, status) 
-		VALUES (?,?,?,?, ?)`
+	query := `INSERT INTO admin(name, gmail, phone, password) 
+		VALUES (?,?,?,?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		panic(err)
@@ -96,7 +96,7 @@ func (u *Account) RegisterAdmin() error {
 		panic(err)
 		return err
 	}
-	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword, u.Status)
+	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword)
 	if err != nil {
 		panic(err)
 		return err
@@ -140,6 +140,7 @@ func (u *Account) Login() error {
 	if ok {
 		return errors.New("Email does not exist")
 	}
+
 	if u.Status == "inactive" {
 		return errors.New("This account is locked for security. Check your email and contact us.")
 	} else if u.Status == "ban" && u.Role == "staff" {

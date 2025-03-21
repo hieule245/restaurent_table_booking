@@ -3,8 +3,8 @@ content-Type: application/json
 
 {
     "Name": "Tran Vu Thanh Lam",
-	"Email": "lamtvt@runsystem.net",
-	"Password":"1",
+	"Email": "lamtvt@runsystem.nett",
+"Password":"1",
 	"Phone": "0921658465",
-	"Role":  "customer"
+	"Role":  "owner"
 }

@@ -71,7 +71,13 @@ func AdminGetCustomer(context *gin.Context) {
 
 }
 func AdminGetRestaurants(context *gin.Context) {
-	context.JSON(200, gin.H{"message": "ok"})
+	var res []models.Restaurant
+	res, err := models.GetAllRestaurants()
+	if err != nil {
+		context.JSON(http.StatusBadGateway, gin.H{"message": "Can't take any restaurants"})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"restaurants": res})
 
 }
 func AdminGetRestaurant(context *gin.Context) {
