@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   backend:
-    build: ./backend
+    build: ./server
     ports:
       - "8080:8080"
     environment:
@@ -14,7 +14,7 @@ services:
       - db
 
   frontend:
-    build: ./frontend
+    build: ./client
     ports:
       - "3000:3000"
     stdin_open: true
@@ -29,4 +29,4 @@ services:
       MYSQL_ROOT_PASSWORD: 123
       MYSQL_DATABASE: restaurant_bookings
     ports:
-      - "3306:3306"
+      - "3307:3306"

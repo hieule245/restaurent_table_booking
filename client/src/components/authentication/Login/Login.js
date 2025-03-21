@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
-import $ from "jquery";
+// import $ from "jquery";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useCallback } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
@@ -11,7 +12,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const LoginPage = () => {
-  const navigate = useNavigate(); // Dùng để chuyển hướng trang
+  const navigate = useNavigate();
+
+  const handleNavigation = useCallback((role) => {
+    if (role === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/");
+    }
+  }, [navigate]);
+
   let [email, setEmail] = useState("");
   let [password, setPassword] = useState("");
   let [showPassword, setShowPassword] = useState(false); // State for showing password
@@ -22,17 +32,14 @@ const LoginPage = () => {
     axios
       .get("http://localhost:8080/me", { withCredentials: true })
       .then((res) => {
-        setTimeout(() => { }, 2000);
-        if (res.data.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/");
-        }
+        setTimeout(() => {
+          handleNavigation(res.data.role);
+        }, 2000);
       })
       .catch((err) => {
         console.log("login dum tui", err);
       });
-  }, []);
+  }, [handleNavigation]);
 
   const isValidPassword = (password) => {
     const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;

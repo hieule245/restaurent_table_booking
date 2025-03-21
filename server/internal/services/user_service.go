@@ -25,7 +25,7 @@ func init() {
 	// Tạo một goroutine chạy ngầm để xóa các mã PIN hết hạn
 	go func() {
 		for {
-			time.Sleep(1 * time.Minute) // Kiểm tra mỗi phút
+			time.Sleep(2 * time.Minute) // Kiểm tra mỗi phút
 			pinStorage.Range(func(key, value interface{}) bool {
 				email := key.(string)
 				pinData := value.(PinData)
@@ -69,7 +69,7 @@ func ForgotPassword(context *gin.Context) {
 
 	pinData := PinData{
 		Pin:      pin,
-		ExpireAt: time.Now().Add(1 * time.Minute),
+		ExpireAt: time.Now().Add(2 * time.Minute),
 		Attempt:  0,
 	}
 	// Lưu mã PIN vào bộ nhớ tạm (kèm thời gian hết hạn)
