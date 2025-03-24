@@ -68,7 +68,7 @@ func (booking Booking) Check() error {
 		return err
 	}
 	if count > 0 {
-		return errors.New("Booking already existed!")
+		return errors.New("booking already existed for this table, date and time")
 	}
 	return nil
 }

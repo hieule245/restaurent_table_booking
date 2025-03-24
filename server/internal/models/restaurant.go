@@ -22,7 +22,7 @@ func GetAllRestaurants() ([]Restaurant, error) {
 	query := `SELECT * FROM restaurants`
 	rows, err := db.DB.Query(query)
 	if err != nil {
-		return res, errors.New("Can't catch any information")
+		return res, errors.New("can't catch any information")
 	}
 	defer rows.Close()
 
@@ -30,7 +30,7 @@ func GetAllRestaurants() ([]Restaurant, error) {
 		var e Restaurant
 		err = rows.Scan(&e.Id, &e.Name, &e.Description, &e.Started, &e.Ended, &e.Location, &e.Owner_id)
 		if err != nil {
-			return res, errors.New("Can't catch any information")
+			return res, errors.New("can't catch any information")
 		}
 		res = append(res, e)
 	}
