@@ -34,97 +34,166 @@ const TestAPI = () => {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+    <div
+      style={{
+        padding: "20px",
+        fontFamily: "Arial, sans-serif",
+        height: "100vh",
+      }}
+      className="bg-dark text-white"
+    >
       <div className="text-center">
         <h1>API Tester</h1>
 
         <h2>🔍 Test REST API bằng Axios</h2>
       </div>
-
+      {/* Users */}
       <div name="container" className="">
         <h2>👤 Test REST API cho User (Người dùng)</h2>
-        {/* Phần test cho các API khác (ví dụ login, nhà hàng, bàn ăn) */}
-        <button
-          className="btn btn-outline-primary mx-2"
-          onClick={() =>
-            callAPI("POST", "/login", {
-              Email: "lamtvt@runsystem.nett",
-              Password: "1",
-            })
-          }
-        >
-          POST / owner login
-        </button>
-        <button
-          className="btn btn-outline-primary mx-2"
-          onClick={() =>
-            callAPI("POST", "/login", {
-              Email: "lamtvt@runsystem.net",
-              Password: "1",
-            })
-          }
-        >
-          POST / cus login
-        </button>
-        <button
-          className="btn btn-outline-primary mx-2"
-          onClick={() =>
-            callAPI("POST", "/login", {
-              Email: "lamtvt@runsystem.nettt",
-              Password: "1",
-            })
-          }
-        >
-          POST / admin login
-        </button>
+        <div className="row text-center">
+          {/* generic */}
+          <div name="generic" className="col">
+            <h1 className="border bg-secondary">Generic</h1>
+            {/* log out */}
+            <button
+              className="btn btn-danger mx-2"
+              onClick={() => callAPI("POST", "/logout", {})}
+            >
+              POST / Logout
+            </button>
+            {/* get me */}
+            <button
+              className="btn btn-primary mx-2"
+              onClick={() => callAPI("GET", "/me")}
+            >
+              GET /me
+            </button>
+          </div>
 
-        <button
-          className="btn btn-outline-primary mx-2"
-          onClick={() => callAPI("GET", "/me")}
-        >
-          GET /me
-        </button>
+          {/* login */}
+          <div name="login" className="col">
+            <h1 className="border bg-secondary">Login</h1>
 
-        <button
-          className="btn btn-outline-primary mx-2"
-          onClick={() =>
-            callAPI("POST", "/register", {
-              Email: "lamtvt@runsystem.nettt",
-              Password: "1",
-              Name: "Tran Vu Thanh Lam",
-              Phone: "0921658465",
-              Role: "owner",
-            })
-          }
-        >
-          POST / admin register
-        </button>
+            {/* Customer login */}
+            <button
+              className="btn btn-primary mx-2"
+              onClick={() =>
+                callAPI("POST", "/login", {
+                  Email: "lamtvt@runsystem.net",
+                  Password: "1",
+                })
+              }
+            >
+              POST / cus login
+            </button>
+            {/* Owner login */}
+            <button
+              className="btn btn-primary mx-2"
+              onClick={() =>
+                callAPI("POST", "/login", {
+                  Email: "lamtvt@runsystem.nett",
+                  Password: "1",
+                })
+              }
+            >
+              POST / owner login
+            </button>
+            {/* Admin login */}
+            <button
+              className="btn btn-primary mx-2"
+              onClick={() =>
+                callAPI("POST", "/login", {
+                  Email: "lamtvt@runsystem.nettt",
+                  Password: "1",
+                })
+              }
+            >
+              POST / admin login
+            </button>
+          </div>
+
+          {/* register */}
+          <div name="register" className="col">
+            <h1 className="border bg-secondary">Register</h1>
+            {/* customer register */}
+            <button
+              className="btn btn-primary mx-2"
+              onClick={() =>
+                callAPI("POST", "/register", {
+                  Email: "lamtvt@runsystem.net",
+                  Password: "1",
+                  Name: "Tran Vu Thanh Lam",
+                  Phone: "0921658465",
+                  Role: "customer",
+                })
+              }
+            >
+              POST / customer register
+            </button>
+            {/* owner register */}
+            <button
+              className="btn btn-primary mx-2"
+              onClick={() =>
+                callAPI("POST", "/register", {
+                  Email: "lamtvt@runsystem.nett",
+                  Password: "1",
+                  Name: "Tran Vu Thanh Lam",
+                  Phone: "0921658465",
+                  Role: "owner",
+                })
+              }
+            >
+              POST / owner register
+            </button>
+            {/* admin register */}
+            <button
+              className="btn btn-primary mx-2"
+              onClick={() =>
+                callAPI("POST", "/register", {
+                  Email: "lamtvt@runsystem.nettt",
+                  Password: "1",
+                  Name: "Tran Vu Thanh Lam",
+                  Phone: "0921658465",
+                  Role: "admin",
+                })
+              }
+            >
+              POST / admin register
+            </button>
+          </div>
+        </div>
       </div>
       <hr />
-
+      {/* Admin */}
       <div name="container" className="">
         <h2>👤 Test REST API cho ADMIN</h2>
-
+        {/* get all restaurants */}
         <button
-          className="btn btn-outline-primary mx-2"
-          onClick={() => callAPI("GET", "restaurants")}
+          className="btn btn-primary mx-2"
+          onClick={() => callAPI("GET", "/admin/restaurants")}
         >
           GET / All Restaurants
         </button>
-
+        {/* get all user */}
+        <button
+          className="btn btn-primary mx-2"
+          onClick={() => callAPI("GET", "/admin/users")}
+        >
+          GET / All Users
+        </button>
         {/* <button
-          className="btn btn-outline-primary mx-2"
+          className="btn btn-primary mx-2"
           onClick={() => callAPI("GET", "/owners/1/restaurants/2")}
         >
           GET / Restaurant ID 2
         </button> */}
       </div>
       <hr />
-
+      {/* Owner */}
       <div name="container" className="">
         <h2>👤 Test REST API cho Owner - RESTAURANT</h2>
         <button
-          className="btn btn-outline-success mx-2"
+          className="btn btn-success mx-2"
           onClick={() =>
             callAPI("POST", "/owners/1/restaurants", {
               name: "Lam's Restaurant 2",
@@ -132,6 +201,7 @@ const TestAPI = () => {
               owner_id: 1,
               Started: "08:00",
               Ended: "22:00",
+              Location: "Da Nang",
             })
           }
         >
@@ -139,7 +209,7 @@ const TestAPI = () => {
         </button>
 
         <button
-          className="btn btn-outline-primary mx-2"
+          className="btn btn-primary mx-2"
           onClick={() =>
             callAPI("PUT", "/owners/1/restaurants/2", {
               name: "Lam's Restaurant UPDATED",
@@ -154,21 +224,21 @@ const TestAPI = () => {
         </button>
 
         <button
-          className="btn btn-outline-primary mx-2"
+          className="btn btn-primary mx-2"
           onClick={() => callAPI("GET", "/owners/1/restaurants")}
         >
           GET / All Restaurants
         </button>
 
         <button
-          className="btn btn-outline-primary mx-2"
+          className="btn btn-primary mx-2"
           onClick={() => callAPI("GET", "/owners/1/restaurants/2")}
         >
           GET / Restaurant ID 2
         </button>
 
         <button
-          className="btn btn-outline-danger mx-2"
+          className="btn btn-danger mx-2"
           onClick={() => callAPI("DELETE", "/owners/1/restaurants/2")}
         >
           DELETE / Restaurant ID 2
@@ -180,13 +250,14 @@ const TestAPI = () => {
         <h2>🪑 Test REST API cho Owner - TABLES (Bàn ăn)</h2>
 
         <button
-          className="btn btn-outline-success mx-2"
+          className="btn btn-success mx-2"
           onClick={() =>
             callAPI("POST", "/owners/1/restaurants/2/tables", {
               name: "Bàn VIP 1",
               type: "VIP",
               seats: 6,
               restaurant_id: 2,
+              description: "Bàn VIP 1",
             })
           }
         >
@@ -194,33 +265,34 @@ const TestAPI = () => {
         </button>
 
         <button
-          className="btn btn-outline-primary mx-2"
+          className="btn btn-primary mx-2"
           onClick={() => callAPI("GET", "/owners/1/restaurants/2/tables")}
         >
           GET / All Tables (Nhà hàng ID 2)
         </button>
 
         <button
-          className="btn btn-outline-primary mx-2"
+          className="btn btn-primary mx-2"
           onClick={() => callAPI("GET", "/owners/1/restaurants/2/tables/5")}
         >
           GET / Table ID 5 (Nhà hàng ID 2)
         </button>
 
         <button
-          className="btn btn-outline-danger mx-2"
+          className="btn btn-danger mx-2"
           onClick={() => callAPI("DELETE", "/owners/1/restaurants/2/tables/5")}
         >
           DELETE / Table ID 5 (Nhà hàng ID 2)
         </button>
       </div>
 
+      {/* Customer */}
       <hr />
       <div name="container" className="">
         <h2>📦 Test API cho Customer Bookings</h2>
         {/* Tạo đơn đặt bàn: Gửi POST /restaurants/:restaurant_id/bookings */}
         <button
-          className="btn btn-outline-primary mx-2"
+          className="btn btn-primary mx-2"
           onClick={() =>
             callAPI("POST", "/restaurants/2/bookings", {
               customer_id: 1,
@@ -241,7 +313,7 @@ const TestAPI = () => {
 
         {/* Lấy danh sách đặt bàn của khách hàng: GET /customers/:customer_id/bookings */}
         <button
-          className="btn btn-outline-primary mx-2"
+          className="btn btn-primary mx-2"
           onClick={() => callAPI("GET", "/customers/1/bookings")}
         >
           GET / Bookings for Customer ID 1
@@ -259,6 +331,7 @@ const TestAPI = () => {
             borderRadius: "5px",
             marginTop: "10px",
             fontSize: "1.2em",
+            color: "black",
           }}
         >
           {JSON.stringify(response, null, 2)}
@@ -273,7 +346,7 @@ export default TestAPI;
 // <div name="container" className="">
 //   <h2>👤 Test REST API cho Owner - RESTAURANT</h2>
 //   <button
-//     className="btn btn-outline-success mx-2"
+//     className="btn btn-success mx-2"
 //     onClick={() =>
 //       callAPI("POST", "/owners/1/restaurants", {
 //         name: "Lam's Restaurant 2",
@@ -288,7 +361,7 @@ export default TestAPI;
 //   </button>
 
 //   <button
-//     className="btn btn-outline-primary mx-2"
+//     className="btn btn-primary mx-2"
 //     onClick={() =>
 //       callAPI("PUT", "/owners/1/restaurants/2", {
 //         name: "Lam's Restaurant UPDATED",
@@ -303,21 +376,21 @@ export default TestAPI;
 //   </button>
 
 //   <button
-//     className="btn btn-outline-primary mx-2"
+//     className="btn btn-primary mx-2"
 //     onClick={() => callAPI("GET", "/owners/1/restaurants")}
 //   >
 //     GET / All Restaurants
 //   </button>
 
 //   <button
-//     className="btn btn-outline-primary mx-2"
+//     className="btn btn-primary mx-2"
 //     onClick={() => callAPI("GET", "/owners/1/restaurants/2")}
 //   >
 //     GET / Restaurant ID 2
 //   </button>
 
 //   <button
-//     className="btn btn-outline-danger mx-2"
+//     className="btn btn-danger mx-2"
 //     onClick={() => callAPI("DELETE", "/owners/1/restaurants/2")}
 //   >
 //     DELETE / Restaurant ID 2
@@ -329,7 +402,7 @@ export default TestAPI;
 //   <h2>🪑 Test REST API cho Owner - TABLES (Bàn ăn)</h2>
 
 //   <button
-//     className="btn btn-outline-success mx-2"
+//     className="btn btn-success mx-2"
 //     onClick={() =>
 //       callAPI("POST", "/owners/1/restaurants/2/tables", {
 //         name: "Bàn VIP 1",
@@ -343,21 +416,21 @@ export default TestAPI;
 //   </button>
 
 //   <button
-//     className="btn btn-outline-primary mx-2"
+//     className="btn btn-primary mx-2"
 //     onClick={() => callAPI("GET", "/owners/1/restaurants/2/tables")}
 //   >
 //     GET / All Tables (Nhà hàng ID 2)
 //   </button>
 
 //   <button
-//     className="btn btn-outline-primary mx-2"
+//     className="btn btn-primary mx-2"
 //     onClick={() => callAPI("GET", "/owners/1/restaurants/2/tables/5")}
 //   >
 //     GET / Table ID 5 (Nhà hàng ID 2)
 //   </button>
 
 //   <button
-//     className="btn btn-outline-danger mx-2"
+//     className="btn btn-danger mx-2"
 //     onClick={() => callAPI("DELETE", "/owners/1/restaurants/2/tables/5")}
 //   >
 //     DELETE / Table ID 5 (Nhà hàng ID 2)
@@ -369,7 +442,7 @@ export default TestAPI;
 //   <h2>📦 Test API cho Customer Bookings</h2>
 //   {/* Tạo đơn đặt bàn: Gửi POST /restaurants/:restaurant_id/bookings */}
 //   <button
-//     className="btn btn-outline-primary mx-2"
+//     className="btn btn-primary mx-2"
 //     onClick={() =>
 //       callAPI("POST", "/restaurants/2/bookings", {
 //         customer_id: 1,
@@ -390,7 +463,7 @@ export default TestAPI;
 
 //   {/* Lấy danh sách đặt bàn của khách hàng: GET /customers/:customer_id/bookings */}
 //   <button
-//     className="btn btn-outline-primary mx-2"
+//     className="btn btn-primary mx-2"
 //     onClick={() => callAPI("GET", "/customers/1/bookings")}
 //   >
 //     GET / Bookings for Customer ID 1

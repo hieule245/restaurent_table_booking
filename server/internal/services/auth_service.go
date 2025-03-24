@@ -108,29 +108,35 @@ func Logout(c *gin.Context) {
 }
 
 func Login(context *gin.Context) {
-	var u models.Account
-	err := context.ShouldBindBodyWithJSON(&u)
+	_, err := context.Cookie("token")
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
-		return
-	}
-	err = u.Login()
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-	// create token
-	token, err := utils.GenerateToken(u.Id, u.Email, u.Role)
-	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": "Can't generate token"})
-		return
-	}
+		var u models.Account
+		
+		err = context.ShouldBindBodyWithJSON(&u)
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
+			return
+		}
+		err = u.Login()
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		// create token
+		token, err := utils.GenerateToken(u.Id, u.Email, u.Role)
+		if err != nil {
+			context.JSON(http.StatusUnauthorized, gin.H{"message": "Can't generate token"})
+			return
+		}
 
-	// save token into cookie
-	context.SetCookie("token", token, 7200, "/", "localhost", false, true)
+		// save token into cookie
+		context.SetCookie("token", token, 7200, "/", "localhost", false, true)
 
-	context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!", "tokens": token, "role": u.Role})
-	// context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!"})
+		context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!", "tokens": token, "role": u.Role})
+		// context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!"})
+	} else {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "You have already logged in"})
+	}
 }
 
 func Register(context *gin.Context) {
@@ -161,7 +167,7 @@ func Register(context *gin.Context) {
 	} else {
 		err = u.RegisterStaff()
 		if err != nil {
-			
+
 			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}

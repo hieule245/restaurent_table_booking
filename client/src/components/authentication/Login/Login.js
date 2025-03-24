@@ -14,13 +14,16 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 const LoginPage = () => {
   const navigate = useNavigate();
 
-  const handleNavigation = useCallback((role) => {
-    if (role === "admin") {
-      navigate("/admin");
-    } else {
-      navigate("/");
-    }
-  }, [navigate]);
+  const handleNavigation = useCallback(
+    (role) => {
+      if (role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+    },
+    [navigate]
+  );
 
   let [email, setEmail] = useState("");
   let [password, setPassword] = useState("");
@@ -42,7 +45,8 @@ const LoginPage = () => {
   }, [handleNavigation]);
 
   const isValidPassword = (password) => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return passwordRegex.test(password);
   };
 
@@ -50,8 +54,6 @@ const LoginPage = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
-
-
 
   const HandleLogin = async (e) => {
     e.preventDefault();
@@ -64,7 +66,8 @@ const LoginPage = () => {
     if (!password) {
       validationErrors.password = "Password is required.";
     } else if (!isValidPassword(password)) {
-      validationErrors.password = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&).";
+      validationErrors.password =
+        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&).";
     }
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -160,10 +163,14 @@ const LoginPage = () => {
                       style={{ cursor: "pointer", borderLeft: 0 }}
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+                      <FontAwesomeIcon
+                        icon={showPassword ? faEye : faEyeSlash}
+                      />
                     </span>
                   </div>
-                  {errors.password && <small className="text-danger">{errors.password}</small>}
+                  {errors.password && (
+                    <small className="text-danger">{errors.password}</small>
+                  )}
                 </div>
                 <div className="form-group my-2">
                   <a href="/forgot-password">

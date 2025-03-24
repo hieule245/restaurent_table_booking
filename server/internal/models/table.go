@@ -14,6 +14,7 @@ type Table struct {
 	Type         string `json:"type"`
 	Seats        int    `json:"seats"`
 	RestaurantID int    `json:"restaurant_id"`
+	Description  string
 }
 
 // 📌 Kiểm tra nhà hàng có tồn tại không
@@ -73,14 +74,14 @@ func (t *Table) CreateTable() error {
 		return errors.New("Restaurant does not exist")
 	}
 
-	query := `INSERT INTO tables (name, type, seats, restaurant_id) VALUES (?, ?, ?, ?)`
+	query := `INSERT INTO tables (name, type, seats, restaurant_id, description) VALUES (?, ?, ?, ?, ?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(t.Name, t.Type, t.Seats, t.RestaurantID)
+	result, err := stmt.Exec(t.Name, t.Type, t.Seats, t.RestaurantID, t.Description)
 	if err != nil {
 		return err
 	}

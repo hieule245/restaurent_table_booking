@@ -231,9 +231,12 @@ func (u *Account) ResetPassword() error {
 
 func GetAllAccounts() ([]Account, error) {
 	sqlQuery := `
-	SELECT * FROM users
+	SELECT id, gmail, name, phone, status, 'owner' FROM owners
 	UNION
-	SELECT * FROM admin`
+	SELECT id, gmail, name, phone, status, 'customer' FROM customers
+	UNION
+	SELECT id, gmail, name, phone, status, 'staffs' FROM staffs
+	`
 	rows, err := db.DB.Query(sqlQuery)
 	if err != nil {
 		return nil, err
@@ -245,7 +248,7 @@ func GetAllAccounts() ([]Account, error) {
 
 	for rows.Next() {
 		var u Account
-		err := rows.Scan(&u.Id, &u.Email, &u.Name, &u.Phone, &u.Password)
+		err := rows.Scan(&u.Id, &u.Email, &u.Name, &u.Phone, &u.Status, &u.Role)
 		if err != nil {
 			return nil, err
 		}
