@@ -34,13 +34,12 @@ func ResendPin(context *gin.Context) {
 	// Kiểm tra xem email có tồn tại không
 	_, exists := pinStorage.Load(input.Email)
 	if !exists {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Email không hợp lệ hoặc PIN đã hết hạn"})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid email or PIN has expired."})
 		return
 	}
 
 	// Tạo mã PIN mới
 	newPin := pkg.RandomPin()
-	fmt.Println("Mã PIN mới được gửi cho:", input.Email)
 	pkg.SendMailSimple(input.Email, newPin)
 
 	// Cập nhật bộ nhớ tạm
@@ -51,51 +50,7 @@ func ResendPin(context *gin.Context) {
 	}
 	pinStorage.Store(input.Email, newPinData)
 
-	context.JSON(http.StatusOK, gin.H{"message": "Mã PIN mới đã được gửi!"})
-}
-
-func ResetPassword(context *gin.Context) {
-	var u models.Account
-	err := context.ShouldBindBodyWithJSON(&u)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
-		return
-	}
-	err = u.ResetPassword()
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't reset password"})
-		return
-	}
-	context.JSON(http.StatusOK, gin.H{"Message": "Reset password successfully !!"})
-}
-
-func GetAllAccounts(context *gin.Context) {
-	u, _ := models.GetAllAccounts()
-	context.JSON(http.StatusOK, gin.H{"users": u})
-}
-
-func GetUserProfile(c *gin.Context) {
-	c.GetString("role")
-	role := c.GetString("role")
-	if role == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get role"})
-		return
-	}
-	c.GetInt64("userID")
-	userID := c.GetInt64("userID")
-	if userID == 0 {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get user id"})
-		return
-	}
-
-	var user models.Account
-	user, err := models.GetUserInformationById(userID, role)
-	if err != nil {
-		// "Can not find user"
-		c.JSON(http.StatusUnauthorized, gin.H{"error (get User Profile)": err.Error()})
-	}
-
-	c.JSON(http.StatusOK, gin.H{"user": user})
+	context.JSON(http.StatusOK, gin.H{"message": "A new PIN has been sent!"})
 }
 
 // LogoutHandler xử lý đăng xuất
@@ -131,41 +86,6 @@ func Login(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!", "tokens": token, "role": u.Role})
 	// context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!"})
-}
-
-func Register(context *gin.Context) {
-	var u models.Account
-	err := context.ShouldBindBodyWithJSON(&u)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
-		return
-	}
-	if u.Role == "customer" {
-		err = u.RegisterCustomer()
-		if err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-	} else if u.Role == "admin" {
-		err = u.RegisterAdmin()
-		if err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-	} else if u.Role == "owner" {
-		err = u.RegisterOwner()
-		if err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-	} else {
-		err = u.RegisterStaff()
-		if err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-	}
-	context.JSON(http.StatusCreated, gin.H{"Message": "Register successfully !!"})
 }
 
 func ForgotPassword(context *gin.Context) {
@@ -260,4 +180,161 @@ func CheckPin(context *gin.Context) {
 	pinStorage.Delete(input.Email)
 
 	context.JSON(http.StatusOK, gin.H{"message": "Check successfully !!"})
+}
+
+func ResetPassword(context *gin.Context) {
+	var u models.Account
+	err := context.ShouldBindBodyWithJSON(&u)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
+		return
+	}
+	err = u.ResetPassword()
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't reset password"})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"Message": "Reset password successfully !!"})
+}
+
+func GetAllAccounts(context *gin.Context) {
+	u, _ := models.GetAllAccounts()
+	context.JSON(http.StatusOK, gin.H{"users": u})
+}
+
+func GetUserProfile(context *gin.Context) {
+	context.GetString("role")
+	role := context.GetString("role")
+	if role == "" {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get role"})
+		return
+	}
+	context.GetInt64("userID")
+	userID := context.GetInt64("userID")
+	if userID == 0 {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get user id"})
+		return
+	}
+
+	var user models.Account
+	user, err := models.GetUserInformationById(userID, role)
+	if err != nil {
+		// "Can not find user"
+		context.JSON(http.StatusUnauthorized, gin.H{"error (get User Profile)": err.Error()})
+	}
+
+	context.JSON(http.StatusOK, gin.H{"user": user})
+}
+
+func UpdateUserProfile(context *gin.Context) {
+	var acc models.Account
+	err := context.ShouldBindBodyWithJSON(&acc)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
+		return
+	}
+	if acc.Role == "customer" {
+		err = acc.UpdateCustomer()
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+	} else if acc.Role == "owner" {
+		err = acc.UpdateOwner()
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+	} else {
+		err = acc.UpdateStaff()
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+	}
+	context.JSON(http.StatusCreated, gin.H{"Message": "Update successfully !!"})
+}
+
+func ChangePassword(context *gin.Context) {
+	var pass models.NewPassword
+	err := context.ShouldBindBodyWithJSON(&pass)
+	if pass.OldPassword == pass.NewPassword {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "New password should not be the same as the old password"})
+		return
+	}
+	var acc models.Account
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return
+	}
+	acc.Email = claims.Gmail
+	acc.Role = claims.Role
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
+		return
+	}
+
+	if acc.Role == "customer" {
+		err = acc.ChangePassword(pass)
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+	} else if acc.Role == "owner" {
+		err = acc.UpdateOwner()
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+	} else {
+		err = acc.UpdateStaff()
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+	}
+	context.JSON(http.StatusCreated, gin.H{"Message": "Update successfully !!"})
+}
+
+func Register(context *gin.Context) {
+	var u models.Account
+	err := context.ShouldBindBodyWithJSON(&u)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
+		return
+	}
+	if u.Role == "customer" {
+		err = u.RegisterCustomer()
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+	} else if u.Role == "admin" {
+		err = u.RegisterAdmin()
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+	} else if u.Role == "owner" {
+		err = u.RegisterOwner()
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+	} else {
+		err = u.RegisterStaff()
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+	}
+	context.JSON(http.StatusCreated, gin.H{"Message": "Register successfully !!"})
 }

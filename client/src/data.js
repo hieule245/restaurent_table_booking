@@ -12,17 +12,6 @@ import jane from "./assets/testimonials/jane.jpg";
 import john from "./assets/testimonials/john.jpg";
 import mark from "./assets/testimonials/mark.jpg";
 
-// LINKS FOR NAVBAR
-export const links = [
-  // {
-  //   id: 1,
-  //   link: "about",
-  // },
-  // {
-  //   id: 2,
-  //   link: "personal",
-  // },
-];
 
 export const specials = [
   {

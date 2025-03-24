@@ -19,6 +19,10 @@ func Routes(server *gin.Engine) {
 	server.POST("/reset-password", services.ResetPassword)
 	server.POST("/logout", services.Logout)
 	server.GET("/me", middlewares.AuthMiddleware(), services.GetUserProfile)
+	server.POST("/me", middlewares.AuthMiddleware(), services.UpdateUserProfile)
+	server.POST("/change-password", middlewares.AuthMiddleware(), services.ChangePassword)
+
+	server.GET("/restaurants", services.GetAllRestaurants)
 
 	// Users routes (View - Add - Edit - Delete)
 	AdminRoutes(server) // Các route yêu cầu quyền Admin

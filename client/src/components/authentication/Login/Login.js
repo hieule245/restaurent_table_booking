@@ -34,7 +34,7 @@ const LoginPage = () => {
       .then((res) => {
         setTimeout(() => {
           handleNavigation(res.data.role);
-        }, 2000);
+        }, 100);
       })
       .catch((err) => {
         console.log("login dum tui", err);
@@ -180,7 +180,7 @@ const LoginPage = () => {
                     <hr className="flex-grow-1" />
                   </div>{" "}
                   {/* Added line dividers */}
-                  <button
+                  <button 
                     type="submit"
                     className="btn btn-light w-100"
                     onClick={() => navigate("/register")}

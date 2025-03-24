@@ -1,0 +1,6 @@
+.background-slide {
+    background-image: url(https://courtyardbath.co.uk/wp-content/uploads/2022/11/image-054-2000x1413.jpg);
+    background-repeat: no-repeat;
+    background-size: cover; /* Đảm bảo ảnh không bị kéo giãn */
+    background-position: center;
+}

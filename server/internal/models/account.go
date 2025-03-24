@@ -20,10 +20,15 @@ type Account struct {
 	Orther_id int64
 }
 
+type NewPassword struct {
+	OldPassword string
+	NewPassword string
+}
+
 func (u *Account) RegisterCustomer() error {
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("This gmail already create account before!!")
+		return errors.New("This gmail already create account customer before!!")
 	}
 	query := `INSERT INTO customers(name, gmail, phone, password, status) 
 		VALUES (?,?,?,?,?)`
@@ -52,7 +57,7 @@ func (u *Account) RegisterCustomer() error {
 func (u *Account) RegisterOwner() error {
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("This gmail already create account before!!")
+		return errors.New("This gmail already create account owner before!!")
 	}
 	query := `INSERT INTO owners(name, gmail, phone, password, status) 
 		VALUES (?,?,?,?,?)`
@@ -81,10 +86,10 @@ func (u *Account) RegisterOwner() error {
 func (u *Account) RegisterAdmin() error {
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("This gmail already create account before!!")
+		return errors.New("This gmail already create account admin before!!")
 	}
-	query := `INSERT INTO admin(name, gmail, phone, password, status) 
-		VALUES (?,?,?,?, ?)`
+	query := `INSERT INTO admin(name, gmail, phone, password) 
+		VALUES (?,?,?,?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		panic(err)
@@ -96,7 +101,7 @@ func (u *Account) RegisterAdmin() error {
 		panic(err)
 		return err
 	}
-	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword, u.Status)
+	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword)
 	if err != nil {
 		panic(err)
 		return err
@@ -109,7 +114,7 @@ func (u *Account) RegisterAdmin() error {
 func (u *Account) RegisterStaff() error {
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("This gmail already create account before!!")
+		return errors.New("This gmail already create account staff before!!")
 	}
 	query := `INSERT INTO staffs(name, gmail, phone, password, status, restaurant_id) 
 		VALUES (?,?,?,?,?,?)`
@@ -306,4 +311,87 @@ func SetAccountStatusInactive(email, role string) error {
 
 	_, err = stmt.Exec(email)
 	return err
+}
+
+// Update information
+
+func (u *Account) UpdateCustomer() error {
+	query := `UPDATE customers SET name = ?, phone = ?
+    WHERE gmail = ?`
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(u.Name, u.Phone, u.Email)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	return nil
+}
+
+func (u *Account) UpdateOwner() error {
+	query := `UPDATE owners SET name = ?, phone = ?
+    WHERE gmail = ?`
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(u.Name, u.Phone, u.Email)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	return nil
+}
+
+func (u *Account) UpdateStaff() error {
+	query := `UPDATE staffs SET name = ?, phone = ?
+    WHERE gmail = ?`
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(u.Name, u.Phone, u.Email)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	return nil
+}
+
+func (acc *Account) ChangePassword(pass NewPassword) error {
+	retrievedPassword, _ := CheckAccount(acc)
+	ok := utils.PasswordVerify(pass.OldPassword, retrievedPassword)
+	if !ok {
+		return errors.New("Old password is not true!")
+	}
+	hashPassword, err := utils.HashPassword(pass.NewPassword)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	query := `
+	UPDATE customers SET password = ?
+	WHERE gmail = ?
+	`
+
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(hashPassword, acc.Email)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	return nil
 }
