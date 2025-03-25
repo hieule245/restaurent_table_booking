@@ -27,5 +27,7 @@ func AdminRoutes(server *gin.Engine) {
 
 		admin.GET("/tables", services.AdminGetTables)
 		admin.GET("/tables/:table_id", services.AdminGetTable)
+
+		admin.GET("/restaurants/search", services.SearchRestaurants) // 🔍 Tìm kiếm nhà hàng
 	}
 }

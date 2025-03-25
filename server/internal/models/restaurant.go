@@ -17,6 +17,48 @@ type Restaurant struct {
 	Location    string
 }
 
+func SearchRestaurants(id int64, name, location string, ownerID int) ([]Restaurant, error) {
+	var restaurants []Restaurant
+	query := "SELECT * FROM restaurants WHERE 1=1" // 1=1 để dễ dàng thêm điều kiện
+
+	var args []interface{}
+
+	if id != 0 {
+		query += " AND id = ?"
+		args = append(args, id)
+	}
+	if name != "" {
+		query += " AND name LIKE ?"
+		args = append(args, "%"+name+"%")
+	}
+	if location != "" {
+		query += " AND location LIKE ?"
+		args = append(args, "%"+location+"%")
+	}
+	if ownerID > 0 {
+		query += " AND owner_id = ?"
+		args = append(args, ownerID)
+	}
+
+	rows, err := db.DB.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var r Restaurant
+		var locationBytes []byte
+		if err := rows.Scan(&r.Id, &r.Name, &r.Description, &r.Started, &r.Ended, &locationBytes, &r.Owner_id); err != nil {
+			return nil, err
+		}
+		r.Location = string(locationBytes)
+		restaurants = append(restaurants, r)
+	}
+
+	return restaurants, nil
+}
+
 func GetAllRestaurants() ([]Restaurant, error) {
 	var res []Restaurant
 	query := `SELECT * FROM restaurants`

@@ -16,16 +16,6 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-// func GenarateToken(userId int64, gmail, role string) (string, error) {
-// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-// 		"gmail":  gmail,
-// 		"userId": userId,
-// 		"role":   role,
-// 		"exp":    time.Now().Add(time.Hour * 2).Unix(),
-// 	})
-// 	return token.SignedString([]byte(secretKey))
-// }
-
 // GenerateToken tạo JWT cho người dùng
 func GenerateToken(userId int64, gmail, role string) (string, error) {
 	claims := Claims{
@@ -41,23 +31,6 @@ func GenerateToken(userId int64, gmail, role string) (string, error) {
 	return token.SignedString([]byte(secretKey))
 }
 
-// VerifyToken kiểm tra xem token có hợp lệ hay không
-func VerifyToken(tokenStr string) error {
-	_, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("unexpected signing method")
-		}
-		return []byte(secretKey), nil
-	})
-
-	if err != nil {
-		return errors.New("invalid token")
-	}
-
-	return nil
-}
-
-// ParseJWT trích xuất thông tin user từ token
 func ParseJWT(tokenStr string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -67,12 +40,13 @@ func ParseJWT(tokenStr string) (*Claims, error) {
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, errors.New("invalid token")
 	}
 
-	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
-		return claims, nil
+	claims, ok := token.Claims.(*Claims)
+	if !ok || !token.Valid {
+		return nil, errors.New("cannot parse token")
 	}
 
-	return nil, errors.New("Can not parse token!")
+	return claims, nil
 }
