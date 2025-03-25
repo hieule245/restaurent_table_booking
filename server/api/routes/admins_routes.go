@@ -27,14 +27,7 @@ func AdminRoutes(server *gin.Engine) {
 
 		admin.GET("/tables", services.AdminGetTables)
 		admin.GET("/tables/:table_id", services.AdminGetTable)
+
+		admin.GET("/restaurants/search", services.SearchRestaurants) // 🔍 Tìm kiếm nhà hàng
 	}
-	admin.Use(middlewares.AdminOnly) // Gắn middleware vào nhóm router admin
-
-	admin.GET("/dashboard", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "Welcome to Admin Dashboard!"})
-	})
-
-	// ADMIN ROUTES
-
-	// adminRoutes.GET("/dashboard", AdminDashboardHandler)
 }

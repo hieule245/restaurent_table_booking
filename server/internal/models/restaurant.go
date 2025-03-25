@@ -11,10 +11,52 @@ type Restaurant struct {
 	Id          int64
 	Name        string
 	Description string
-	Location    string
 	Started     string
 	Ended       string
 	Owner_id    int
+	Location    string
+}
+
+func SearchRestaurants(id int64, name, location string, ownerID int) ([]Restaurant, error) {
+	var restaurants []Restaurant
+	query := "SELECT * FROM restaurants WHERE 1=1" // 1=1 để dễ dàng thêm điều kiện
+
+	var args []interface{}
+
+	if id != 0 {
+		query += " AND id = ?"
+		args = append(args, id)
+	}
+	if name != "" {
+		query += " AND name LIKE ?"
+		args = append(args, "%"+name+"%")
+	}
+	if location != "" {
+		query += " AND location LIKE ?"
+		args = append(args, "%"+location+"%")
+	}
+	if ownerID > 0 {
+		query += " AND owner_id = ?"
+		args = append(args, ownerID)
+	}
+
+	rows, err := db.DB.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var r Restaurant
+		var locationBytes []byte
+		if err := rows.Scan(&r.Id, &r.Name, &r.Description, &r.Started, &r.Ended, &locationBytes, &r.Owner_id); err != nil {
+			return nil, err
+		}
+		r.Location = string(locationBytes)
+		restaurants = append(restaurants, r)
+	}
+
+	return restaurants, nil
 }
 
 func GetAllRestaurants() ([]Restaurant, error) {
@@ -22,7 +64,7 @@ func GetAllRestaurants() ([]Restaurant, error) {
 	query := `SELECT * FROM restaurants`
 	rows, err := db.DB.Query(query)
 	if err != nil {
-		return res, errors.New("Can't catch any information")
+		return res, errors.New("can't catch any information")
 	}
 	defer rows.Close()
 
@@ -30,7 +72,7 @@ func GetAllRestaurants() ([]Restaurant, error) {
 		var e Restaurant
 		err = rows.Scan(&e.Id, &e.Name, &e.Description, &e.Started, &e.Ended, &e.Location, &e.Owner_id)
 		if err != nil {
-			return res, errors.New("Can't catch any information")
+			return res, errors.New("can't catch any information")
 		}
 		res = append(res, e)
 	}
@@ -39,14 +81,14 @@ func GetAllRestaurants() ([]Restaurant, error) {
 
 func (r *Restaurant) CreateRestaurant() error {
 	query := `
-	INSERT INTO restaurants(name, description, location, time_start, time_end, owner_id)
-	VALUES (?, ?, ?, ?, ?, ?)`
+	INSERT INTO restaurants(name, description, time_start, time_end, owner_id)
+	VALUES (?, ?, ?,?,?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	result, err := stmt.Exec(r.Name, r.Description, r.Location, r.Started, r.Ended, r.Owner_id)
+	result, err := stmt.Exec(r.Name, r.Description, r.Started, r.Ended, r.Owner_id, r.Location)
 	fmt.Print(r.Owner_id)
 	if err != nil {
 		return err

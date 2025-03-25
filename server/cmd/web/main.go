@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/restaurent_table_booking/api/routes"
@@ -24,8 +27,9 @@ func main() {
 	// Các route yêu cầu quyền Admin
 
 	server.Run()
-	// timeN := "2000-03-17 8:00:00"
-	// var timeN1 time.Time
-	// timeN1, _ = time.Parse("2006-01-02 15:00:00", timeN)
-	// fmt.Print(timeN1)
+	// time
+	timeN := "2000-03-17 8:00:00"
+	var timeN1 time.Time
+	timeN1, _ = time.Parse("2006-01-02 15:00:00", timeN)
+	fmt.Print(timeN1)
 }

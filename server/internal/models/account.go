@@ -28,28 +28,28 @@ type NewPassword struct {
 func (u *Account) RegisterCustomer() error {
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("This gmail already create account customer before!!")
+		return errors.New("this gmail already create account before")
 	}
 	query := `INSERT INTO customers(name, gmail, phone, password, status) 
 		VALUES (?,?,?,?,?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		panic(err)
 		return err
 	}
 	defer stmt.Close()
 	hashPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
-		panic(err)
 		return err
 	}
 	u.Status = "active"
 	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword, u.Status)
 	if err != nil {
-		panic(err)
 		return err
 	}
 	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
 	u.Id = id
 	return nil
 }
@@ -57,28 +57,29 @@ func (u *Account) RegisterCustomer() error {
 func (u *Account) RegisterOwner() error {
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("This gmail already create account owner before!!")
+		return errors.New("this gmail already create account before")
 	}
 	query := `INSERT INTO owners(name, gmail, phone, password, status) 
 		VALUES (?,?,?,?,?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		panic(err)
 		return err
 	}
 	defer stmt.Close()
 	hashPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
-		panic(err)
 		return err
 	}
 	u.Status = "active"
 	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword, u.Status)
 	if err != nil {
-		panic(err)
 		return err
 	}
 	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+
+	}
 	u.Id = id
 	return nil
 }
@@ -86,75 +87,91 @@ func (u *Account) RegisterOwner() error {
 func (u *Account) RegisterAdmin() error {
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("This gmail already create account admin before!!")
+		return errors.New("this email is already associated with an existing account")
 	}
 	query := `INSERT INTO admin(name, gmail, phone, password) 
 		VALUES (?,?,?,?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		panic(err)
-		return err
+		return errors.New("failed to prepare the SQL statement for registering admin: " + err.Error())
 	}
 	defer stmt.Close()
+
 	hashPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
-		panic(err)
-		return err
+		return errors.New("failed to hash the password: " + err.Error())
 	}
 	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword)
 	if err != nil {
-		panic(err)
-		return err
+		return errors.New("failed to execute the SQL statement for registering admin: " + err.Error())
 	}
+
 	id, err := result.LastInsertId()
+	if err != nil {
+		return errors.New("failed to retrieve the last inserted ID for the new admin account: " + err.Error())
+	}
+
 	u.Id = id
 	return nil
 }
 
 func (u *Account) RegisterStaff() error {
+	// Check if the account already exists
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("This gmail already create account staff before!!")
+		return errors.New("this email is already associated with an existing account")
 	}
+
+	// Prepare the SQL query
 	query := `INSERT INTO staffs(name, gmail, phone, password, status, restaurant_id) 
-		VALUES (?,?,?,?,?,?)`
+        VALUES (?,?,?,?,?,?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		panic(err)
-		return err
+		return errors.New("failed to prepare the SQL statement for registering staff")
 	}
 	defer stmt.Close()
+
+	// Hash the password
 	hashPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
-		panic(err)
-		return err
+		return errors.New("failed to hash the password")
 	}
+
+	// Set the account status to active
 	u.Status = "active"
+
+	// Execute the SQL query
 	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword, u.Status, u.Orther_id)
 	if err != nil {
-		panic(err)
-		return err
+		return errors.New("failed to execute the SQL statement for registering staff")
 	}
+
+	// Retrieve the last inserted ID
 	id, err := result.LastInsertId()
+	if err != nil {
+		return errors.New("failed to retrieve the last inserted ID for the new staff account")
+	}
+
+	// Set the ID of the newly created account
 	u.Id = id
 	return nil
 }
-
 func (u *Account) Login() error {
 	retrievedPassword, ok := CheckAccount(u)
 	if ok {
-		return errors.New("Email does not exist")
+		return errors.New("email does not exist")
 	}
+
 	if u.Status == "inactive" {
-		return errors.New("This account is locked for security. Check your email and contact us.")
+		return errors.New("this account is locked for security. Check your email and contact us")
 	} else if u.Status == "ban" && u.Role == "staff" {
-		return errors.New("Account deleted. Contact the restaurant owner to restore.")
+		return errors.New("account deleted. Contact the restaurant owner to restore")
 	} else if u.Status == "ban" && u.Role == "owner" || u.Status == "ban" && u.Role == "customer" {
-		return errors.New("This account is locked for violation. Check your email and contact us.")
+		return errors.New("this account is locked for violation. Check your email and contact us")
 	}
 	ok = utils.PasswordVerify(u.Password, retrievedPassword)
 	if !ok {
-		return errors.New("Invalid Password!")
+		return errors.New("invalid Password")
 	}
 	return nil
 }
@@ -212,57 +229,63 @@ func CheckAccount(a *Account) (string, bool) {
 			}
 		}
 	}
-	return "", false
 }
 
 func (u *Account) ResetPassword() error {
 	query := `UPDATE customers SET password = ? WHERE gmail = ?`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		panic(err)
+		return errors.New("failed to prepare the SQL statement for resetting password: " + err.Error())
 	}
 	defer stmt.Close()
+
 	hashPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
-		panic(err)
+		return errors.New("failed to hash the password: " + err.Error())
 	}
+
 	_, err = stmt.Exec(hashPassword, u.Email)
 	if err != nil {
-		panic(err)
+		return errors.New("failed to execute the SQL statement for resetting password: " + err.Error())
 	}
 	return nil
 }
 
 func GetAllAccounts() ([]Account, error) {
 	sqlQuery := `
-	SELECT * FROM users
+	SELECT id, gmail, name, phone, status, 'owner' FROM owners
 	UNION
-	SELECT * FROM admin`
+	SELECT id, gmail, name, phone, status, 'customer' FROM customers
+	UNION
+	SELECT id, gmail, name, phone, status, 'staffs' FROM staffs
+	`
 	rows, err := db.DB.Query(sqlQuery)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("failed to execute the SQL query for retrieving all accounts: " + err.Error())
 	}
-
-	var users []Account
-
 	defer rows.Close()
 
+	var users []Account
 	for rows.Next() {
 		var u Account
-		err := rows.Scan(&u.Id, &u.Email, &u.Name, &u.Phone, &u.Password)
+		err := rows.Scan(&u.Id, &u.Email, &u.Name, &u.Phone, &u.Status, &u.Role)
 		if err != nil {
-			return nil, err
+			return nil, errors.New("failed to scan account data: " + err.Error())
 		}
 		users = append(users, u)
 	}
+
+	if err = rows.Err(); err != nil {
+		return nil, errors.New("error occurred during rows iteration: " + err.Error())
+	}
+
 	return users, nil
 }
 
 func GetUserInformationById(userId int64, role string) (Account, error) {
 	var query string
-	var user Account // Định nghĩa struct chứa dữ liệu user
+	var user Account
 
-	// Xác định bảng cần query dựa trên role
 	switch role {
 	case "customer":
 		query = `SELECT id, name, gmail, phone FROM customers WHERE id = ?`
@@ -273,21 +296,19 @@ func GetUserInformationById(userId int64, role string) (Account, error) {
 	case "owner":
 		query = `SELECT id, name, gmail, phone FROM owners WHERE id = ?`
 	default:
-		return user, errors.New("invalid role")
+		return user, errors.New("invalid role provided")
 	}
 
-	// Thực hiện query
 	row := db.DB.QueryRow(query, userId)
 	err := row.Scan(&user.Id, &user.Name, &user.Email, &user.Phone)
 	if err != nil {
-		return user, errors.New(err.Error())
-	}
-	if err == sql.ErrNoRows {
-		return user, errors.New(err.Error())
+		if err == sql.ErrNoRows {
+			return user, errors.New("user not found with the provided ID")
+		}
+		return user, errors.New("failed to retrieve user information: " + err.Error())
 	}
 
 	user.Role = role
-
 	return user, nil
 }
 
@@ -300,17 +321,21 @@ func SetAccountStatusInactive(email, role string) error {
 		query = `UPDATE staffs SET status = 'inactive' WHERE gmail = ?`
 	case "owner":
 		query = `UPDATE owners SET status = 'inactive' WHERE gmail = ?`
+	default:
+		return errors.New("invalid role provided for setting account status")
 	}
 
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		panic(err)
-		return err
+		return errors.New("failed to prepare the SQL statement for setting account status: " + err.Error())
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(email)
-	return err
+	if err != nil {
+		return errors.New("failed to execute the SQL statement for setting account status: " + err.Error())
+	}
+	return nil
 }
 
 // Update information
@@ -354,16 +379,12 @@ func (u *Account) UpdateStaff() error {
     WHERE gmail = ?`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		panic(err)
-		return err
+		return errors.New("failed to prepare the SQL statement for setting account status: " + err.Error())
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(u.Name, u.Phone, u.Email)
-	if err != nil {
-		panic(err)
-		return err
-	}
-	return nil
+
+	// _, err = stmt.Exec(email)
+	return err
 }
 
 func (acc *Account) ChangePassword(pass NewPassword) error {

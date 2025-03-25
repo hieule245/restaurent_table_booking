@@ -18,7 +18,6 @@ func GetAllRestaurants(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"restaurants": restaurants})
 }
-
 func GetRestaurantByID(context *gin.Context) {
 	restaurantID := context.Param("restaurant_id") // Lấy ID từ URL
 	restaurant, err := models.GetRestaurantByID(restaurantID)

@@ -28,7 +28,17 @@ func OwnerRoutes(server *gin.Engine) {
 				table.POST("", services.CreateTable)
 				table.PUT("/:table_id", services.EditTable)
 				table.DELETE("/:table_id", services.DeleteTable)
+				table.GET("/search", services.SearchTables) // 🔍 Tìm kiếm bàn ăn
 			}
+		}
+		staff := owner.Group("/staffs")
+		{
+			staff.GET("", services.GetAllStaffs)
+			staff.GET("/:staff_id", services.GetStaffByID)
+			staff.POST("", services.CreateStaff)
+			staff.PUT("/:staff_id", services.EditStaff)
+			staff.DELETE("/:staff_id", services.DeleteStaff)
+			staff.GET("/search", services.SearchStaffs) // 🔍 Tìm kiếm nhân viên
 		}
 	}
 
