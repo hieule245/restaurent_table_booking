@@ -2,10 +2,10 @@ import Main from "./components/Main/Main";
 import TestAPI from "./Test/TestAPI";
 function App() {
   return (
-    // <Main />
-    <div>
-      <TestAPI />
-    </div>
+    <Main />
+    // <div>
+    //   <TestAPI />
+    // </div>
   );
 }
 
