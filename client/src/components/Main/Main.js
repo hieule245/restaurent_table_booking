@@ -9,8 +9,10 @@ import CheckPin from "../authentication/ForgotPassword/CheckPin";
 import ResetPassword from "../authentication/ForgotPassword/ResetPassword";
 import Admin from "../Admin/Admin";
 import PersonalPage from "../Personal/Personal";
-import RestaurantDetailPage from "../../pages/Restaurant/DetailRestaurantPage"; 
+import Restaurants from "../../pages/Restaurant/RestaurantPage"
+import RestaurantDetailPage from "../../pages/Restaurant/DetailRestaurantPage";
 import TableDetailPage from "../../pages/Table/DetailPage";
+
 const Main = () => {
   return (
     <Routes future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -23,12 +25,13 @@ const Main = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/verify-pin" element={<CheckPin />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      
+
       {/* Admin */}
       <Route path="/admin" element={<Admin />} />
       <Route path="/personal" element={<PersonalPage />} />
 
       {/* Restaurant */}
+      <Route path="/restaurants" element={<Restaurants />} />
       <Route path="/restaurants/:id/detail" element={<RestaurantDetailPage />} />
       <Route path="/restaurants/:id/tables/:id/detail" element={<TableDetailPage />} />
     </Routes>

@@ -1,10 +1,10 @@
-POST http://localhost:8080/restaurants/create
+POST http://localhost:8080/owners/:owner_id/restaurants
 content-Type: application/json
-authentication: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImdtYWlsIjoiaGlldWxlZTI0NUBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3NDIyNzYwODV9.o_b3sgklG1jlhO-b9xkDGHPQt0mjg3i9tKXF8mx8XzA
+authentication: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImdtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6Im93bmVyIiwiZXhwIjoxNzQyODE2ODc5fQ.A3nnZefJgumKj2ly_lE2YLIoTnCI8unBEzyfK2zIbT4
 
 {
     "Name": "Kien Restaurant", 
-    "Description": "Nha hang cua su tin tuong",
+    "Description": "Nhà hàng của sử tin tưởng",
     "Started" : "8:00",
     "Ended" : "22:00",
     "Owner_id": 1

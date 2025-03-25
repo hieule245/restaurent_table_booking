@@ -1,7 +1,9 @@
 /*HERO */
 .hero {
-  height: 100vh;
-  padding: 8rem 2rem;
+  padding-top: 1px;
+  padding-left: 8rem;
+  padding-right: 8rem;
+  padding-bottom: 8rem;
   background-color: #F2CED1;
   display: grid;
   grid-template-columns: 1fr;

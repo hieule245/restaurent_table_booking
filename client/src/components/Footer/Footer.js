@@ -5,16 +5,6 @@ import { links, contacts, socials } from '../../data';
 import { Link as LinkS } from 'react-scroll';
 
 const Footer = () => {
-  // NAVLINKS
-  const navLinks = links.map(({ link, id }) => {
-    return (
-      <li key={id}>
-        <LinkS to={link} smooth duration={550} className='footer-links'>
-          {link}
-        </LinkS>
-      </li>
-    );
-  });
 
   //CONTACTS
   const contactLinks = contacts.map(({ link, id, title }) => {
@@ -45,14 +35,13 @@ const Footer = () => {
   });
 
   return (
-    <footer name='contact'>
+    <footer name='contact mt-2'>
       <nav className='footer-container'>
         <div className='footer-photo-container'>
           <img src={restaurant} className='footer-photo' alt='logo' />
         </div>
         <ul className='grid-item-nav'>
-          <p className='footer-title'>Little Lemon</p>
-          {navLinks}
+          <p className='footer-title fs-1'>TableBooker</p>
         </ul>
 
         <ul className='grid-item-contact'>

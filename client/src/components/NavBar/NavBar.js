@@ -1,15 +1,43 @@
 import { useState, useRef, useEffect } from "react";
-import { Link as LinkS } from "react-scroll";
 import { links } from "../../data";
 import { HiOutlineMenuAlt1 } from "react-icons/hi";
 import { FaTimes } from "react-icons/fa";
 import { FaUtensils } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import "./NavBar.styles.css";
-import HandleLogout from "../authentication/Logout/Logout";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import avatar from '../../assets/image/avatar.jpeg'
+
 const NavBar = () => {
   // STATE FOR HAMBURGER MENU
   const [nav, setNav] = useState(false);
+  const [user, setUser] = useState(false);
+  const navigate = useNavigate();
+  const navRef = useRef(null)
+
+  // Lưu thông tin từ cookie
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/me", { withCredentials: true })
+      .then((res) => {
+        setUser(res.data); // lưu thông tin user
+      }).catch(() => {
+        setUser(null)
+      })
+  })
+
+
+  // Xử lý Logout
+  const handleLogout = async () => {
+    try {
+      await axios.post("http://localhost:8080/logout", {}, { withCredentials: true });
+      setUser(null);
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   // onClick HANDLER
   const handleClick = () => {
@@ -17,9 +45,6 @@ const NavBar = () => {
       return setNav(!nav);
     }
   };
-
-  // REF
-  const navRef = useRef(null);
 
   // NAVBAR HIDE/ SHOW ON SCROLL
   useEffect(() => {
@@ -44,105 +69,81 @@ const NavBar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // NAVLINKS
-  const navLinks = links.map(({ link, id }) => {
-    return (
-      <li key={id}>
-        <Link
-          to={link}
-          smooth="true"
-          duration={550}
-          onClick={handleClick}
-          aria-label="On Click"
-          className="nav-links"
-        >
-          {link}
-        </Link>
-      </li>
-    );
-  });
-
-  // Add Login and Signup links
-  navLinks.push(
-    <li key="login" className="auth-link">
-      <Link
-        to="/login"
-        smooth="true"
-        onClick={handleClick}
-        aria-label="Login"
-        className="nav-links"
-      >
-        Login
-      </Link>
-    </li>,
-    <li key="signup" className="auth-link">
-      <Link
-        to="/register"
-        smooth="true"
-        duration={550}
-        onClick={handleClick}
-        aria-label="Signup"
-        className="nav-links signup-link"
-      >
-        Signup
-      </Link>
-    </li>,
-    <li key="logout">
-      <Link
-        to="/logout"
-        smooth="true"
-        duration={550}
-        onClick={() => HandleLogout()}
-        aria-label="Signup"
-        className=" mx-5 btn btn-danger"
-      >
-        Logout
-      </Link>
-    </li>
-  );
 
   return (
     <>
-      <header ref={navRef} >
-        <nav className="container d-flex justify-content-center align-items-center pt-3">
-          <div className="pb-2">
-            <FaUtensils className="nav-icon fs-1" />
-            <span className="nav-title">TableBooker App</span>
-          </div>
-
-          <ul className="nav-links-container col-10 justify-content-end">{navLinks}</ul>
-          {/* HAMBURGER MENU */}
-          <div onClick={() => setNav(!nav)} aria-label="On Click">
-            <HiOutlineMenuAlt1
-              size={30}
-              style={{
-                position: "fixed",
-                top: "25",
-                right: "10",
-              }}
-              className={`${nav ? "hamburger-off" : "hamburger-on"}`}
-            />
+      <header className="shadow-sm" ref={navRef}>
+        <nav className="container">
+          <div className="row justify-content-between align-items-center py-2">
+            <div className="col-3 row">
+              <FaUtensils className="nav-icon fs-1 col-2" />
+              <span className="fw-bolder fs-3 col-10">TableBooker</span>
+            </div>
+            <div className="col-8 row">
+              <div className="d-flex justify-content-start align-items-center">
+                <a className="mt-1 fw-bold text-dark fs-5" href="/restaurants">Restaurants</a>
+              </div>
+            </div>
+            <div className="pt-3 col-1">
+              <ul className="d-flex align-items-center">
+                {user ? (
+                  <>
+                    <li className="d-flex justify-content-end align-items-center">
+                      <div class="dropdown d-flex justify-content-end">
+                        <button type="button" class="rounded-circle border-2 border-danger"  data-bs-toggle="dropdown">
+                          <img src={avatar || "/default-avatar.png"} alt="User Avatar" className="user-avatar w-100 h-100 rounded-circle" />
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><a class="dropdown-item" href="/personal">My Profile</a></li>
+                          <li><a class="dropdown-item" onClick={handleLogout}>Logout</a></li>
+                        </ul>
+                      </div>
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li key="login" className="auth-link">
+                      <Link
+                        to="/login"
+                        smooth="true"
+                        onClick={handleClick}
+                        aria-label="Login"
+                        className="nav-links"
+                      >
+                        Login
+                      </Link>
+                    </li>
+                    <li key="signup" className="auth-link">
+                      <Link
+                        to="/register"
+                        smooth="true"
+                        duration={550}
+                        onClick={handleClick}
+                        aria-label="Signup"
+                        className="nav-links signup-link"
+                      >
+                        Signup
+                      </Link>
+                    </li>
+                  </>
+                )}
+              </ul>
+              <div onClick={() => setNav(!nav)}>
+                <HiOutlineMenuAlt1 className={nav ? "hamburger-off" : "hamburger-on"} />
+              </div>
+            </div>
           </div>
         </nav>
       </header>
 
-      {/* NAV-ITEMS WHEN HAMBURGER MENU IS ON */}
+      {/* MENU KHI HAMBURGER ĐƯỢC BẬT */}
       {nav && (
         <FaTimes
           size={30}
-          style={{
-            color: "#edefee",
-            position: "fixed",
-            top: "38",
-            right: "10",
-            zIndex: "99",
-            cursor: "pointer",
-          }}
-          onClick={() => setNav(!nav)}
-          aria-label="On Click"
+          style={{ color: "#edefee", zIndex: "99", cursor: "pointer" }}
+          onClick={() => setNav(false)}
         />
       )}
-      <ul className={`${nav ? "nav-menu active" : "nav-menu"}`}>{navLinks}</ul>
     </>
   );
 };

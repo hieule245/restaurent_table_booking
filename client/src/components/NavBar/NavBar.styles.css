@@ -1,9 +1,15 @@
 /* HEADER */
 header {
   position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   background-color: #F2CED1;
-  border-bottom: 1px black;
+  z-index: 1000;
+}
+
+body {
+  padding-top: 60px; /* Điều chỉnh theo chiều cao của header */
 }
 
 /* NAV */
@@ -114,4 +120,9 @@ header {
 
 .signup-link:hover {
   background-color: #333;
+}
+
+/* Alpha's Change */
+.user-avatar{
+  border-radius: 100%;
 }

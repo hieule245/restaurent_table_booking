@@ -6,17 +6,15 @@ const About = () => {
   return (
     <section name='about' className='about'>
       <div className='about-container'>
-        <h1 className='about-title'>Little Lemon</h1>
-        <h2 className='about-subtitle'>Chicago</h2>
+        <h1 className='about-title'>TableBooker</h1>
+        <h2 className='about-subtitle'>VietNam</h2>
         <p className='about-text'>
-          Little Lemon is owned by two Italian brothers, Mario and Adrian, who
-          moved to the United States to pursue their shared dream of owning a
-          restaurant. <br />
+          TableBooker is an online restaurant reservation platform that makes 
+          it easy for customers to find and book tables in their favorite restaurants. <br />
           <br />
-          To craft the menu, Mario relies on family recipes and his experience
-          as a chef in Italy. Adrian does all the marketing for the restaurant
-          and led the effort to expand the menu beyond classic Italian to
-          incorporate additional cuisines from the Mediterranean region.
+          We connect diners with restaurants, providing detailed information on menus, 
+          promotions, and table availability. With TableBooker App, reserving a table is 
+          simple, convenient, and enhances your dining experience like never before.
         </p>
       </div>
       <div className='about-image-container'>

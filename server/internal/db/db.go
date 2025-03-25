@@ -28,7 +28,9 @@ func createTable() {
 		name NVARCHAR(50) NOT NULL, 
 		phone VARCHAR(50) NOT NULL,
 		password VARCHAR(64) NOT NULL,
-		status VARCHAR(10) NOT NULL
+		status VARCHAR(10) NOT NULL,
+		image_id INTEGER,
+		FOREIGN KEY (image_id) REFERENCES images(id)
 	)	
 	`
 	_, err := DB.Exec(CustomerQuery)
@@ -57,7 +59,9 @@ func createTable() {
 		name NVARCHAR(50) NOT NULL, 
 		phone VARCHAR(50) NOT NULL,
 		password VARCHAR(64) NOT NULL,
-		status VARCHAR(10) NOT NULL
+		status VARCHAR(10) NOT NULL,
+		image_id INTEGER,
+		FOREIGN KEY (image_id) REFERENCES images(id)
 	)	
 	`
 	_, err = DB.Exec(OwnerQuery)
@@ -74,7 +78,9 @@ func createTable() {
 		time_end TIME NOT NULL,
 		location TEXT NOT NULL,
 		owner_id INTEGER NOT NULL,
-		FOREIGN KEY (owner_id) REFERENCES owners(id)
+		FOREIGN KEY (owner_id) REFERENCES owners(id),
+		image_id INTEGER,
+		FOREIGN KEY (image_id) REFERENCES images(id)
 	)	
 	`
 	_, err = DB.Exec(RestaurantQuery)
@@ -91,7 +97,9 @@ func createTable() {
 		status VARCHAR(10) NOT NULL,
 		password VARCHAR(64) NOT NULL,
 		restaurant_id INTEGER NOT NULL,
-		FOREIGN KEY (restaurant_id) REFERENCES restaurants(id)
+		FOREIGN KEY (restaurant_id) REFERENCES restaurants(id),
+		image_id INTEGER,
+		FOREIGN KEY (image_id) REFERENCES images(id)
 	)`
 	_, err = DB.Exec(StaffQuery)
 	if err != nil {
@@ -106,7 +114,9 @@ func createTable() {
 		seats INTEGER NOT NULL,
 		description TEXT NOT NULL,
 		restaurant_id INTEGER NOT NULL,
-		FOREIGN KEY (restaurant_id) REFERENCES restaurants(id)
+		FOREIGN KEY (restaurant_id) REFERENCES restaurants(id),
+		image_id INTEGER,
+		FOREIGN KEY (image_id) REFERENCES images(id)
 	)	
 	`
 	_, err = DB.Exec(TableQuery)
@@ -134,6 +144,17 @@ func createTable() {
 	)	
 	`
 	_, err = DB.Exec(ReservationQuery)
+	if err != nil {
+		panic(err)
+	}
+
+	ImageQuery := `
+	CREATE TABLE IF NOT EXISTS images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    image_url VARCHAR(255) NOT NULL
+	)
+	`
+	_, err = DB.Exec(ImageQuery)
 	if err != nil {
 		panic(err)
 	}
