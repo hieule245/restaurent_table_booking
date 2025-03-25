@@ -74,17 +74,17 @@ const NavBar = () => {
     <>
       <header className="shadow-sm" ref={navRef}>
         <nav className="container">
-          <div className="row justify-content-between align-items-center">
+          <div className="row justify-content-between align-items-center py-2">
             <div className="col-3 row">
               <FaUtensils className="nav-icon fs-1 col-2" />
               <span className="fw-bolder fs-3 col-10">TableBooker</span>
             </div>
             <div className="col-8 row">
               <div className="d-flex justify-content-start align-items-center">
-                <h4 className="mt-3" href="/restaurants">Restaurant</h4>
+                <a className="mt-1 fw-bold text-dark fs-5" href="/restaurants">Restaurants</a>
               </div>
             </div>
-            <div className="pt-2 col-1">
+            <div className="pt-3 col-1">
               <ul className="d-flex align-items-center">
                 {user ? (
                   <>

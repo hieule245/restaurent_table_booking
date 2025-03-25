@@ -4,7 +4,7 @@ authentication: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImdtYWlsIjo
 
 {
     "Name": "Kien Restaurant", 
-    "Description": "Nha hang cua su tin tuong",
+    "Description": "Nhà hàng của sử tin tưởng",
     "Started" : "8:00",
     "Ended" : "22:00",
     "Owner_id": 1

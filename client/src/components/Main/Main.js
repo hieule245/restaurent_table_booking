@@ -9,7 +9,7 @@ import CheckPin from "../authentication/ForgotPassword/CheckPin";
 import ResetPassword from "../authentication/ForgotPassword/ResetPassword";
 import Admin from "../Admin/Admin";
 import PersonalPage from "../Personal/Personal";
-import Restaurants from "../../pages/Restaurant/Restaurants"
+import Restaurants from "../../pages/Restaurant/RestaurantPage"
 import RestaurantDetailPage from "../../pages/Restaurant/DetailRestaurantPage";
 import TableDetailPage from "../../pages/Table/DetailPage";
 
