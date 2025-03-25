@@ -1,14 +1,11 @@
-import NavBar from '../../../components/NavBar/NavBar';
-import Detail from './Detail';
-import Footer from '../../../components/Footer/Footer';
+import Detail from "./Detail";
+import RestaurantLayout from "../restaurantLayout";
 const RestaurantPage = () => {
   return (
     <>
-      <NavBar />
-      <main>
+      <RestaurantLayout>
         <Detail />
-      </main>
-      <Footer />
+      </RestaurantLayout>
     </>
   );
 };

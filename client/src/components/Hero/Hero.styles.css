@@ -1,10 +1,10 @@
 /* HERO SECTION */
 .hero {
   padding: 8rem;
-  background-color: #1A1A1A; /* Nền đen sang trọng */
+  background-color: #1a1a1a; /* Nền đen sang trọng */
   display: grid;
   grid-template-columns: 1fr;
-  font-family: 'Markazi Text', serif;
+  font-family: "Markazi Text", serif;
   color: white;
   text-align: center;
   place-items: center;
@@ -17,19 +17,19 @@
 .display-title {
   font-weight: 700;
   font-size: 48px;
-  color: #DF192A; /* Màu đỏ nổi bật */
+  color: #df192a; /* Màu đỏ nổi bật */
 }
 
 .display-subtitle {
   font-size: 32px;
   margin-bottom: 1rem;
-  color: #E0E0E0; /* Xám nhạt */
+  color: #e0e0e0; /* Xám nhạt */
 }
 
 .display-text {
   font-weight: 300;
   margin-bottom: 2rem;
-  color: #B3B3B3; /* Màu xám nhẹ để dễ đọc */
+  color: #b3b3b3; /* Màu xám nhẹ để dễ đọc */
 }
 
 .image-container {
@@ -43,13 +43,13 @@
   height: 250px;
   object-fit: cover;
   border-radius: 1rem;
-  border: 3px solid #DF192A; /* Viền đỏ nổi bật */
+  border: 3px solid #df192a; /* Viền đỏ nổi bật */
 }
 
 .reserve-button {
-  font-family: 'Karla', sans-serif;
+  font-family: "Karla", sans-serif;
   font-weight: 600;
-  background-color: #DF192A;
+  background-color: #df192a;
   color: white;
   padding: 1rem 2rem;
   border-radius: 10rem;
@@ -59,7 +59,7 @@
 }
 
 .reserve-button:hover {
-  background-color: #9A131E; /* Màu đỏ đậm hơn khi hover */
+  background-color: #9a131e; /* Màu đỏ đậm hơn khi hover */
   transform: scale(1.05);
 }
 
