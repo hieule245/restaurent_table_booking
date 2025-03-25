@@ -63,7 +63,7 @@ const RestaurantList = () => {
                     </div>
                 </div>
 
-                <div className="row">
+                <div className="row restaurant-list-container">
                     {paginatedRestaurants.map((restaurant) => (
                         <div
                             key={restaurant.Id}

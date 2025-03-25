@@ -19,7 +19,7 @@ const Hero = () => {
         <img
           src={restaurantFood}
           alt='restaurant food'
-          className='display-image'
+          className='display-image h-100'
         />
       </div>
     </section>

@@ -4,125 +4,89 @@ header {
   top: 0;
   left: 0;
   width: 100%;
-  background-color: #F2CED1;
+  background-color: #000000; /* Đổi nền thành đen */
   z-index: 1000;
+  min-height: 60px;
+  padding: 10px 0;
+  transition: transform 0.4s ease-in-out;
 }
 
-body {
-  padding-top: 60px; /* Điều chỉnh theo chiều cao của header */
-}
-
-/* NAV */
+/* NAVIGATION */
 .nav-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   padding: 1rem;
 }
 
-.logo {
-  cursor: pointer;
-}
-
 .nav-links-container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-family: "Karla", sans-serif;
-  font-weight: 800;
-  color: #333;
 }
 
 .nav-links {
-  padding-left: 2rem;
+  padding-left: 1.5rem;
   text-transform: uppercase;
-  cursor: pointer;
+  font-weight: bold;
+  color: #FFFFFF; /* Chữ màu trắng */
+  transition: color 0.3s ease-in-out;
 }
 
 .nav-links:hover {
-  color: #ee9972;
+  color: #DC3545; /* Đỏ danger khi hover */
 }
 
-/* HAMBURGER */
+/* Signup Button */
+.signup-link {
+  background-color: #DC3545; /* Nền đỏ */
+  color: white;
+  padding: 8px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.signup-link:hover {
+  background-color: #A71D2A; /* Đỏ đậm hơn */
+}
+
+/* USER AVATAR */
+.user-avatar {
+  border-radius: 100%;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #FFFFFF; /* Viền trắng */
+}
+
+/* HAMBURGER MENU */
 .hamburger-on {
   display: none;
 }
 
 .nav-menu {
-  background-color: #333333;
-  color: #edefee;
+  background-color: #000000; /* Menu mobile nền đen */
+  color: #FFFFFF;
   width: 75vw;
   height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4rem;
   position: fixed;
   top: 0;
   right: -100%;
-  transition: 850ms;
-  border-top-left-radius: 1rem;
-  font-family: "Karla", sans-serif;
-  font-weight: 800;
-  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
+  transition: 0.85s ease;
 }
 
 .nav-menu.active {
   right: 0;
-  transition: 350ms;
+  transition: 0.35s ease;
 }
 
 /* MEDIA QUERIES */
 @media (max-width: 768px) {
-  .nav-container {
-    display: flex;
-    justify-content: flex-start;
-  }
-
   .nav-links-container {
     display: none;
   }
 
-  /* HAMBURGER */
   .hamburger-on {
     display: flex;
     cursor: pointer;
   }
-
-  .hamburger-off {
-    display: none;
-  }
-}
-
-/* ...existing styles... */
-
-.nav-links-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.auth-link {
-  margin-left: 20px;
-}
-
-.nav-links {
-  color: black; /* Set the text color to black */
-}
-
-.signup-link {
-  background-color: black;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  text-decoration: none;
-}
-
-.signup-link:hover {
-  background-color: #333;
-}
-
-/* Alpha's Change */
-.user-avatar{
-  border-radius: 100%;
 }

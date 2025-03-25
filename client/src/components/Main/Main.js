@@ -10,7 +10,7 @@ import ResetPassword from "../authentication/ForgotPassword/ResetPassword";
 import Admin from "../Admin/Admin";
 import PersonalPage from "../Personal/Personal";
 import Restaurants from "../../pages/Restaurant/RestaurantPage"
-import RestaurantDetailPage from "../../pages/Restaurant/DetailRestaurantPage";
+import RestaurantDetailPage from "../../pages/Restaurant/Detail/DetailRestaurantPage";
 import TableDetailPage from "../../pages/Table/DetailPage";
 
 const Main = () => {

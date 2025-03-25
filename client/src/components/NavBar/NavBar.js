@@ -76,12 +76,12 @@ const NavBar = () => {
         <nav className="container">
           <div className="row justify-content-between align-items-center py-2">
             <div className="col-3 row">
-              <FaUtensils className="nav-icon fs-1 col-2" />
-              <span className="fw-bolder fs-3 col-10">TableBooker</span>
+              <FaUtensils className="nav-icon text-white fs-1 col-2" />
+              <span className="fw-bolder text-white  fs-3 col-10">TableBooker</span>
             </div>
             <div className="col-8 row">
               <div className="d-flex justify-content-start align-items-center">
-                <a className="mt-1 fw-bold text-dark fs-5" href="/restaurants">Restaurants</a>
+                <a className="mt-1 fw-bold text-white fs-5" href="/restaurants">Restaurants</a>
               </div>
             </div>
             <div className="pt-3 col-1">
@@ -108,7 +108,7 @@ const NavBar = () => {
                         smooth="true"
                         onClick={handleClick}
                         aria-label="Login"
-                        className="nav-links"
+                        className="nav-links me-3"
                       >
                         Login
                       </Link>
