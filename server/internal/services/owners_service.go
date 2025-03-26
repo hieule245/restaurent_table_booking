@@ -18,6 +18,18 @@ func GetAllRestaurants(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"restaurants": restaurants})
 }
+
+func GetAllOwnerRestaurants(context *gin.Context) {
+	var res models.Restaurant
+	err := context.ShouldBindBodyWithJSON(&res)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid Input"})
+	}
+
+	err, restaurant := models.GetRestaurantByOwnerID(res.Owner_id)
+	context.JSON(http.StatusOK, gin.H{"Owner restaurants": restaurant})
+}
+
 func GetRestaurantByID(context *gin.Context) {
 	restaurantID := context.Param("restaurant_id") // Lấy ID từ URL
 	restaurant, err := models.GetRestaurantByID(restaurantID)

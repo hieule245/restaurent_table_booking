@@ -15,7 +15,7 @@ func OwnerRoutes(server *gin.Engine) {
 	{
 		restaurant := owner.Group("/restaurants")
 		{
-			restaurant.GET("", services.GetAllRestaurants)
+			restaurant.GET("", services.GetAllOwnerRestaurants)
 			restaurant.GET("/:restaurant_id", services.GetRestaurantByID)
 			restaurant.POST("", services.CreateRestaurant)
 			restaurant.PUT("/:restaurant_id", services.EditRestaurant)

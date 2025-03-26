@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-
+import './Login.style.css'
 const LoginPage = () => {
   const navigate = useNavigate();
 
@@ -18,12 +18,9 @@ const LoginPage = () => {
     (role) => {
       if (role === "admin") {
         navigate("/admin");
-      } else if (role === 'owner') {
-        navigate("/owner");
-      } else if (role === 'customer') {
-        navigate("/")
+      } else {
+        navigate("/");
       }
-      console.log(role)
     },
     [navigate]
   );
@@ -34,12 +31,12 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-
+    
     axios
       .get("http://localhost:8080/me", { withCredentials: true })
       .then((res) => {
         setTimeout(() => {
-          handleNavigation(res.data.Role);
+          handleNavigation(res.data.role);
         }, 100);
       })
       .catch((err) => {
@@ -100,7 +97,9 @@ const LoginPage = () => {
                 navigate("/");
               } else if (userRole === "customer") {
                 navigate("/");
-              } 
+              } else {
+                navigate("/");
+              }
             }, 1000);
           })
           .catch((err) => {
@@ -188,7 +187,7 @@ const LoginPage = () => {
                     <hr className="flex-grow-1" />
                   </div>{" "}
                   {/* Added line dividers */}
-                  <button
+                  <button 
                     type="submit"
                     className="btn btn-light w-100"
                     onClick={() => navigate("/register")}
@@ -207,47 +206,3 @@ const LoginPage = () => {
 
 export default LoginPage;
 
-// CSS styles
-const styles = `
-  .sidenav {
-    height: 100vh;
-    width: 40%;
-    background-color: #343a40;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .login-main-text {
-    padding: 60px;
-    text-align: center;
-  }
-  .main {
-    width: 60%;
-    padding: 20px;
-    background-color: #f8f9fa;
-  }
-  .btn-dark {
-    background-color: #343a40 !important;
-    color: #fff;
-  }
-  .btn-light {
-    background-color: #f8f9fa !important;
-    color: #343a40;
-  }
-  @media (max-width: 768px) {
-    .sidenav {
-      width: 100%;
-      height: 40vh;
-    }
-    .main {
-      width: 100%;
-      padding-top: 20px;
-    }
-  }
-`;
-
-const styleSheet = document.createElement("style");
-styleSheet.type = "text/css";
-styleSheet.innerText = styles;
-document.head.appendChild(styleSheet);

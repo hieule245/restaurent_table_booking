@@ -15,4 +15,6 @@ func AuthRoutes(server *gin.Engine) {
 	server.POST("/reset-password", services.ResetPassword)
 	server.POST("/logout", services.Logout)
 	server.GET("/me", middlewares.AuthMiddleware(), services.GetUserProfile)
+	server.POST("/me", middlewares.AuthMiddleware(), services.UpdateProfile)
+	server.POST("/change-password", middlewares.AuthMiddleware(), services.ChangePassword)
 }

@@ -13,7 +13,7 @@ type Restaurant struct {
 	Description string
 	Started     string
 	Ended       string
-	Owner_id    int
+	Owner_id    int64
 	Location    string
 }
 
@@ -148,4 +148,30 @@ func DeleteRestaurantByID(id int64) error {
 	}
 
 	return nil
+}
+
+// alpha
+
+func GetRestaurantByOwnerID(id int64) (error, []Restaurant) {
+	var res []Restaurant
+	query := `
+	SELECT * FROM restaurants
+	WHERE owner_id = ?
+	`
+	rows, err := db.DB.Query(query, id)
+	if err != nil {
+		return err, nil
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var e Restaurant
+		err := rows.Scan(&e.Id, &e.Name, &e.Location, &e.Description, &e.Started, &e.Ended)
+		if err != nil {
+			return err, nil
+		}
+		res = append(res, e)
+	}
+	return nil, res
 }

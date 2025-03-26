@@ -63,39 +63,42 @@ const Dashboard = () => {
                 ))}
             </div>
 
-            <div className="row">
+            <div className="row d-flex align-items-stretch">
                 {/* Transaction History */}
-                <div className="col-md-6 mb-4">
-                    <div className="p-3 rounded shadow-sm" style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "2px solid #D1E7FF" }}>
+                <div className="col-md-6 mb-4 d-flex">
+                    <div className="p-3 rounded shadow-sm w-100 h-100 d-flex flex-column"
+                        style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "2px solid #D1E7FF" }}>
+
                         <h5 className="text-primary">Transaction History</h5>
 
                         {/* Biểu đồ Doughnut */}
-                        <div className="position-relative d-flex justify-content-center">
-                            <Doughnut data={data} options={options} className="w-25 h-25" />
-                            <div className="position-absolute d-flex flex-column align-items-center" style={{ top: "45%" }}>
+                        <div className="position-relative d-flex justify-content-center align-items-center flex-grow-1">
+                            <Doughnut data={data} options={options} className="w-25 h-50" />
+                            <div className="position-absolute d-flex flex-column align-items-center" style={{ top: "42%" }}>
                                 <h5 className="text-dark mb-0">$1200</h5>
                                 <p className="small text-muted">Total</p>
                             </div>
                         </div>
 
                         {/* Danh sách giao dịch */}
-                        {[
-                            { name: "Paypal", amount: "$236" },
-                            { name: "Stripe", amount: "$593" },
-                        ].map((service, index) => (
-                            <div key={index} className="d-flex justify-content-between p-3 mt-3 rounded shadow-sm"
-                                style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}>
-                                <span className="text-dark">Transfer to {service.name}</span>
-                                <strong className="text-dark">{service.amount}</strong>
-                            </div>
-                        ))}
+                        <div className="d-flex flex-column gap-3">
+                            {[
+                                { name: "Paypal", amount: "$236" },
+                                { name: "Stripe", amount: "$593" },
+                            ].map((service, index) => (
+                                <div key={index} className="d-flex justify-content-between p-3 rounded shadow-sm"
+                                    style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}>
+                                    <span className="text-dark">Transfer to {service.name}</span>
+                                    <strong className="text-dark">{service.amount}</strong>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
                 {/* Open Projects */}
-                <div className="col-md-6 mb-4">
-                    <div className="p-3 rounded shadow-sm"
-                        style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "2px solid #D1E7FF" }}>
+                <div className="col-md-6 mb-4 d-flex">
+                    <div className="p-3 rounded shadow-sm w-100 h-100" style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "2px solid #D1E7FF" }}>
                         <h5 className="pb-2 text-primary">Danh sách đơn kiếm được nhất</h5>
                         {[
                             { title: "Tên người đặt", desc: "Số thời gian dư", time: "15 minutes ago", tasks: 30, issues: 5 },

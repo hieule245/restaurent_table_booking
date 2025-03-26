@@ -3,7 +3,7 @@ import { FaUtensils } from "react-icons/fa";
 import { Tabs, Tab, TabList, TabPanel } from "react-tabs"
 import Dashboard from "../../components/Dashboard/Dashboard";
 import NavBar from '../../components/NavBar/NavBar';
-
+import './Owner.styles.css'
 const Owner = () => {
     const navigate = useNavigate()
     return (
@@ -23,7 +23,13 @@ const Owner = () => {
                                         <span className="btn btn-danger fs-5 fw-bold w-100 mb-3 rounded-pill">Dashboard</span>
                                     </Tab>
                                     <Tab>
-                                        <span className="btn btn-danger fs-5 fw-bold w-100 rounded-pill">Change Password</span>
+                                        <span className="btn btn-danger fs-5 fw-bold w-100 mb-3 rounded-pill">Restaurants</span>
+                                    </Tab>
+                                    <Tab>
+                                        <span className="btn btn-danger fs-5 fw-bold w-100 mb-3 rounded-pill">Staffs</span>
+                                    </Tab>
+                                    <Tab>
+                                        <span className="btn btn-danger fs-5 fw-bold w-100 rounded-pill">Revenue</span>
                                     </Tab>
                                 </TabList>
                             </div>
@@ -32,7 +38,7 @@ const Owner = () => {
                                     <Dashboard />
                                 </TabPanel>
                                 <TabPanel>
-
+                                    
                                 </TabPanel>
                             </div>
                         </div>
