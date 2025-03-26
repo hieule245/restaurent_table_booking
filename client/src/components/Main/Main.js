@@ -12,6 +12,7 @@ import PersonalPage from "../Personal/Personal";
 import Restaurants from "../../pages/Restaurant/RestaurantPage"
 import RestaurantDetailPage from "../../pages/Restaurant/Detail/DetailRestaurantPage";
 import TableDetailPage from "../../pages/Table/DetailPage";
+import OwnerControll from "../../pages/Owner/Owner"
 
 const Main = () => {
   return (
@@ -34,6 +35,7 @@ const Main = () => {
       <Route path="/restaurants" element={<Restaurants />} />
       <Route path="/restaurants/:id/detail" element={<RestaurantDetailPage />} />
       <Route path="/restaurants/:id/tables/:id/detail" element={<TableDetailPage />} />
+      <Route path="/owner" element={<OwnerControll />} />
     </Routes>
   );
 };

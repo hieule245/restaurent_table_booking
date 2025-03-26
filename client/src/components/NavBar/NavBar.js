@@ -74,7 +74,7 @@ const NavBar = () => {
     <>
       <header className="shadow-sm" ref={navRef}>
         <nav className="container">
-          <div className="row justify-content-between align-items-center py-2">
+          <div className="row justify-content-between align-items-center">
             <div className="col-3 row">
               <FaUtensils className="nav-icon text-white fs-1 col-2" />
               <span className="fw-bolder text-white  fs-3 col-10">TableBooker</span>

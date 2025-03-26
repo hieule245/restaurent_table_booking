@@ -1,4 +1,11 @@
-.tab-menu{
-    background-color: #F2CED1;
+.tab-menu {
+    background-color: #212529;
     height: 100vh;
+    color: white;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
+    transition: box-shadow 0.3s ease-in-out;
 }

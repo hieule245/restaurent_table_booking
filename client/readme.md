@@ -12,3 +12,5 @@ npm install @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons 
 npm install react-slick slick-carousel
 
 npm install --save react-tabs
+
+npm install chart.js react-chartjs-2
