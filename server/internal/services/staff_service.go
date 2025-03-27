@@ -3,10 +3,12 @@ package services
 import (
 	"database/sql"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/restaurent_table_booking/internal/db"
 	"github.com/restaurent_table_booking/internal/models"
+	"github.com/restaurent_table_booking/internal/utils"
 )
 
 // Lấy danh sách nhân viên
@@ -64,7 +66,7 @@ func CreateStaff(c *gin.Context) {
 	}
 
 	insertedID, _ := result.LastInsertId()
-	staff.ID = int(insertedID)
+	staff.ID = insertedID
 
 	c.JSON(http.StatusCreated, staff)
 }
@@ -122,4 +124,57 @@ func SearchStaffs(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, staffs)
+}
+
+func GetStaffByRestaurantId(context *gin.Context) {
+	var staff []models.Staff
+	restaurantId, err := strconv.ParseInt(context.Param("restaurant_id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't take input information"})
+	}
+	staff, err = models.GetAllStaffEachRestaurant(restaurantId)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Can't get information in database"})
+	}
+	context.JSON(http.StatusOK, gin.H{"staff": staff})
+}
+
+func LockStaff(context *gin.Context) {
+	var staff models.Staff
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return
+	}
+	userId := claims.UserID
+	err = context.ShouldBindBodyWithJSON(&staff)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't take input information"})
+		return
+	}
+	if staff.Status == "active" {
+		err = models.LockStaff(userId, staff.ID)
+		if err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
+		}
+		context.JSON(http.StatusOK, gin.H{"message": "Lock successfully!!!"})
+	} else if staff.Status == "inactive" {
+		err = models.UnlockStaff(userId, staff.ID)
+		if err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
+		}
+		context.JSON(http.StatusOK, gin.H{"message": "Unlock successfully!!!"})
+	} else if staff.Status == "ban" {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "This account was banned by admin"})
+	}
+
 }

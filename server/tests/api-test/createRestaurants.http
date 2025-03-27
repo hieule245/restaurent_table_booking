@@ -1,11 +1,11 @@
 POST http://localhost:8080/owners/:owner_id/restaurants
 content-Type: application/json
-authentication: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImdtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6Im93bmVyIiwiZXhwIjoxNzQyODE2ODc5fQ.A3nnZefJgumKj2ly_lE2YLIoTnCI8unBEzyfK2zIbT4
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImdtYWlsIjoiaGlldWxlMjQ1MjAwM0BnbWFpbC5jb20iLCJyb2xlIjoib3duZXIiLCJleHAiOjE3NDI5ODkwNTd9.l0po-r6kgSQ583Re7E3ALB7qFULciDZ12mn8NcpLoi0
 
 {
-    "Name": "Kien Restaurant", 
+    "Name": "Hieu Restaurant", 
     "Description": "Nhà hàng của sử tin tưởng",
     "Started" : "8:00",
     "Ended" : "22:00",
-    "Owner_id": 1
+    "Location": "Đà Nẵng"
 }

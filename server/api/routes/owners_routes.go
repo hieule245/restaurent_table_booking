@@ -30,16 +30,16 @@ func OwnerRoutes(server *gin.Engine) {
 				table.DELETE("/:table_id", services.DeleteTable)
 				table.GET("/search", services.SearchTables) // 🔍 Tìm kiếm bàn ăn
 			}
-		}
-		staff := owner.Group("/staffs")
-		{
-			staff.GET("", services.GetAllStaffs)
-			staff.GET("/:staff_id", services.GetStaffByID)
-			staff.POST("", services.CreateStaff)
-			staff.PUT("/:staff_id", services.EditStaff)
-			staff.DELETE("/:staff_id", services.DeleteStaff)
-			staff.GET("/search", services.SearchStaffs) // 🔍 Tìm kiếm nhân viên
+			staff := owner.Group("/:restaurant_id/staffs")
+			{
+				staff.GET("", services.GetStaffByRestaurantId)
+				staff.GET("/:staff_id", services.GetStaffByID)
+				staff.POST("", services.CreateStaff)
+				staff.PUT("/:staff_id", services.EditStaff)
+				staff.DELETE("/:staff_id", services.DeleteStaff)
+				staff.POST("/:staff_id", services.LockStaff)
+				staff.GET("/search", services.SearchStaffs) // 🔍 Tìm kiếm nhân viên
+			}
 		}
 	}
-
 }

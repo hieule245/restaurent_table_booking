@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom"
 import { FaUtensils } from "react-icons/fa";
 import { Tabs, Tab, TabList, TabPanel } from "react-tabs"
 import Dashboard from "../../components/Dashboard/Dashboard";
+import RestaurantList from "../../components/Restaurants/RestaurantList";
 import NavBar from '../../components/NavBar/NavBar';
 import './Owner.styles.css'
 const Owner = () => {
@@ -10,7 +11,7 @@ const Owner = () => {
         <>
             <NavBar />
             <main>
-                <div className="bg-light text-dark" style={{ minHeight: "95vh", paddingTop:"5%" }}>
+                <div className="bg-light text-dark" style={{ minHeight: "100vh", paddingTop:"5%" }}>
                     <Tabs className="container-fluid">
                         <div className="row">
                             <div className="col-2 py-4 tab-menu">
@@ -26,19 +27,16 @@ const Owner = () => {
                                         <span className="btn btn-danger fs-5 fw-bold w-100 mb-3 rounded-pill">Restaurants</span>
                                     </Tab>
                                     <Tab>
-                                        <span className="btn btn-danger fs-5 fw-bold w-100 mb-3 rounded-pill">Staffs</span>
-                                    </Tab>
-                                    <Tab>
                                         <span className="btn btn-danger fs-5 fw-bold w-100 rounded-pill">Revenue</span>
                                     </Tab>
                                 </TabList>
                             </div>
-                            <div className="col-9">
+                            <div className="col-10">
                                 <TabPanel>
                                     <Dashboard />
                                 </TabPanel>
                                 <TabPanel>
-                                    
+                                    <RestaurantList />
                                 </TabPanel>
                             </div>
                         </div>

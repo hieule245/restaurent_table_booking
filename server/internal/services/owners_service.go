@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/restaurent_table_booking/internal/models"
+	"github.com/restaurent_table_booking/internal/utils"
 )
 
 // RESTAURANT HANDLER
@@ -20,13 +21,27 @@ func GetAllRestaurants(context *gin.Context) {
 }
 
 func GetAllOwnerRestaurants(context *gin.Context) {
-	var res models.Restaurant
-	err := context.ShouldBindBodyWithJSON(&res)
+	var acc models.Account
+	token, err := context.Cookie("token")
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid Input"})
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return
 	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return
+	}
+	acc.Id = claims.UserID
 
-	err, restaurant := models.GetRestaurantByOwnerID(res.Owner_id)
+	err, restaurant := models.GetRestaurantByOwnerID(acc.Id)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can't collect data"})
+		context.Abort()
+		return
+	}
 	context.JSON(http.StatusOK, gin.H{"Owner restaurants": restaurant})
 }
 
@@ -41,9 +56,23 @@ func GetRestaurantByID(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"restaurant": restaurant})
 }
+
 func CreateRestaurant(context *gin.Context) {
 	var r models.Restaurant
 	err := context.ShouldBindBodyWithJSON(&r)
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return
+	}
+	r.Owner_id = claims.UserID
 	if err != nil {
 		context.JSON(http.StatusBadGateway, gin.H{"message": "Can't take any input information"})
 		return
@@ -55,6 +84,7 @@ func CreateRestaurant(context *gin.Context) {
 	}
 	context.JSON(http.StatusOK, gin.H{"message": "Create succesfully", "restaurant": r})
 }
+
 func EditRestaurant(context *gin.Context) {
 	restaurantIDStr := context.Param("restaurant_id") // Lấy ID từ URL
 

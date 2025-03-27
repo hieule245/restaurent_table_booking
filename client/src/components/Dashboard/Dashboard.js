@@ -73,7 +73,7 @@ const Dashboard = () => {
 
                         {/* Biểu đồ Doughnut */}
                         <div className="position-relative d-flex justify-content-center align-items-center flex-grow-1">
-                            <Doughnut data={data} options={options} className="w-25 h-50" />
+                            <Doughnut data={data} options={options} className="w-25 h-75" />
                             <div className="position-absolute d-flex flex-column align-items-center" style={{ top: "42%" }}>
                                 <h5 className="text-dark mb-0">$1200</h5>
                                 <p className="small text-muted">Total</p>

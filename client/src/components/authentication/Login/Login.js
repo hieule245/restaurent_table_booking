@@ -18,6 +18,8 @@ const LoginPage = () => {
     (role) => {
       if (role === "admin") {
         navigate("/admin");
+      } else if (role === "owner") {
+        navigate("/owner");
       } else {
         navigate("/");
       }
@@ -86,6 +88,7 @@ const LoginPage = () => {
         axios
           .get("http://localhost:8080/me", { withCredentials: true })
           .then((res) => {
+            const userData = res.data.user
             setTimeout(() => {
               const userRole = res.data.user.Role;
               console.log(userRole);

@@ -1,0 +1,96 @@
+/* SIDEBAR */
+.sidebar {
+    background-color: #1C1C1C; /* Đen sang trọng */
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar h4 {
+    color: #DC3545; /* Đỏ danger nổi bật */
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.sidebar .form-label {
+    color: white;
+    font-weight: 500;
+}
+
+.sidebar .btn-danger {
+    background-color: #DC3545;
+    border: none;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+}
+
+.sidebar .btn-danger:hover {
+    background-color: #A71D2A;
+    transform: scale(1.05);
+}
+
+/* Hình ảnh nhà hàng */
+.restaurant-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* CHI TIẾT NHÀ HÀNG */
+.restaurant-details {
+    text-align: left;
+    padding: 20px;
+}
+
+.restaurant-name {
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+}
+
+.restaurant-description {
+    font-size: 1.1rem;
+    color: #CCCCCC; /* Màu chữ nhẹ hơn */
+}
+
+.restaurant-address-text {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+/* NÚT ĐẶT BÀN */
+.btn-danger {
+    background: #DC3545;
+    color: #FFFFFF;
+    font-size: 1rem;
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-danger:hover {
+    background: #A71D2A;
+    transform: scale(1.05);
+}
+
+/* BẢNG ĐẶT BÀN */
+.table-card {
+    background: white;
+    border-radius: 10px;
+    border: 2px solid #DC3545;
+    box-shadow: 0px 5px 10px rgba(220, 53, 69, 0.2);
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.table-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 15px rgba(220, 53, 69, 0.3);
+}

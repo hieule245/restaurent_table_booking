@@ -80,9 +80,11 @@ const NavBar = () => {
               <span className="fw-bolder text-white  fs-3 col-10">TableBooker</span>
             </div>
             <div className="col-8 row">
-              <div className="d-flex justify-content-start align-items-center">
-                <a className="mt-1 fw-bold text-white fs-5" href="/restaurants">Restaurants</a>
-              </div>
+              {(user?.role === "customer"||user?.role === "admin") && (
+                <div className="d-flex justify-content-start align-items-center">
+                  <a className="mt-1 fw-bold text-white fs-5" href="/restaurants">Restaurants</a>
+                </div>
+              )}
             </div>
             <div className="pt-3 col-1">
               <ul className="d-flex align-items-center">
@@ -90,7 +92,7 @@ const NavBar = () => {
                   <>
                     <li className="d-flex justify-content-end align-items-center">
                       <div class="dropdown d-flex justify-content-end">
-                        <button type="button" class="rounded-circle border-2 border-danger"  data-bs-toggle="dropdown">
+                        <button type="button" class="rounded-circle border-2 border-danger" data-bs-toggle="dropdown">
                           <img src={avatar || "/default-avatar.png"} alt="User Avatar" className="user-avatar w-100 h-100 rounded-circle" />
                         </button>
                         <ul class="dropdown-menu">

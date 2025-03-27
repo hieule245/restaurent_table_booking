@@ -10,7 +10,7 @@ import ResetPassword from "../authentication/ForgotPassword/ResetPassword";
 import Admin from "../Admin/Admin";
 import PersonalPage from "../Personal/Personal";
 import Restaurants from "../../pages/Restaurant/RestaurantPage"
-import RestaurantDetailPage from "../../pages/Restaurant/Detail/DetailRestaurantPage";
+import RestaurantDetailPage from "../../components/Restaurants/Detail/DetailRestaurantPage";
 import TableDetailPage from "../../pages/Table/DetailPage";
 import OwnerControll from "../../pages/Owner/Owner"
 
@@ -35,7 +35,11 @@ const Main = () => {
       <Route path="/restaurants" element={<Restaurants />} />
       <Route path="/restaurants/:id/detail" element={<RestaurantDetailPage />} />
       <Route path="/restaurants/:id/tables/:id/detail" element={<TableDetailPage />} />
+
+      {/* Owner */}
       <Route path="/owner" element={<OwnerControll />} />
+      <Route path="/owner/:owner_id/restaurants/:restaurant_id/detail" element={<RestaurantDetailPage />} />
+      
     </Routes>
   );
 };
