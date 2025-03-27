@@ -1,10 +1,13 @@
 package services
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/restaurent_table_booking/internal/db"
 	"github.com/restaurent_table_booking/internal/models"
 )
 
@@ -89,19 +92,134 @@ func CreateBooking(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Booking created successfully", "booking": booking})
 }
 
-// GetBookingsByCustomerID lấy danh sách booking của một khách hàng
-func GetBookingsByCustomerID(c *gin.Context) {
-	customerID, err := strconv.Atoi(c.Param("customer_id"))
+// GetBookingHistoryByCustomerID lấy danh sách booking của một khách hàng
+func GetBookingHistoryByCustomerID(context *gin.Context) {
+	userIDStr := context.Query("user_id")
+	if userIDStr == "" {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Missing userId in query parameter"})
+		return
+	}
+
+	customerID, err := strconv.Atoi(userIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid customer ID"})
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId"})
 		return
 	}
 
 	bookings, err := models.GetBookingsByCustomer(customerID)
 	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"customer_id": customerID, "bookings": bookings})
+}
+
+// EditReservation - Chỉnh sửa đặt bàn
+func EditReservation(c *gin.Context) {
+	id := c.Param("reservation_id")
+
+	// Parse input JSON từ client
+	var input struct {
+		NumberOfCustomer string `json:"numberOfCustomer"`
+		BookDate         string `json:"book_date"`
+		TimeStart        string `json:"time_start"`
+		TimeEnd          string `json:"time_end"`
+		Status           int    `json:"status"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Lấy ngày đặt (book_date) và thời gian bắt đầu (time_start) gốc từ DB
+	var bookDateStr, timeStartStr string
+	err := db.DB.QueryRow(
+		"SELECT DATE_FORMAT(book_date, '%Y-%m-%d'), TIME_FORMAT(time_start, '%H:%i:%s') FROM reservations WHERE id = ?",
+		id,
+	).Scan(&bookDateStr, &timeStartStr)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Reservation not found"})
+		return
+	}
+
+	// Kết hợp ngày và giờ ban đầu thành chuỗi datetime
+	fullDateTimeStr := bookDateStr + " " + timeStartStr
+	bookingDateTime, err := time.ParseInLocation("2006-01-02 15:04:05", fullDateTimeStr, time.Local)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid datetime format in reservation"})
+		return
+	}
+
+	// Debug info
+	fmt.Println("Booking DateTime:", bookingDateTime)
+	fmt.Println("Current Time:", time.Now())
+	duration := bookingDateTime.Sub(time.Now())
+	fmt.Println("Time remaining until booking:", duration)
+
+	// Nếu còn dưới 30 phút trước thời gian đặt bàn gốc, không cho chỉnh sửa
+	if time.Now().Add(30 * time.Minute).After(bookingDateTime) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot edit less than 30 minutes before booking"})
+		return
+	}
+
+	// Cập nhật thông tin đặt bàn mới
+	_, err = db.DB.Exec(`
+		UPDATE reservations 
+		SET numberOfCustomer = ?, book_date = ?, time_start = ?, time_end = ?, status = ?
+		WHERE id = ?
+	`, input.NumberOfCustomer, input.BookDate, input.TimeStart, input.TimeEnd, input.Status, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update reservation"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Reservation updated successfully"})
+}
+
+// CancelReservation - Hủy đặt bàn
+// CancelReservation - Hủy đặt bàn
+// CancelReservation - Hủy đặt bàn
+func CancelReservation(c *gin.Context) {
+	id := c.Param("reservation_id")
+
+	// Lấy ngày đặt (book_date) và thời gian bắt đầu (time_start) dưới dạng chuỗi
+	var bookDateStr, timeStartStr string
+	err := db.DB.QueryRow(
+		"SELECT DATE_FORMAT(book_date, '%Y-%m-%d'), TIME_FORMAT(time_start, '%H:%i:%s') FROM reservations WHERE id = ?",
+		id,
+	).Scan(&bookDateStr, &timeStartStr)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Kết hợp book_date và time_start thành chuỗi datetime
+	fullDateTimeStr := bookDateStr + " " + timeStartStr
+	// Parse datetime theo định dạng "2006-01-02 15:04:05" với múi giờ local
+	bookingDateTime, err := time.ParseInLocation("2006-01-02 15:04:05", fullDateTimeStr, time.Local)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid datetime format"})
+		return
+	}
+
+	fmt.Println("Booking DateTime:", bookingDateTime)
+	fmt.Println("Current Time:", time.Now())
+	duration := bookingDateTime.Sub(time.Now())
+	fmt.Println("Time remaining until booking:", duration)
+
+	// So sánh với thời gian hiện tại: nếu thời gian hiện tại sau thời gian đặt bàn thì không cho hủy
+	if time.Now().After(bookingDateTime.Add(-1 * time.Hour)) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot cancel within 1 hour before booking time"})
+		return
+	}
+
+	_, err = db.DB.Exec("UPDATE reservations SET status = ? WHERE id = ?", 0, id)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"customer_id": customerID, "bookings": bookings})
+	c.JSON(http.StatusOK, gin.H{"message": "Reservation canceled successfully"})
 }

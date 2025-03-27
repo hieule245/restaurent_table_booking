@@ -15,8 +15,8 @@ func CustomerRoutes(r *gin.Engine) {
 	}
 
 	// Route lấy danh sách booking của khách hàng
-	customers := r.Group("/customers")
-	{
-		customers.GET("/:customer_id/bookings", services.GetBookingsByCustomerID)
-	}
+	// customers := r.Group("/customers")
+	// {
+	// 	customers.GET("/:customer_id/bookings", services.GetBookingHistoryByCustomerID)
+	// }
 }

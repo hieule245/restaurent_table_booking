@@ -15,6 +15,13 @@ func Routes(server *gin.Engine) {
 	// Các route công khai cho restaurant và table
 	server.GET("/restaurants", services.GetAllRestaurants)
 
+	// router book table
+	server.GET("/booking-history", services.GetBookingHistoryByCustomerID)
+
+	// edit reservation for customer
+	server.PUT("/reservation/:reservation_id", services.EditReservation)
+	server.DELETE("/reservation/:reservation_id", services.CancelReservation)
+
 	restaurant := server.Group("/restaurant")
 	{
 		restaurant.GET("/:restaurant_id", services.GetRestaurantByID)

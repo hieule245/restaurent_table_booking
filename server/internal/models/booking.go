@@ -47,7 +47,7 @@ func (b *Booking) Create() (int64, error) {
 	return result.LastInsertId()
 }
 
-// Check kiểm tra duplicate booking: cùng bàn, ngày và thời gian
+// Check kiểm tra status and duplicate booking: cùng bàn, ngày và thời gian
 func (b Booking) Check() error {
 	var count int
 	query := `
@@ -58,8 +58,24 @@ func (b Booking) Check() error {
 	if err != nil {
 		return err
 	}
+
+	// Nếu count > 0, kiểm tra xem có bản ghi nào có status = 0 hay không
 	if count > 0 {
-		return errors.New("booking already exists for this table, date and time")
+		var status int
+		queryStatus := `
+			SELECT status FROM reservations 
+			WHERE table_id = ? AND book_date = ? AND time_start = ? AND time_end = ?
+			LIMIT 1
+		`
+		err = db.DB.QueryRow(queryStatus, b.TableID, b.BookDate, b.TimeStart, b.TimeEnd).Scan(&status)
+		if err != nil {
+			return err
+		}
+		// Nếu status = 0, cho phép đặt bàn
+		if status == 0 {
+			return nil
+		}
+		return errors.New("booking already exists for this table, date, and time")
 	}
 	return nil
 }

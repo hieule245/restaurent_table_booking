@@ -29,6 +29,7 @@ func GetBookedTimesHandler(c *gin.Context) {
 
 	reservations, err := models.GetReservationsByTableDate(tableID, bookDate)
 	if err != nil {
+		fmt.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
