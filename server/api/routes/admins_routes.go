@@ -1,16 +1,16 @@
 package routes
 
 import (
-	"github.com/restaurent_table_booking/internal/middlewares" // Import middleware
-	"github.com/restaurent_table_booking/internal/services"
-
 	"github.com/gin-gonic/gin"
+	"github.com/restaurent_table_booking/internal/middlewares"
+	"github.com/restaurent_table_booking/internal/services"
 )
 
+// AdminRoutes định nghĩa các route dành cho Admin, bắt buộc phải đăng nhập và có quyền Admin.
 func AdminRoutes(server *gin.Engine) {
 	admin := server.Group("/admin")
-	admin.Use(middlewares.AuthMiddleware()) // Bắt buộc phải đăng nhập trước
-	admin.Use(middlewares.AdminOnly)        // Gắn middleware vào nhóm router admin
+	admin.Use(middlewares.AuthMiddleware()) // Xác thực user
+	admin.Use(middlewares.AdminOnly)        // Kiểm tra quyền Admin
 
 	{
 		admin.GET("/users", services.AdminGetUsers)
@@ -28,6 +28,7 @@ func AdminRoutes(server *gin.Engine) {
 		admin.GET("/tables", services.AdminGetTables)
 		admin.GET("/tables/:table_id", services.AdminGetTable)
 
-		admin.GET("/restaurants/search", services.SearchRestaurants) // 🔍 Tìm kiếm nhà hàng
+		// Tìm kiếm nhà hàng
+		admin.GET("/restaurants/search", services.SearchRestaurants)
 	}
 }

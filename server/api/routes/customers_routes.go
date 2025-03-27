@@ -5,8 +5,18 @@ import (
 	"github.com/restaurent_table_booking/internal/services"
 )
 
-func CustomerRoutes(server *gin.Engine) {
-	// CUSTOMER ROUTES
-	server.POST("/restaurants/:restaurant_id/bookings", services.CreateBooking)
-	server.GET("/customers/:customer_id/bookings", services.GetBookingsByCustomerID)
+// CustomerRoutes định nghĩa các route cho khách hàng (customer)
+// Các route này thường không cần middleware (hoặc có thể áp dụng AuthMiddleware nếu cần).
+func CustomerRoutes(r *gin.Engine) {
+	// Route tạo booking theo nhà hàng
+	restaurants := r.Group("/restaurants")
+	{
+		restaurants.POST("/:restaurant_id/bookings", services.CreateBooking)
+	}
+
+	// Route lấy danh sách booking của khách hàng
+	customers := r.Group("/customers")
+	{
+		customers.GET("/:customer_id/bookings", services.GetBookingsByCustomerID)
+	}
 }

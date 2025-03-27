@@ -103,8 +103,8 @@ func (r *Restaurant) CreateRestaurant() error {
 func GetRestaurantByID(id string) (Restaurant, error) {
 	var r Restaurant
 	query := `SELECT * FROM restaurants WHERE id = ?`
-	err := db.DB.QueryRow(query, id).Scan(&r.Id, &r.Name, &r.Description, &r.Started, &r.Ended, &r.Owner_id)
-
+	err := db.DB.QueryRow(query, id).Scan(&r.Id, &r.Name, &r.Description, &r.Started, &r.Ended, &r.Location, &r.Owner_id)
+	// fmt.Println(err.Error())
 	if err != nil {
 		return r, errors.New("Restaurant not found")
 	}

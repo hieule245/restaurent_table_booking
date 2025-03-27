@@ -3,18 +3,40 @@ import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import TableCard from "../../../components/Card/TableCard";
 import "./Detail.styles.css";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const DetailRestaurant = () => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [currentTime, setCurrentTime] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-
+  const [restaurant, setRestaurant] = useState({});
+  const { restaurant_id } = useParams();  
+  const [tables, setTables] = useState([]);
   // Lấy ngày hiện tại khi component mount
   useEffect(() => {
-    const today = new Date();
-    const formattedDate = today.toISOString().split("T")[0]; // Format YYYY-MM-DD
-    setSelectedDate(formattedDate);
+    if (restaurant_id == null) {
+      return;
+    } else {
+      axios
+        .get(`http://localhost:8080/restaurant/${restaurant_id}`)
+        .then((responseRestaurant) => {
+          setRestaurant(responseRestaurant.data.restaurant);
+          axios
+            .get(`http://localhost:8080/restaurant/${restaurant_id}/tables`)
+            .then((responseTables) => {
+              if (responseTables.data.tables == null) {
+                console.log("No tables available");
+              } else {
+                setTables(responseTables.data.tables);
+              }
+            });
+        });
+      const today = new Date();
+      const formattedDate = today.toISOString().split("T")[0]; // Format YYYY-MM-DD
+      setSelectedDate(formattedDate);
+    }
   }, []);
 
   // Lấy thời gian hiện tại
@@ -33,6 +55,27 @@ const DetailRestaurant = () => {
   };
 
   const timeSlots = generateTimeSlots(7, 22, 2);
+
+  function renderTables() {
+    if (tables.length == 0) {
+      return (
+        <div className="text-center mt-4">
+          <h4 className="text-dark fw-bold">No tables available</h4>
+        </div>
+      );
+    } else {
+      return (
+        <div className="row mt-4">
+          {/* Danh sách bàn */}
+          {tables.map((table, index) => (
+            <div className="col-md-3 mb-3 " key={index}>
+              <TableCard table={table} />
+            </div>
+          ))}
+        </div>
+      );
+    }
+  }
 
   return (
     <div className="container-fluid">
@@ -124,27 +167,22 @@ const DetailRestaurant = () => {
         {/* Nội dung chính */}
         <div className="col-md-9 p-4">
           <div className="restaurant-details">
-            <h1 className="restaurant-name text-dark mb-2">Restaurant Name</h1>
+            <h1 className="restaurant-name text-dark mb-2">
+              {restaurant.Name + " #" + restaurant.Id}
+            </h1>
             <p className="restaurant-description text-muted">
-              A delightful place to enjoy the best food experience.
+              {restaurant.Description}
             </p>
             <p className="restaurant-address-text">
               <FontAwesomeIcon
                 icon={faMapMarkerAlt}
                 className="text-danger me-2"
               />
-              <span className="text-dark">123 Main Street, City, Country</span>
+              <span className="text-dark">{restaurant.Location}</span>
             </p>
           </div>
 
-          {/* Danh sách bàn */}
-          <div className="row mt-4">
-            {[...Array(6)].map((_, index) => (
-              <div className="col-md-4 mb-3" key={index}>
-                <TableCard />
-              </div>
-            ))}
-          </div>
+          {renderTables()}
         </div>
       </div>
     </div>

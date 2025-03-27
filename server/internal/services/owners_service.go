@@ -116,7 +116,7 @@ func GetTableByID(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch table"})
 		return
 	}
-	if table == nil {
+	if table.ID == 0 {
 		context.JSON(http.StatusNotFound, gin.H{"error": "Table not found"})
 		return
 	}
