@@ -1,0 +1,50 @@
+/* Container chính */
+.detail-restaurant-container {
+  background-color: #111; /* nền đen chủ đạo */
+  color: #fff; /* chữ trắng */
+  padding: 20px 30px;
+}
+
+/* Header của trang */
+.header-row {
+  display: flex;
+  align-items: center;
+  background-color: #000; /* nền đen đậm */
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+/* Icon quay lại */
+.back-icon {
+  flex: 0 0 50px;
+}
+
+.arrow-icon {
+  font-size: 1.5rem;
+  color: #ff0000; /* điểm nhấn đỏ cho icon */
+  cursor: pointer;
+}
+
+/* Thông tin bàn */
+.table-info {
+  flex: 1;
+  text-align: center;
+}
+
+.table-title {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #ff0000; /* tiêu đề in đỏ */
+}
+
+.table-details {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #ccc; /* chi tiết in màu xám nhạt */
+}
+
+/* Container cho CalendarRow */
+.calendar-row-container {
+  margin-top: 20px;
+}

@@ -1,10 +1,10 @@
-import { useReducer } from 'react';
-import BookingForm from '../components/BookingForm/BookingForm';
-import { fetchAPI } from '../utils/temp';
+import { useReducer } from "react";
+import BookingForm from "../components/BookingForm/BookingForm";
+import { fetchAPI } from "../utils/temp";
 
 export const updateTimes = (state, action) => {
   switch (action.type) {
-    case 'UPDATE_TIMES':
+    case "UPDATE_TIMES":
       return { ...state, times: fetchAPI(action.date) };
     default:
       return state;

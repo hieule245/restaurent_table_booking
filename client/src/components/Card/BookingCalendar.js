@@ -239,7 +239,7 @@ const BookingCalendar = ({ table }) => {
         {/* Danh sách tháng */}
         <div className="col-md-1 border-end" style={{ height: "100vh" }}>
           <div className="mt-4">
-            <h5 className="text-center fw-bold">Tháng</h5>
+            <h5 className="text-center fw-bold">Month</h5>
             <div className="d-grid gap-2 mt-2">
               {months.map((month) => (
                 <button
@@ -262,7 +262,8 @@ const BookingCalendar = ({ table }) => {
         {/* Danh sách ngày */}
         <div className="col-md-10">
           <div className="mt-4">
-            <h5 className="text-center fw-bold">Ngày</h5>
+            <h5 className="text-center fw-bold">Date</h5>
+            <hr />
             <div className="d-flex flex-wrap gap-2 justify-content-center mt-2 w-100">
               {days.map((day) => (
                 <button
@@ -279,7 +280,6 @@ const BookingCalendar = ({ table }) => {
                 </button>
               ))}
             </div>
-
             {/* Danh sách khung giờ */}
             {selectedDay && (
               <div className="p-4">
@@ -321,7 +321,6 @@ const BookingCalendar = ({ table }) => {
                 </div>
               </div>
             )}
-
             {/* Nút xác nhận đặt bàn */}
             {hasBooking && (
               <div className="text-center mt-4">

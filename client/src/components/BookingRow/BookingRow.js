@@ -1,16 +1,18 @@
+import React from "react";
+
 const BookingRow = ({ booking, index, onEdit, onCancel }) => {
-  // Mapping các trạng thái đặt bàn
+  // Mapping trạng thái đặt bàn
   const statusMapping = {
-    0: { label: "Cancelled", className: "bg-secondary" },
-    1: { label: "Pending", className: "bg-warning" },
-    2: { label: "Confirmed", className: "bg-success" },
-    3: { label: "Occupied", className: "bg-primary" },
-    4: { label: "Done", className: "bg-info" },
+    0: { label: "Cancelled", className: "badge bg-secondary" },
+    1: { label: "Pending", className: "badge bg-warning" },
+    2: { label: "Confirmed", className: "badge bg-success" },
+    3: { label: "Occupied", className: "badge bg-primary" },
+    4: { label: "Done", className: "badge bg-info" },
   };
 
   const statusInfo = statusMapping[booking.status] || {
     label: "Unknown",
-    className: "bg-dark",
+    className: "badge bg-dark",
   };
 
   return (
@@ -23,21 +25,19 @@ const BookingRow = ({ booking, index, onEdit, onCancel }) => {
       <td>{booking.table_id}</td>
       <td>{booking.price}</td>
       <td>
-        <span className={`badge ${statusInfo.className}`}>
-          {statusInfo.label}
-        </span>
+        <span className={statusInfo.className}>{statusInfo.label}</span>
       </td>
       <td>
         {(booking.status === 1 || booking.status === 2) && (
           <>
             <button
-              className="btn btn-warning btn-sm me-2"
+              className="action-button edit"
               onClick={() => onEdit(booking)}
             >
               Edit
             </button>
             <button
-              className="btn btn-danger btn-sm"
+              className="action-button cancel"
               onClick={() => onCancel(booking)}
             >
               Cancel

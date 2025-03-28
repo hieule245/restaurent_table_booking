@@ -3,7 +3,12 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import { motion } from "framer-motion";
 import BookingRow from "../BookingRow/BookingRow";
+import "react-toastify/dist/ReactToastify.css";
+import "./BookingHistory.css";
+import RestaurantLayout from "../../pages/Restaurant/restaurantLayout";
 
 const BookingHistory = () => {
   const [user, setUser] = useState({});
@@ -22,13 +27,15 @@ const BookingHistory = () => {
   // Fetch booking history
   useEffect(() => {
     if (!user?.Id) return;
-
     axios
       .get(`http://localhost:8080/booking-history?user_id=${user.Id}`, {
         withCredentials: true,
       })
       .then((res) => setBookings(res.data.bookings))
-      .catch(console.error);
+      .catch((err) => {
+        console.error(err);
+        toast.error("Error fetching booking history");
+      });
   }, [user]);
 
   // Mở modal chỉnh sửa
@@ -43,7 +50,6 @@ const BookingHistory = () => {
 
   const handleSaveChanges = () => {
     if (!selectedBooking) return;
-
     const updatedBooking = {
       numberOfCustomer: selectedBooking.numberOfCustomer,
       book_date: selectedBooking.book_date,
@@ -106,144 +112,154 @@ const BookingHistory = () => {
   };
 
   return (
-    <div className="container mt-4">
-      <h2 className="text-center mb-4">Booking History</h2>
-      {user ? (
-        <p className="text-center">
-          Welcome, {user.Name}! Here is your booking history:
-        </p>
-      ) : (
-        <p className="text-center">Loading user info...</p>
-      )}
+    <RestaurantLayout>
+      <div className="booking-history-container">
+        <ToastContainer position="top-right" autoClose={3000} />
+        <h2 className="booking-history-title text-danger fs-1">
+          Booking History
+        </h2>
 
-      {bookings.length === 0 ? (
-        <p className="text-center text-muted">No bookings found.</p>
-      ) : (
-        <div className="table-responsive">
-          <table className="table table-bordered table-hover">
-            <thead className="table-dark">
-              <tr>
-                <th>#</th>
-                <th>Book Date</th>
-                <th>Time Start</th>
-                <th>Time End</th>
-                <th>Seats</th>
-                <th>Table ID</th>
-                <th>Price ($)</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bookings.map((booking, index) => (
-                <BookingRow
-                  key={booking.id}
-                  booking={booking}
-                  index={index}
-                  onEdit={handleEdit}
-                  onCancel={handleCancel}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Modal chỉnh sửa booking */}
-      <div
-        className="modal fade"
-        id="editBookingModal"
-        tabIndex="-1"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Edit Booking</h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              {selectedBooking && (
-                <>
-                  <label>Book Date:</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    value={selectedBooking.book_date}
-                    onChange={(e) =>
-                      setSelectedBooking({
-                        ...selectedBooking,
-                        book_date: e.target.value,
-                      })
-                    }
+        {user ? (
+          <p className="booking-history-welcome">
+            Welcome, {user.Name}! Here is your booking history:
+            <hr />
+          </p>
+        ) : (
+          <p className="booking-history-loading">Loading user info...</p>
+        )}
+        {bookings.length === 0 ? (
+          <p className="booking-history-no">No bookings found.</p>
+        ) : (
+          <motion.div
+            className="table-responsive"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <table className="booking-history-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Book Date</th>
+                  <th>Time Start</th>
+                  <th>Time End</th>
+                  <th>Seats</th>
+                  <th>Table ID</th>
+                  <th>Price ($)</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((booking, index) => (
+                  <BookingRow
+                    key={booking.id}
+                    booking={booking}
+                    index={index}
+                    onEdit={handleEdit}
+                    onCancel={handleCancel}
                   />
+                ))}
+              </tbody>
+            </table>
+          </motion.div>
+        )}
+        {/* Modal chỉnh sửa booking */}
+        <div
+          className="modal fade"
+          id="editBookingModal"
+          tabIndex="-1"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content booking-modal-content">
+              <div className="modal-header booking-modal-header">
+                <h5 className="modal-title">Edit Booking</h5>
+                <button
+                  type="button"
+                  className="btn-close booking-modal-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body booking-modal-body">
+                {selectedBooking && (
+                  <>
+                    <label>Book Date:</label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      value={selectedBooking.book_date}
+                      onChange={(e) =>
+                        setSelectedBooking({
+                          ...selectedBooking,
+                          book_date: e.target.value,
+                        })
+                      }
+                    />
 
-                  <label>Time Start:</label>
-                  <input
-                    type="time"
-                    className="form-control"
-                    value={selectedBooking.time_start}
-                    onChange={(e) =>
-                      setSelectedBooking({
-                        ...selectedBooking,
-                        time_start: e.target.value,
-                      })
-                    }
-                  />
+                    <label>Time Start:</label>
+                    <input
+                      type="time"
+                      className="form-control"
+                      value={selectedBooking.time_start}
+                      onChange={(e) =>
+                        setSelectedBooking({
+                          ...selectedBooking,
+                          time_start: e.target.value,
+                        })
+                      }
+                    />
 
-                  <label>Time End:</label>
-                  <input
-                    type="time"
-                    className="form-control"
-                    value={selectedBooking.time_end}
-                    onChange={(e) =>
-                      setSelectedBooking({
-                        ...selectedBooking,
-                        time_end: e.target.value,
-                      })
-                    }
-                  />
+                    <label>Time End:</label>
+                    <input
+                      type="time"
+                      className="form-control"
+                      value={selectedBooking.time_end}
+                      onChange={(e) =>
+                        setSelectedBooking({
+                          ...selectedBooking,
+                          time_end: e.target.value,
+                        })
+                      }
+                    />
 
-                  <label>Seats:</label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    value={selectedBooking.numberOfCustomer}
-                    onChange={(e) =>
-                      setSelectedBooking({
-                        ...selectedBooking,
-                        numberOfCustomer: e.target.value,
-                      })
-                    }
-                  />
-                </>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleSaveChanges}
-              >
-                Save changes
-              </button>
+                    <label>Seats:</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={selectedBooking.numberOfCustomer}
+                      onChange={(e) =>
+                        setSelectedBooking({
+                          ...selectedBooking,
+                          numberOfCustomer: e.target.value,
+                        })
+                      }
+                    />
+                  </>
+                )}
+              </div>
+              <div className="modal-footer booking-modal-footer">
+                <button
+                  type="button"
+                  className="btn booking-modal-btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className="btn booking-modal-btn-primary"
+                  onClick={handleSaveChanges}
+                >
+                  Save changes
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </RestaurantLayout>
   );
 };
 
