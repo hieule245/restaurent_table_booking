@@ -286,7 +286,7 @@ const BookingCalendar = ({ table }) => {
                 <h5 className="text-center fw-bold">
                   Chọn khung giờ cho ngày {selectedDay}/{selectedMonth}
                 </h5>
-                <div className="d-flex flex-wrap gap-2 justify-content-center mt-2">
+                <div className="d-flex flex-wrap gap-2 justify-content-center mt-2 p-5 rounded">
                   {timeSlots.map((timeSlot) => {
                     const startHour = parseInt(timeSlot.split(":")[0]);
                     const isPastTime =
