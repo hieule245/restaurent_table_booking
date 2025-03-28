@@ -55,7 +55,7 @@ func CreateStaff(context *gin.Context) {
 	var staff *models.Staff
 	err := context.ShouldBindBodyWithJSON(&staff)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	userId := CurrentUser(context)
@@ -73,7 +73,7 @@ func CreateStaff(context *gin.Context) {
 func EditStaff(c *gin.Context) {
 	staffID := c.Param("staff_id")
 	var staff models.Staff
-	if err := c.ShouldBindJSON(&staff); err != nil {
+	if err := c.ShouldBindBodyWithJSON(&staff); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}

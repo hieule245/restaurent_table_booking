@@ -48,9 +48,8 @@ func GetAllOwnerRestaurants(context *gin.Context) {
 func GetRestaurantByID(context *gin.Context) {
 	restaurantID := context.Param("restaurant_id") // Lấy ID từ URL
 	restaurant, err := models.GetRestaurantByID(restaurantID)
-
 	if err != nil {
-		context.JSON(http.StatusNotFound, gin.H{"message": "Restaurant not found"})
+		context.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -174,7 +173,7 @@ func CreateTable(context *gin.Context) {
 
 	var table models.Table
 	if err := context.ShouldBindJSON(&table); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

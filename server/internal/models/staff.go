@@ -16,7 +16,7 @@ type Staff struct {
 	Phone        string `json:"phone"`
 	Status       string `json:"status"`
 	Password     string `json:"password"`
-	RestaurantID int64  `json:"restaurant_id"`
+	RestaurantID string `json:"restaurant_id"`
 }
 
 func GetAllStaffEachRestaurant(restaurantID int64) ([]Staff, error) {
@@ -127,7 +127,11 @@ func (staff *Staff) CreateStaff(userId int64) error {
 	INSERT INTO staffs (gmail, name, phone, status, password, restaurant_id) 
 	VALUES (?, ?, ?, ?, ?, ?);
 	`
-	err := CheckPermissionsToAdd(userId, staff.RestaurantID, staff.ID)
+	restaurantID, err := strconv.ParseInt(staff.RestaurantID, 10, 64)
+	if err != nil {
+		return err
+	}
+	err = CheckPermissionsToAdd(userId, restaurantID, staff.ID)
 	if err != nil {
 		return err
 	}

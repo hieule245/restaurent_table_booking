@@ -14,3 +14,7 @@ npm install react-slick slick-carousel
 npm install --save react-tabs
 
 npm install chart.js react-chartjs-2
+
+npm install js-cookie
+
+npm install jwt-decode

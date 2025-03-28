@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"strconv"
 
 	"github.com/restaurent_table_booking/internal/db"
 )
@@ -12,7 +13,7 @@ type Table struct {
 	ID           int    `json:"id"`
 	Name         string `json:"name"`
 	Type         string `json:"type"`
-	Seats        int    `json:"seats"`
+	Seats        string `json:"seats"`
 	RestaurantID int    `json:"restaurant_id"`
 	Description  string
 }
@@ -69,7 +70,7 @@ func IsRestaurantExist(restaurantID int) (bool, error) {
 
 // Lấy tất cả bàn ăn theo restaurant_id
 func GetAllTables(restaurantID int) ([]Table, error) {
-	rows, err := db.DB.Query("SELECT id, name, type, seats, restaurant_id FROM tables WHERE restaurant_id = ?", restaurantID)
+	rows, err := db.DB.Query("SELECT id, name, type, seats, description, restaurant_id FROM tables WHERE restaurant_id = ?", restaurantID)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +79,7 @@ func GetAllTables(restaurantID int) ([]Table, error) {
 	var tables []Table
 	for rows.Next() {
 		var table Table
-		if err := rows.Scan(&table.ID, &table.Name, &table.Type, &table.Seats, &table.RestaurantID); err != nil {
+		if err := rows.Scan(&table.ID, &table.Name, &table.Type, &table.Seats, &table.Description, &table.RestaurantID); err != nil {
 			return nil, err
 		}
 		tables = append(tables, table)
@@ -108,26 +109,38 @@ func (t *Table) CreateTable() error {
 	// 🏷️ Kiểm tra nhà hàng có tồn tại không
 	exists, err := IsRestaurantExist(t.RestaurantID)
 	if err != nil {
+		panic(err)
 		return err
 	}
 	if !exists {
 		return errors.New("Restaurant does not exist")
 	}
+	seatNumber, err := strconv.ParseInt(t.Seats, 10, 64)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	if seatNumber <= 0 {
+		return errors.New("This table should have seat!!")
+	}
 
 	query := `INSERT INTO tables (name, type, seats, restaurant_id, description) VALUES (?, ?, ?, ?, ?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
+		panic(err)
 		return err
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(t.Name, t.Type, t.Seats, t.RestaurantID, t.Description)
+	result, err := stmt.Exec(t.Name, t.Type, seatNumber, t.RestaurantID, t.Description)
 	if err != nil {
+		panic(err)
 		return err
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
+		panic(err)
 		return err
 	}
 

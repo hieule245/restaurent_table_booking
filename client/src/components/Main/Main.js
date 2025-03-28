@@ -38,7 +38,7 @@ const Main = () => {
 
       {/* Owner */}
       <Route path="/owner" element={<OwnerControll />} />
-      <Route path="/owner/:owner_id/restaurants/:restaurant_id/detail" element={<RestaurantDetailPage />} />
+      <Route path="/owner/restaurants/:restaurant_id/detail" element={<RestaurantDetailPage />} />
       
     </Routes>
   );

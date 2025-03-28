@@ -9,7 +9,8 @@ import StaffList from "./Staff/StaffList";
 
 const RestaurantPage = () => {
   const navigate = useNavigate();
-  const { owner_id, restaurant_id } = useParams();
+  const { restaurant_id } = useParams();
+  console.log(restaurant_id);
   const [activeComponent, setActiveComponent] = useState(() => {
     return sessionStorage.getItem("activeComponent") || "Detail";
   });
@@ -21,15 +22,15 @@ const RestaurantPage = () => {
   const renderComponent = () => {
     switch (activeComponent) {
       case "TableList":
-        return <TableList owner_id={owner_id} restaurant_id={restaurant_id} />;
+        return <TableList restaurant_id={restaurant_id} />;
       case "StaffList":
-        return <StaffList ownerId={owner_id} restaurant_id={restaurant_id} />;
+        return <StaffList restaurant_id={restaurant_id} />;
       case "StaffDetail":
         return <div>Staff Detail Content</div>;
       case "Reservation":
         return <div>History Reservation Content</div>;
       default:
-        return <TableList />
+        return <TableList restaurant_id={restaurant_id} />
     }
   };
 

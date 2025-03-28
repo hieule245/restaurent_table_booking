@@ -189,8 +189,8 @@ const RestaurantList = () => {
                     <div
                         key={restaurant.Id}
                         className="col-md-3 mb-4"
-                        onClick={() => {
-                            navigate(`/owner/${ownerId}/restaurants/${restaurant.Id}/detail`);
+                        onClick={() => { 
+                            navigate(`/owner/restaurants/${restaurant.Id}/detail`);
                         }}
                     >
                         <div className="card restaurant-card h-100">

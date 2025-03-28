@@ -7,38 +7,39 @@ import './StaffList.style.css'
 import axios from "axios";
 import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
 import AddStaff from "./AddStaff"
-import { useNavigate } from "react-router-dom";
 
-export default function StaffList({ owner_id, restaurant_id }) {
-    const navigate = useNavigate();
+
+export default function StaffList({ restaurant_id }) {
     const [staff, setStaff] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedStaff, setSelectedStaff] = useState(null);
     const [modalInstance, setModalInstance] = useState(null);
-    console.log(restaurant_id)
     useEffect(() => {
         if (!restaurant_id) return;
-
-        axios.get(`http://localhost:8080/owners/${ownerId}/${restaurant_id}/staffs`, { withCredentials: true })
-            .then((res) => {
-                setStaff(res.data.staff || []);
-            })
-            .catch((err) => {
-                if (err.response?.status === 401) {
-                    toast.error("Bạn phải đăng nhập trước!");
-                    navigate("/login"); // Chuyển hướng về trang login
-                } else {
-                    toast.error("Error fetching staff list!");
-                    console.error("Error:", err);
-                }
-            });
+        fetchStaff();
 
         // Khởi tạo modal Bootstrap
         const modalElement = document.getElementById("confirmModal");
         if (modalElement) {
             setModalInstance(new Modal(modalElement));
         }
-    }, [restaurant_id, navigate]); // Thêm navigate vào dependency để tránh cảnh báo
+    }, [restaurant_id]);
+
+    const fetchStaff = () => {
+        axios.get(`http://localhost:8080/owners/:owner_id/${restaurant_id}/staffs`, { withCredentials: true })
+            .then((res) => {
+                setStaff(res.data.staff || []);
+            })
+            .catch((err) => {
+                toast.error("Error fetching staff list!");
+                console.error("Error:", err);
+            });
+    };
+
+    // Hàm này sẽ được truyền xuống AddStaffForm
+    const handleStaffAdded = (newStaff) => {
+        setStaff((prevStaff) => [...prevStaff, newStaff]); // Cập nhật danh sách mà không cần load lại trang
+    };
 
     const handleOpenModal = (staff) => {
         setSelectedStaff(staff);
@@ -53,7 +54,7 @@ export default function StaffList({ owner_id, restaurant_id }) {
 
         try {
             await axios.post(
-                `http://localhost:8080/owners/${ownerId}/${restaurant_id}/staffs/${id}`,
+                `http://localhost:8080/owners/:owner_id/${restaurant_id}/staffs/${id}`,
                 { Status: newStatus, Id: id },
                 { withCredentials: true }
             );
@@ -147,7 +148,7 @@ export default function StaffList({ owner_id, restaurant_id }) {
                 </div>
             </div>
 
-            <AddStaff restaurantId={restaurant_id} ownerId={ownerId} />
+            <AddStaff restaurantId={restaurant_id} onStaffAdded={handleStaffAdded} />
 
             <div className="row">
                 {Array.isArray(staff) && staff.map(({ id, name, gmail, phone, status }) => (
