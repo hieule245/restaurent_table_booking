@@ -73,14 +73,11 @@ const NavBar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  function toHomepage() {
-    navigate("/");
-  }
   return (
     <>
       <header className="shadow-sm" ref={navRef}>
         <nav className="container">
-          <div className="row justify-content-between align-items-center py-2">
+          <div className="row justify-content-between align-items-center">
             <div className="col-3 row">
               <FaUtensils className="nav-icon text-white fs-1 col-2" />
               <span className="fw-bolder text-white  fs-3 col-10 ">
@@ -104,29 +101,40 @@ const NavBar = () => {
             </div>
             <div className="pt-3 col-1">
               <ul className="d-flex align-items-center">
+                {/* Authorize */}
                 {user ? (
                   <>
-                    <li className="d-flex justify-content-end align-items-center">
-                      <div class="dropdown d-flex justify-content-end">
+                    <li className="d-flex flex-column justify-content-end align-items-center">
+                      <div className="dropdown d-flex justify-content-end">
                         <button
                           type="button"
-                          class="rounded-circle border-2 border-danger"
+                          className="rounded-circle border-2 border-danger"
                           data-bs-toggle="dropdown"
                         >
+                          {/* Avatar */}
                           <img
                             src={avatar || "/default-avatar.png"}
                             alt="User Avatar"
                             className="user-avatar w-100 h-100 rounded-circle"
                           />
                         </button>
-                        <ul class="dropdown-menu">
+
+                        <ul className="dropdown-menu">
                           <li>
-                            <a class="dropdown-item" href="/personal">
+                            <a className="dropdown-item" href="/personal">
                               My Profile
                             </a>
                           </li>
                           <li>
-                            <a class="dropdown-item" onClick={handleLogout}>
+                            <a
+                              className="dropdown-item"
+                              href="/booking-history"
+                            >
+                              Booking History
+                            </a>
+                          </li>
+                          <li>
+                            <a className="dropdown-item" onClick={handleLogout}>
                               Logout
                             </a>
                           </li>

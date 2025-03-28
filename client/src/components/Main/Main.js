@@ -12,7 +12,7 @@ import PersonalPage from "../Personal/Personal";
 import Restaurants from "../../pages/Restaurant/RestaurantPage";
 import RestaurantDetailPage from "../../pages/Restaurant/Detail/DetailRestaurantPage";
 import TableDetailPage from "../../pages/Table/DetailPage";
-
+import BookingHistory from "../BookingHistory/BookingHistory";
 const Main = () => {
   return (
     <Routes future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -38,8 +38,12 @@ const Main = () => {
       />
       <Route
         path="/restaurants/:restaurant_id/tables/:table_id/detail"
-        element={<TableDetailPage />}
+        element={
+        
+        <TableDetailPage />}
       />
+      {/* Customer */}
+      <Route path="/booking-history" element={<BookingHistory />} />
     </Routes>
   );
 };

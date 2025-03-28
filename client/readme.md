@@ -1,6 +1,7 @@
 npm install bootstrap jquery
 
 #
+
 npm install axios
 
 npm install react-toastify
@@ -12,3 +13,5 @@ npm install @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons 
 npm install react-slick slick-carousel
 
 npm install --save react-tabs
+
+npm install sweetalert2

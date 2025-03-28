@@ -19,7 +19,7 @@ const RestaurantList = () => {
     axios
       .get("http://localhost:8080/restaurants")
       .then((response) => {
-        console.log(response.data); // Debug để kiểm tra API trả về
+        // console.log(response.data); // Debug để kiểm tra API trả về
         setRestaurants(response.data.restaurants); // Đúng key "restaurants"
       })
       .catch((error) => console.error("Error fetching restaurants:", error));

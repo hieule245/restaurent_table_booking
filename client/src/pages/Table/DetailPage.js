@@ -26,6 +26,7 @@ const DetailRestaurant = () => {
           <FontAwesomeIcon
             onClick={() => navigator(-1)}
             icon={faArrowLeft}
+            style={{ cursor: "pointer" }}
             className="text-warning me-2"
           />
         </div>

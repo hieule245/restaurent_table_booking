@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
+import Swal from "sweetalert2";
 const BookingCalendar = ({ table }) => {
   // Lấy thông tin thời gian hiện tại
   const today = new Date();
@@ -72,13 +72,18 @@ const BookingCalendar = ({ table }) => {
         );
 
         const reservations = response.data.reservations || [];
+        // Lọc chỉ lấy những reservation có status khác 0
+        console.log(response.data.reservations);
+        const validReservations = reservations.filter(
+          (reservation) => reservation.status !== "0"
+        );
         // Chuyển đổi mỗi reservation thành dạng "HH:MM - HH:MM"
-        const formattedBookings = reservations.map((reservation) => {
+        const formattedBookings = validReservations.map((reservation) => {
           const startHour = reservation.time_start.slice(0, 5); // "10:00"
           const endHour = reservation.time_end.slice(0, 5); // "12:00"
           return `${startHour} - ${endHour}`;
         });
-
+        console.log(formattedBookings);
         // Lưu kết quả cho ngày được chọn
         setPreBooked({
           [`${selectedMonth}-${selectedDay}`]: formattedBookings,
@@ -113,6 +118,7 @@ const BookingCalendar = ({ table }) => {
   };
 
   // Hàm xác nhận đặt bàn
+
   const confirmBooking = async () => {
     if (!selectedDay || !hasBooking) return;
 
@@ -160,22 +166,71 @@ const BookingCalendar = ({ table }) => {
         status,
       };
     });
+
     console.log("Booking data", bookingData);
 
-    try {
-      // Giả sử chỉ đặt một khung giờ, bạn có thể điều chỉnh nếu đặt nhiều giờ cùng lúc
-      await axios.post(
-        `http://localhost:8080/restaurants/${restaurant_id}/bookings`,
-        bookingData[0]
-      );
-      alert("Đặt bàn thành công!");
-      // Reset các state sau khi đặt bàn
-      setSelectedSlots([]);
-      setHasBooking(false);
-      setSelectedDay(null);
-    } catch (error) {
-      alert("Đặt bàn thất bại: " + error.response.data.error);
-    }
+    // Hiển thị hộp thoại xác nhận trước khi gửi request
+    Swal.fire({
+      title: "Xác nhận đặt bàn",
+      html: `
+      <hr>
+        <div style="display: flex; justify-content: space-between; text-align: left; gap: 20px; padding: 30px">
+          <div>
+            <p><strong>User Name :</strong> </p>
+            <p><strong>Email Address :</strong> </p>
+            <p><strong>Phone Number :</strong> </p>
+            <p><strong>Book Date :</strong> </p>
+            <p><strong>Time Start :</strong> </p>
+            <p><strong>Time End :</strong> </p>
+            <p><strong>Number of Seats :</strong> </p>
+            
+          </div>
+          <div>
+            <p>${user.Name}</p>
+            <p>${user.Email}</p>
+            <p>${user.Phone}</p>
+            <p>${book_date}</p>
+            <p>${bookingData[0].time_start}</p>
+            <p>${bookingData[0].time_end}</p>
+            <p>${numberOfCustomer}</p>
+          </div>
+        </div>
+        <hr>
+      `,
+      icon: "info",
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // Gửi request đặt bàn
+          await axios.post(
+            `http://localhost:8080/restaurants/${restaurant_id}/bookings`,
+            bookingData[0]
+          );
+
+          // Hiển thị thông báo thành công
+          Swal.fire({
+            title: "Thành công!",
+            text: "Đặt bàn thành công!",
+            icon: "success",
+            confirmButtonText: "OK",
+          });
+
+          // Reset các state sau khi đặt bàn
+          setSelectedSlots([]);
+          setHasBooking(false);
+          setSelectedDay(null);
+        } catch (error) {
+          Swal.fire({
+            title: "Lỗi!",
+            text: error.response?.data?.error || "Đặt bàn thất bại!",
+            icon: "error",
+          });
+        }
+      }
+    });
   };
 
   return (

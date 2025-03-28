@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/restaurent_table_booking/internal/db"
 	"github.com/restaurent_table_booking/internal/models"
+	pkg "github.com/restaurent_table_booking/pkg/email"
 )
 
 // BookingRequest định nghĩa dữ liệu nhận từ client để tạo booking
@@ -89,6 +90,24 @@ func CreateBooking(c *gin.Context) {
 	}
 
 	booking.ID = int(bookingID)
+
+	// Sau khi booking được lưu thành công...
+	bookingDetails := fmt.Sprintf(`
+	<p><strong>Date:</strong> %s</p>
+	<p><strong>Start Time:</strong> %s</p>
+	<p><strong>End Time:</strong> %s</p>
+	<p><strong>Number of Seats:</strong> %s</p>
+`, booking.BookDate, booking.TimeStart, booking.TimeEnd, booking.NumberOfCustomer)
+
+	// lay customer email
+	user, err := models.GetUserInformationById(int64(booking.CustomerID), "customer")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	// Gửi email xác nhận booking cho người dùng
+	pkg.SendBookingConfirmation(user.Email, bookingDetails)
+
 	c.JSON(http.StatusCreated, gin.H{"message": "Booking created successfully", "booking": booking})
 }
 
