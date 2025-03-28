@@ -51,24 +51,22 @@ func GetStaffByID(c *gin.Context) {
 }
 
 // Tạo nhân viên mới
-func CreateStaff(c *gin.Context) {
-	var staff models.Staff
-	if err := c.ShouldBindJSON(&staff); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	result, err := db.DB.Exec("INSERT INTO staffs (gmail, name, phone, status, password, restaurant_id) VALUES (?, ?, ?, ?, ?, ?)",
-		staff.Gmail, staff.Name, staff.Phone, staff.Status, staff.Password, staff.RestaurantID)
+func CreateStaff(context *gin.Context) {
+	var staff *models.Staff
+	err := context.ShouldBindBodyWithJSON(&staff)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+	userId := CurrentUser(context)
+
+	err = staff.CreateStaff(userId)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
-	insertedID, _ := result.LastInsertId()
-	staff.ID = insertedID
-
-	c.JSON(http.StatusCreated, staff)
+	context.JSON(http.StatusCreated, staff)
 }
 
 // Sửa thông tin nhân viên
@@ -141,20 +139,8 @@ func GetStaffByRestaurantId(context *gin.Context) {
 
 func LockStaff(context *gin.Context) {
 	var staff models.Staff
-	token, err := context.Cookie("token")
-	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
-		context.Abort()
-		return
-	}
-	claims, err := utils.ParseJWT(token)
-	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
-		context.Abort()
-		return
-	}
-	userId := claims.UserID
-	err = context.ShouldBindBodyWithJSON(&staff)
+	userId := CurrentUser(context)
+	err := context.ShouldBindBodyWithJSON(&staff)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't take input information"})
 		return
@@ -177,4 +163,21 @@ func LockStaff(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "This account was banned by admin"})
 	}
 
+}
+
+func CurrentUser(context *gin.Context) int64 {
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return 0
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return 0
+	}
+	userId := claims.UserID
+	return userId
 }

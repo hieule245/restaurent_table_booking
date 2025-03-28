@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
-import TableCard from "../../Card/TableCard";
+import TableCard from "../../../Card/TableCard";
 import "./Tablelist.styles.css";
 import { FaPen, FaStoreSlash } from "react-icons/fa";
 

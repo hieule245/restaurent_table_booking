@@ -111,7 +111,6 @@ func Login(context *gin.Context) {
 	_, err := context.Cookie("token")
 	if err != nil {
 		var u models.Account
-
 		err = context.ShouldBindBodyWithJSON(&u)
 		if err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
@@ -164,14 +163,7 @@ func Register(context *gin.Context) {
 			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-	} else {
-		err = u.RegisterStaff()
-		if err != nil {
-
-			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-	}
+	} 
 	context.JSON(http.StatusCreated, gin.H{"Message": "Register successfully !!"})
 }
 

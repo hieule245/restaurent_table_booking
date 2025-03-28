@@ -1,0 +1,12 @@
+POST http://localhost:8080/owners/:owner_id/:restaurant_id/staffs
+Content-Type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImdtYWlsIjoiaGlldWxlMjQ1MjAwM0BnbWFpbC5jb20iLCJyb2xlIjoib3duZXIiLCJleHAiOjE3NDMxNTE0OTJ9.NFjhP4MtAucfXTNXRGHFWZLXQO-EmoJSa-5aVHYkyz8
+
+{
+    "Name": "Lê Ngọc Hiếu",
+	"Gmail": "hieuln@gmail.com",
+	"Password":"Lengochieu@245",
+	"Phone": "0921658465",
+	"Status": "active",
+    "restaurant_id": 58
+}

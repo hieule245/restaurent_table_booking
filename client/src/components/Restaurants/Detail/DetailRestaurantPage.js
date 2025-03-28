@@ -4,8 +4,8 @@ import { FaArrowLeft } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 
-import TableList from "./TableList";
-import StaffList from "./StaffList";
+import TableList from "./Table/TableList";
+import StaffList from "./Staff/StaffList";
 
 const RestaurantPage = () => {
   const navigate = useNavigate();

@@ -15,12 +15,13 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleNavigation = useCallback(
-    (role) => {
-      if (role === "admin") {
+    (Role) => {
+      console.log(Role)
+      if (Role === "admin") {
         navigate("/admin");
-      } else if (role === "owner") {
+      } else if (Role === "owner") {
         navigate("/owner");
-      } else {
+      } else if (Role === "customer")  {
         navigate("/");
       }
     },
@@ -37,9 +38,8 @@ const LoginPage = () => {
     axios
       .get("http://localhost:8080/me", { withCredentials: true })
       .then((res) => {
-        setTimeout(() => {
-          handleNavigation(res.data.role);
-        }, 100);
+        // console.log(res.data.user.Role)
+        handleNavigation(res.data.user.Role);
       })
       .catch((err) => {
         console.log("login dum tui", err);

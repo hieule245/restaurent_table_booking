@@ -2,9 +2,11 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/restaurent_table_booking/internal/db"
+	"github.com/restaurent_table_booking/internal/utils"
 )
 
 type Staff struct {
@@ -42,7 +44,7 @@ func GetAllStaffEachRestaurant(restaurantID int64) ([]Staff, error) {
 	return st, nil
 }
 
-func CheckPermissions(ownerId, id int64) error {
+func CheckPermissionsToLock(ownerId, id int64) error {
 	var str string
 	rows := db.DB.QueryRow("SELECT restaurant_id FROM staffs WHERE id = ?", id)
 	err := rows.Scan(&str)
@@ -52,11 +54,19 @@ func CheckPermissions(ownerId, id int64) error {
 	}
 
 	restaurant_id, err := strconv.ParseInt(str, 10, 64)
-	rows = db.DB.QueryRow("SELECT owner_id FROM restaurants WHERE id = ?", restaurant_id)
+	CheckPermissionsToAdd(ownerId, restaurant_id, id)
+	return nil
+}
+
+func CheckPermissionsToAdd(ownerId, restaurant_id, id int64) error {
+	rows := db.DB.QueryRow("SELECT owner_id FROM restaurants WHERE id = ?", restaurant_id)
 	var ownerStr string
 	rows.Scan(&ownerStr)
 	owner_id, err := strconv.ParseInt(ownerStr, 10, 64)
-
+	if err != nil {
+		panic(err)
+		return err
+	}
 	if ownerId != owner_id {
 		return errors.New("You do not have permission in here!")
 	}
@@ -65,7 +75,7 @@ func CheckPermissions(ownerId, id int64) error {
 
 func LockStaff(ownerId, id int64) error {
 	// Check quyền
-	err := CheckPermissions(ownerId, id)
+	err := CheckPermissionsToLock(ownerId, id)
 
 	// Khóa nhân viên
 	query := `
@@ -89,7 +99,7 @@ func LockStaff(ownerId, id int64) error {
 
 func UnlockStaff(ownerId, id int64) error {
 	// Check quyền
-	err := CheckPermissions(ownerId, id)
+	err := CheckPermissionsToLock(ownerId, id)
 
 	// Khóa nhân viên
 	query := `
@@ -109,5 +119,54 @@ func UnlockStaff(ownerId, id int64) error {
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(id)
+	return nil
+}
+
+func (staff *Staff) CreateStaff(userId int64) error {
+	query := `
+	INSERT INTO staffs (gmail, name, phone, status, password, restaurant_id) 
+	VALUES (?, ?, ?, ?, ?, ?);
+	`
+	err := CheckPermissionsToAdd(userId, staff.RestaurantID, staff.ID)
+	if err != nil {
+		return err
+	}
+	rows, err := db.DB.Query(`SELECT id, restaurant_id, status FROM staffs WHERE gmail = ?`, staff.Gmail)
+	for rows.Next() {
+		var st Staff
+		err := rows.Scan(&st.ID, &st.RestaurantID, &st.Status)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		if err == nil && staff.RestaurantID == st.RestaurantID {
+			return errors.New("This account has already been created here!")
+		} else if err == nil && staff.RestaurantID != st.RestaurantID && st.Status == "active" {
+			return errors.New("This staff has already work in another place!")
+		} else if err == nil && st.Status == "ban" {
+			return errors.New("This staff was blocked for working elsewhere!")
+		}
+	}
+
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	defer stmt.Close()
+	staff.Status = "active"
+
+	hashPassword, err := utils.HashPassword(staff.Password)
+	if err != nil {
+		return err
+	}
+
+	result, err := stmt.Exec(staff.Gmail, staff.Name, staff.Phone, staff.Status, hashPassword, staff.RestaurantID)
+	if err != nil {
+		return err
+	}
+
+	insertedID, _ := result.LastInsertId()
+	staff.ID = insertedID
 	return nil
 }
