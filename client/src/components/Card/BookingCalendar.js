@@ -19,7 +19,7 @@ const BookingCalendar = ({ table }) => {
 
   // Lấy tham số từ URL
   const { table_id, restaurant_id } = useParams();
-
+console.log("restaurant id", restaurant_id)
   // Khởi tạo state cho tháng và ngày được chọn
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);

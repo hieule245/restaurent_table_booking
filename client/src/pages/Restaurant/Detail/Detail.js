@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
-import TableCard from "../../../components/Card/TableCard";
+import TableCard from "../../../components/Card/TableCustomerCard";
 import "./Detail.styles.css";
 import { useParams } from "react-router-dom";
 import axios from "axios";

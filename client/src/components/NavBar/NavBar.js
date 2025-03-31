@@ -15,13 +15,16 @@ const NavBar = () => {
   const [user, setUser] = useState(false);
   const navigate = useNavigate();
   const navRef = useRef(null);
-
+  
   // Lưu thông tin từ cookie
   useEffect(() => {
     axios
       .get("http://localhost:8080/me", { withCredentials: true })
       .then((res) => {
-        setUser(res.data); // lưu thông tin user
+        if (res.data.user) {
+          setUser(res.data.user); // lưu thông tin user
+          console.log(res.data.user)
+        }
       })
       .catch(() => {
         setUser(null);
@@ -42,7 +45,6 @@ const NavBar = () => {
       console.error("Logout failed:", error);
     }
   };
-
   // onClick HANDLER
   const handleClick = () => {
     if (nav) {
@@ -90,9 +92,9 @@ const NavBar = () => {
               </span>
             </div>
             <div className="col-8 row">
-              {(user?.role === "customer"||user?.role === "admin") && (
+              {(user.Role === "customer" || user.Role === "admin") && (
                 <div className="d-flex justify-content-start align-items-center">
-                  <a className="mt-1 fw-bold text-white fs-5" href="/restaurants">Restaurants</a>
+                  <a className="mt-1 fw-bold text-white fs-5 text-decoration-none" onClick={() => navigate("/restaurants")}>Restaurants</a>
                 </div>
               )}
             </div>

@@ -10,6 +10,7 @@ import "./DetailRestaurant.css";
 const DetailRestaurant = () => {
   const navigate = useNavigate();
   const { table_id, restaurant_id } = useParams();
+  console.log("table id",table_id)
   const [table, setTable] = useState({});
   const [bookings, setBookings] = useState({});
 
