@@ -9,7 +9,7 @@ import "./DetailRestaurant.css";
 
 const DetailRestaurant = () => {
   const navigate = useNavigate();
-  const { table_id, restaurant_id } = useParams();
+  const { table_id } = useParams();
   const [table, setTable] = useState({});
   const [bookings, setBookings] = useState({});
 
@@ -31,7 +31,9 @@ const DetailRestaurant = () => {
             />
           </div>
           <div className="table-info">
-            <h4 className="table-title">{table.name + " #" + table.id}</h4>
+            <h4 className="table-title fw-bold">
+              {table.name + " #" + table.id}
+            </h4>
             <p className="table-details">
               <small>
                 Số chỗ: {table.seats} - Loại bàn: {table.type}

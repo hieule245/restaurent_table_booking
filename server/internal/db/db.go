@@ -91,7 +91,7 @@ func createTable() {
 	StaffQuery := `
 	CREATE TABLE IF NOT EXISTS staffs (
 		id INTEGER PRIMARY KEY AUTO_INCREMENT,
-		gmail VARCHAR(50) NOT NULL UNIQUE,
+		gmail VARCHAR(50) NOT NULL,
 		name NVARCHAR(50) NOT NULL, 
 		phone VARCHAR(50) NOT NULL,
 		status VARCHAR(10) NOT NULL,

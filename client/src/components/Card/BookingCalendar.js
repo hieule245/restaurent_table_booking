@@ -207,7 +207,8 @@ const BookingCalendar = ({ table }) => {
           // Gửi request đặt bàn
           await axios.post(
             `http://localhost:8080/restaurants/${restaurant_id}/bookings`,
-            bookingData[0]
+            bookingData[0],
+            { withCredentials: true }
           );
 
           // Hiển thị thông báo thành công
@@ -235,7 +236,7 @@ const BookingCalendar = ({ table }) => {
 
   return (
     <div>
-      <div className="row">
+      <div className="row bg-white m-2 rounded text-dark">
         {/* Danh sách tháng */}
         <div className="col-md-1 border-end" style={{ height: "100vh" }}>
           <div className="mt-4">

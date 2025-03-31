@@ -68,7 +68,7 @@ func IsRestaurantExist(restaurantID int) (bool, error) {
 }
 
 // Lấy tất cả bàn ăn theo restaurant_id
-func GetAllTables(restaurantID int) ([]Table, error) {
+func GetAllTables(restaurantID int64) ([]Table, error) {
 	rows, err := db.DB.Query("SELECT id, name, type, seats, restaurant_id FROM tables WHERE restaurant_id = ?", restaurantID)
 	if err != nil {
 		return nil, err

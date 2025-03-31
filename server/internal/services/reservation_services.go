@@ -26,7 +26,6 @@ func GetBookedTimesHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "book_date is required"})
 		return
 	}
-	fmt.Println("bookDate: ", bookDate)
 
 	reservations, err := models.GetReservationsByTableDate(tableID, bookDate)
 	if err != nil {
@@ -39,15 +38,15 @@ func GetBookedTimesHandler(c *gin.Context) {
 }
 
 // GetAvailableTables trả về danh sách bàn trống dựa trên khoảng thời gian đặt
-func GetAvailableTables(c *gin.Context) {
-	restaurantID := c.Param("restaurant_id")
-	date := c.Query("date")            // Ví dụ: "2025-03-27"
-	startTime := c.Query("time_start") // Ví dụ: "10:00:00"
-	endTime := c.Query("time_end")     // Ví dụ: "12:00:00"
+func GetAvailableTables(context *gin.Context) {
+	restaurantID := context.Param("restaurant_id")
+	date := context.Query("date")            // Ví dụ: "2025-03-27"
+	startTime := context.Query("time_start") // Ví dụ: "10:00:00"
+	endTime := context.Query("time_end")     // Ví dụ: "12:00:00"
 
 	// Kiểm tra các tham số bắt buộc
 	if date == "" || startTime == "" || endTime == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required query parameters"})
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Missing required query parameters"})
 		return
 	}
 
@@ -64,7 +63,7 @@ func GetAvailableTables(c *gin.Context) {
 	`
 	rows, err := db.DB.Query(query, restaurantID, date, endTime, startTime)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	defer rows.Close()
@@ -73,11 +72,28 @@ func GetAvailableTables(c *gin.Context) {
 	for rows.Next() {
 		var table models.Table
 		if err := rows.Scan(&table.ID, &table.Name, &table.Type, &table.Seats, &table.Description, &table.RestaurantID); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		availableTables = append(availableTables, table)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"tables": availableTables})
+	context.JSON(http.StatusOK, gin.H{"tables": availableTables})
+}
+
+func GetAllReservationOfRestaurant(context *gin.Context) {
+	restaurant_id, err := strconv.ParseInt(context.Param("restaurant_id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "can't convert to int 64"})
+		return
+	}
+
+	tables, err := models.GetAllTables(restaurant_id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch tables"})
+		return
+	}
+
+	
+
 }
