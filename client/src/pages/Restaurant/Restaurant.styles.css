@@ -1,46 +1,35 @@
-
-
-.image-container {
-    width: 100%;
-    height: 180px; /* Cố định chiều cao của ảnh */
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.restaurant-card {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff; /* Nền trắng tinh tế */
+  border: 2px solid #a71d2a;
+  /* #dc3545 */
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
 
-.restaurant-card {
-    border-radius: 12px;
-    overflow: hidden;
-    background: #FFF3E0; /* Cam pastel nhẹ */
-    border: 2px solid #FF7043; /* Viền cam đậm */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
-  }
-  
-  .restaurant-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-  }
+.restaurant-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(220, 53, 69, 0.3); /* Tạo hiệu ứng bóng màu đỏ */
+}
 
-  
-  .restaurant-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-bottom: 3px solid #D84315; /* Viền cam đất đậm */
-  }
-  
-  /* Giờ mở cửa */
-  .restaurant-hours {
-    margin-top: 10px;
-    font-size: 14px;
-    font-weight: bold;
-    color: #333;
-    background: #FFD54F; /* Vàng nhạt */
-    padding: 5px 10px;
-    border-radius: 8px;
-    display: inline-block;
-  }
-  
+/* Ảnh nhà hàng */
+.restaurant-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-bottom: 3px solid #a71d2a; /* Viền đỏ đậm */
+}
+
+/* Giờ mở cửa */
+.restaurant-hours {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff; /* Chữ trắng */
+  background: #000000; /* Nền đen */
+  padding: 5px 10px;
+  border-radius: 8px;
+  display: inline-block;
+}

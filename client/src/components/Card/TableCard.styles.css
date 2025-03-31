@@ -1,0 +1,41 @@
+/* TableCard.styles.css */
+
+.table-card {
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: #f8f9fa; /* Nền trắng ngà */
+  border: 1px solid red; /* Viền mảnh */
+  border-radius: 1rem; /* Bo góc mềm mại */
+  overflow: hidden;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.table-card img {
+  height: 180px;
+  width: 100%;
+  object-fit: cover;
+  filter: brightness(90%); /* Làm tối nhẹ ảnh để nội dung nổi bật hơn */
+}
+
+.table-card-body {
+  text-align: center;
+  padding: 1rem;
+}
+
+.table-card-body h5 {
+  font-weight: bold;
+  color: #212529;
+}
+
+.table-card-body p {
+  margin-bottom: 0.5rem;
+}
+
+.table-card-body .small {
+  color: #6c757d; /* Màu chữ nhẹ nhàng hơn */
+}

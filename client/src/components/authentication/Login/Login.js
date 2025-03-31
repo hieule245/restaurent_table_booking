@@ -1,33 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
-// import $ from "jquery";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useCallback } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faEyeSlash, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import './Login.style.css'
 
 const LoginPage = () => {
   const navigate = useNavigate();
 
-  const handleNavigation = useCallback(
-    (role) => {
-      if (role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
-    },
-    [navigate]
-  );
+  const handleNavigation = useCallback((role) => {
+    if (role === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/");
+    }
+  }, [navigate]);
 
   let [email, setEmail] = useState("");
   let [password, setPassword] = useState("");
-  let [showPassword, setShowPassword] = useState(false); // State for showing password
+  let [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -88,15 +84,8 @@ const LoginPage = () => {
           .then((res) => {
             setTimeout(() => {
               const userRole = res.data.role;
-              console.log(userRole);
               if (userRole === "admin") {
                 navigate("/admin");
-              } else if (userRole === "owner") {
-                navigate("/");
-              } else if (userRole === "staff") {
-                navigate("/");
-              } else if (userRole === "customer") {
-                navigate("/");
               } else {
                 navigate("/");
               }
@@ -108,18 +97,23 @@ const LoginPage = () => {
       }
     } catch (error) {
       toast.error(error.response.data.message);
-      // toast.error("Error during login. Please try again.");
     }
   };
 
   return (
     <div>
       <ToastContainer />
+
+      {/* Nút Quay Lại Trang Chủ */}
+      <button className="btn btn-outline-light back-home-btn" onClick={() => navigate("/")}>
+        <FontAwesomeIcon icon={faArrowLeft} /> Back to Home
+      </button>
+
       <motion.div
         className="d-flex"
-        initial={{ opacity: 0, x: 100 }} // Bắt đầu từ bên phải
-        animate={{ opacity: 1, x: 0 }} // Di chuyển vào giữa
-        exit={{ opacity: 0, x: -100 }} // Rời khỏi sang trái
+        initial={{ opacity: 0, x: 100 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -100 }}
         transition={{ duration: 0.5 }}
       >
         <div className="sidenav d-flex align-items-center justify-content-center text-white text-center">
@@ -134,8 +128,7 @@ const LoginPage = () => {
             <div className="login-form">
               <form onSubmit={HandleLogin}>
                 <div className="form-group my-2">
-                  <label className="form-label">Email</label>{" "}
-                  {/* Added Bootstrap class "form-label" */}
+                  <label className="form-label">Email</label>
                   <input
                     type="text"
                     className="form-control"
@@ -154,7 +147,6 @@ const LoginPage = () => {
                       type={showPassword ? "text" : "password"}
                       className="form-control"
                       placeholder="Password"
-                      style={{ borderRight: 0 }}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
@@ -163,9 +155,7 @@ const LoginPage = () => {
                       style={{ cursor: "pointer", borderLeft: 0 }}
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      <FontAwesomeIcon
-                        icon={showPassword ? faEye : faEyeSlash}
-                      />
+                      <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
                     </span>
                   </div>
                   {errors.password && (
@@ -185,10 +175,9 @@ const LoginPage = () => {
                     <hr className="flex-grow-1" />
                     <span className="mx-2">or</span>
                     <hr className="flex-grow-1" />
-                  </div>{" "}
-                  {/* Added line dividers */}
-                  <button 
-                    type="submit"
+                  </div>
+                  <button
+                    type="button"
                     className="btn btn-light w-100"
                     onClick={() => navigate("/register")}
                   >
@@ -205,48 +194,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-
-// CSS styles
-const styles = `
-  .sidenav {
-    height: 100vh;
-    width: 40%;
-    background-color: #343a40;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .login-main-text {
-    padding: 60px;
-    text-align: center;
-  }
-  .main {
-    width: 60%;
-    padding: 20px;
-    background-color: #f8f9fa;
-  }
-  .btn-dark {
-    background-color: #343a40 !important;
-    color: #fff;
-  }
-  .btn-light {
-    background-color: #f8f9fa !important;
-    color: #343a40;
-  }
-  @media (max-width: 768px) {
-    .sidenav {
-      width: 100%;
-      height: 40vh;
-    }
-    .main {
-      width: 100%;
-      padding-top: 20px;
-    }
-  }
-`;
-
-const styleSheet = document.createElement("style");
-styleSheet.type = "text/css";
-styleSheet.innerText = styles;
-document.head.appendChild(styleSheet);

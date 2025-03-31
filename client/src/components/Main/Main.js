@@ -9,10 +9,10 @@ import CheckPin from "../authentication/ForgotPassword/CheckPin";
 import ResetPassword from "../authentication/ForgotPassword/ResetPassword";
 import Admin from "../Admin/Admin";
 import PersonalPage from "../Personal/Personal";
-import Restaurants from "../../pages/Restaurant/RestaurantPage"
-import RestaurantDetailPage from "../../pages/Restaurant/DetailRestaurantPage";
+import Restaurants from "../../pages/Restaurant/RestaurantPage";
+import RestaurantDetailPage from "../../pages/Restaurant/Detail/DetailRestaurantPage";
 import TableDetailPage from "../../pages/Table/DetailPage";
-
+import BookingHistory from "../BookingHistory/BookingHistory";
 const Main = () => {
   return (
     <Routes future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -32,8 +32,18 @@ const Main = () => {
 
       {/* Restaurant */}
       <Route path="/restaurants" element={<Restaurants />} />
-      <Route path="/restaurants/:id/detail" element={<RestaurantDetailPage />} />
-      <Route path="/restaurants/:id/tables/:id/detail" element={<TableDetailPage />} />
+      <Route
+        path="/restaurants/:restaurant_id/detail"
+        element={<RestaurantDetailPage />}
+      />
+      <Route
+        path="/restaurants/:restaurant_id/tables/:table_id/detail"
+        element={
+        
+        <TableDetailPage />}
+      />
+      {/* Customer */}
+      <Route path="/booking-history" element={<BookingHistory />} />
     </Routes>
   );
 };

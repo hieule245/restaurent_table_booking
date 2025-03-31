@@ -6,7 +6,7 @@ const TestAPI = () => {
   return (
     <>
       <TestApiAll />
-      <TestBookTimeTable />
+      {/* <TestBookTimeTable /> */}
     </>
   );
 };

@@ -85,3 +85,40 @@ func RandomPin() int {
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(900000) + 100000
 }
+
+// SendBookingConfirmation gửi email xác nhận booking với thông tin đặt bàn
+func SendBookingConfirmation(email string, bookingDetails string) {
+	auth := smtp.PlainAuth(
+		"",
+		"golangtraining2025@gmail.com",
+		"vowhfgfectpvypos",
+		"smtp.gmail.com",
+	)
+
+	msg := fmt.Sprintf(`From: golangtraining2025@gmail.com
+To: %s
+Subject: Booking Confirmation
+MIME-Version: 1.0
+Content-Type: text/html; charset="UTF-8"
+
+<html>
+	<body style="font-family: Arial, sans-serif;">
+		<p>Dear %s,</p>
+		<p>Your booking has been confirmed with the following details:</p>
+		%s
+		<p>Thank you for choosing our service!</p>
+	</body>
+</html>`, email, email, bookingDetails)
+
+	err := smtp.SendMail(
+		"smtp.gmail.com:587",
+		auth,
+		"golangtraining2025@gmail.com",
+		[]string{email},
+		[]byte(msg),
+	)
+
+	if err != nil {
+		fmt.Println("Error sending booking confirmation email:", err)
+	}
+}
