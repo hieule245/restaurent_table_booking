@@ -13,7 +13,7 @@ import Restaurants from "../../pages/Restaurant/RestaurantPage"
 import RestaurantDetailPage from "../../components/Restaurants/Detail/DetailRestaurantPage";
 import TableDetailPage from "../../pages/Table/DetailPage";
 import OwnerControll from "../../pages/Owner/Owner"
-
+import BookingHistory from "../BookingHistory/BookingHistory";
 const Main = () => {
   return (
     <Routes future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -40,6 +40,18 @@ const Main = () => {
       <Route path="/owner" element={<OwnerControll />} />
       <Route path="/owner/restaurants/:restaurant_id/detail" element={<RestaurantDetailPage />} />
       
+      <Route
+        path="/restaurants/:restaurant_id/detail"
+        element={<RestaurantDetailPage />}
+      />
+      <Route
+        path="/restaurants/:restaurant_id/tables/:table_id/detail"
+        element={
+        
+        <TableDetailPage />}
+      />
+      {/* Customer */}
+      <Route path="/booking-history" element={<BookingHistory />} />
     </Routes>
   );
 };

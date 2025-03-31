@@ -6,6 +6,7 @@ import (
 	"github.com/restaurent_table_booking/internal/services"
 )
 
+// AuthRoutes định nghĩa các route xác thực và quản lý người dùng.
 func AuthRoutes(server *gin.Engine) {
 	server.POST("/login", services.Login)
 	server.POST("/register", services.Register)

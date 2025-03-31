@@ -4,7 +4,8 @@ const RestaurantLayout = ({ children }) => {
   return (
     <>
       <NavBar />
-      <div className="pt-5 mt-5">{children}</div>
+      <div className="py-2 fs-3">margin top</div>
+      <div className="pt-4">{children}</div>
       <Footer />
     </>
   );

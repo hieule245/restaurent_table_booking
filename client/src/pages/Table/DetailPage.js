@@ -1,26 +1,54 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import CalendarRow from "../../components/Card/BookingCalendar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import RestaurantLayout from "../Restaurant/restaurantLayout";
+import "./DetailRestaurant.css";
 
 const DetailRestaurant = () => {
-    const navigator = useNavigate();
-    return (
-        <div className="container-fluid">
-            <div className="row shadow" style={{ background: '#495e57' }}>
-                <div className="col-3 p-3 d-flex align-items-center">
-                    <FontAwesomeIcon onClick={() => navigator('/restaurants/:id/detail')} icon={faArrowLeft} className="text-warning me-2" />
-                </div>
-                <div className="col-6 d-flex flex-column justify-content-center align-items-center text-warning" >
-                    <h4 className="mt-2 text-uppercase">Tên bàn</h4>
-                    <p className="mb-2"><small>số chỗ - loại bàn</small></p>
-                </div>
-            </div>
-            <div>
-                <CalendarRow />
-            </div>
+  const navigate = useNavigate();
+  const { table_id, restaurant_id } = useParams();
+  const [table, setTable] = useState({});
+  const [bookings, setBookings] = useState({});
+
+  useEffect(() => {
+    axios.get(`http://localhost:8080/table/${table_id}`).then((response) => {
+      setTable(response.data.table);
+    });
+  }, [table_id]);
+
+  return (
+    <RestaurantLayout>
+      <div className="detail-restaurant-container">
+        <div className="header-row shadow">
+          <div className="back-icon">
+            <FontAwesomeIcon
+              onClick={() => navigate(-1)}
+              icon={faArrowLeft}
+              className="arrow-icon"
+            />
+          </div>
+          <div className="table-info">
+            <h4 className="table-title">{table.name + " #" + table.id}</h4>
+            <p className="table-details">
+              <small>
+                Số chỗ: {table.seats} - Loại bàn: {table.type}
+              </small>
+            </p>
+          </div>
         </div>
-    );
+        <div className="calendar-row-container">
+          <CalendarRow
+            table={table}
+            bookings={bookings}
+            setBookings={setBookings}
+          />
+        </div>
+      </div>
+    </RestaurantLayout>
+  );
 };
 
 export default DetailRestaurant;

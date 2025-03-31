@@ -7,14 +7,14 @@ import { Link } from "react-router-dom";
 import "./NavBar.styles.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import avatar from '../../assets/image/avatar.jpeg'
+import avatar from "../../assets/image/avatar.jpeg";
 
 const NavBar = () => {
   // STATE FOR HAMBURGER MENU
   const [nav, setNav] = useState(false);
   const [user, setUser] = useState(false);
   const navigate = useNavigate();
-  const navRef = useRef(null)
+  const navRef = useRef(null);
 
   // Lưu thông tin từ cookie
   useEffect(() => {
@@ -22,16 +22,20 @@ const NavBar = () => {
       .get("http://localhost:8080/me", { withCredentials: true })
       .then((res) => {
         setUser(res.data); // lưu thông tin user
-      }).catch(() => {
-        setUser(null)
       })
-  })
-
+      .catch(() => {
+        setUser(null);
+      });
+  }, []);
 
   // Xử lý Logout
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:8080/logout", {}, { withCredentials: true });
+      await axios.post(
+        "http://localhost:8080/logout",
+        {},
+        { withCredentials: true }
+      );
       setUser(null);
       navigate("/");
     } catch (error) {
@@ -69,7 +73,6 @@ const NavBar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-
   return (
     <>
       <header className="shadow-sm" ref={navRef}>
@@ -77,7 +80,14 @@ const NavBar = () => {
           <div className="row justify-content-between align-items-center">
             <div className="col-3 row">
               <FaUtensils className="nav-icon text-white fs-1 col-2" />
-              <span className="fw-bolder text-white  fs-3 col-10">TableBooker</span>
+              <span className="fw-bolder text-white  fs-3 col-10 ">
+                <a
+                  onClick={() => navigate("/")}
+                  className="text-white text-decoration-none cursor-pointer"
+                >
+                  TableBooker
+                </a>
+              </span>
             </div>
             <div className="col-8 row">
               {(user?.role === "customer"||user?.role === "admin") && (
@@ -88,6 +98,7 @@ const NavBar = () => {
             </div>
             <div className="pt-3 col-1">
               <ul className="d-flex align-items-center">
+                {/* Authorize */}
                 {user ? (
                   <>
                     <li className="d-flex justify-content-end align-items-center">
@@ -95,9 +106,26 @@ const NavBar = () => {
                         <button type="button" class="rounded-circle border-2 border-danger" data-bs-toggle="dropdown">
                           <img src={avatar || "/default-avatar.png"} alt="User Avatar" className="user-avatar w-100 h-100 rounded-circle" />
                         </button>
-                        <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="/personal">My Profile</a></li>
-                          <li><a class="dropdown-item" onClick={handleLogout}>Logout</a></li>
+
+                        <ul className="dropdown-menu">
+                          <li>
+                            <a className="dropdown-item" href="/personal">
+                              My Profile
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              className="dropdown-item"
+                              href="/booking-history"
+                            >
+                              Booking History
+                            </a>
+                          </li>
+                          <li>
+                            <a className="dropdown-item" onClick={handleLogout}>
+                              Logout
+                            </a>
+                          </li>
                         </ul>
                       </div>
                     </li>
@@ -131,7 +159,9 @@ const NavBar = () => {
                 )}
               </ul>
               <div onClick={() => setNav(!nav)}>
-                <HiOutlineMenuAlt1 className={nav ? "hamburger-off" : "hamburger-on"} />
+                <HiOutlineMenuAlt1
+                  className={nav ? "hamburger-off" : "hamburger-on"}
+                />
               </div>
             </div>
           </div>

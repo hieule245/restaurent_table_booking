@@ -1,6 +1,7 @@
 npm install bootstrap jquery
 
 #
+
 npm install axios
 
 npm install react-toastify
@@ -18,3 +19,5 @@ npm install chart.js react-chartjs-2
 npm install js-cookie
 
 npm install jwt-decode
+
+npm install sweetalert2

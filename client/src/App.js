@@ -5,10 +5,12 @@ import "bootstrap/dist/js/bootstrap.bundle.min";
 
 function App() {
   return (
-    <Main />
-    // <div>
-    //   <TestAPI />
-    // </div>
+    <>
+      <Main />
+      <div>
+        <TestAPI />
+      </div>
+    </>
   );
 }
 

@@ -8,12 +8,13 @@ type Reservation struct {
 	BookDate  string `json:"book_date"`  // YYYY-MM-DD
 	TimeStart string `json:"time_start"` // HH:MM:SS hoặc HH:MM
 	TimeEnd   string `json:"time_end"`
+	Status    string `json:"status"`
 }
 
 // GetReservationsByTableDate lấy tất cả các reservation của bàn (tableID) vào ngày bookDate
 func GetReservationsByTableDate(tableID int, bookDate string) ([]Reservation, error) {
 	query := `
-		SELECT id, book_date, time_start, time_end
+		SELECT id, book_date, time_start, time_end, status
 		FROM reservations
 		WHERE table_id = ?
 		  AND book_date = ?
@@ -28,7 +29,7 @@ func GetReservationsByTableDate(tableID int, bookDate string) ([]Reservation, er
 	var reservations []Reservation
 	for rows.Next() {
 		var r Reservation
-		if err := rows.Scan(&r.ID, &r.BookDate, &r.TimeStart, &r.TimeEnd); err != nil {
+		if err := rows.Scan(&r.ID, &r.BookDate, &r.TimeStart, &r.TimeEnd, &r.Status); err != nil {
 			return nil, err
 		}
 		reservations = append(reservations, r)
