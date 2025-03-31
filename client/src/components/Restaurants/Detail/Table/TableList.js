@@ -13,11 +13,15 @@ const TableList = ({ restaurant_id }) => {
   const [tables, setTables] = useState([]);
   const [restaurant, setRestaurant] = useState({});
   const [formData, setFormData] = useState({});
-  const [newTable, setNewTable] = useState({ name: "", type: "", seats: "", Description: "" });
+  const [newTable, setNewTable] = useState({ name: "", type: "", seats: tables.seats|| "", Description: "" });
   const modalRef = useRef(null);
   const addTableModalRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
   const tablesPerPage = 6;
+  
+    const handleChange = (e) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value, [e.target.name]:e.target.name === "seats" ? Number(e.target.value):e.target.value });
+    };
 
   useEffect(() => {
     fetchTables();
@@ -42,10 +46,6 @@ const TableList = ({ restaurant_id }) => {
       .catch(() => toast.error("Error fetching restaurant!"));
   }, [restaurant_id]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     axios.put(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}`, formData, { withCredentials: true })
@@ -58,7 +58,7 @@ const TableList = ({ restaurant_id }) => {
   };
 
   const handleNewTableChange = (e) => {
-    setNewTable({ ...newTable, [e.target.name]: e.target.value });
+    setNewTable({ ...newTable, [e.target.name]: e.target.value, [e.target.name]:e.target.name === "seats" ? Number(e.target.value):e.target.value  });
   };
 
   const handleAddTable = (e) => {

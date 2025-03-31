@@ -92,7 +92,7 @@ const NavBar = () => {
               </span>
             </div>
             <div className="col-8 row">
-              {(user.Role === "customer" || user.Role === "admin") && (
+              {user && (user.Role === "customer" || user.Role === "admin") && (
                 <div className="d-flex justify-content-start align-items-center">
                   <a className="mt-1 fw-bold text-white fs-5 text-decoration-none" onClick={() => navigate("/restaurants")}>Restaurants</a>
                 </div>
