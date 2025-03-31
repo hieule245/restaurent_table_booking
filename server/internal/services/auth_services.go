@@ -111,7 +111,6 @@ func Login(context *gin.Context) {
 	_, err := context.Cookie("token")
 	if err != nil {
 		var u models.Account
-
 		err = context.ShouldBindBodyWithJSON(&u)
 		if err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
@@ -164,14 +163,7 @@ func Register(context *gin.Context) {
 			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-	} else {
-		err = u.RegisterStaff()
-		if err != nil {
-
-			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-	}
+	} 
 	context.JSON(http.StatusCreated, gin.H{"Message": "Register successfully !!"})
 }
 
@@ -267,4 +259,49 @@ func CheckPin(context *gin.Context) {
 	pinStorage.Delete(input.Email)
 
 	context.JSON(http.StatusOK, gin.H{"message": "Check successfully !!"})
+}
+
+func ChangePassword(context *gin.Context) {
+	var pass models.NewPassword
+	err := context.ShouldBindBodyWithJSON(&pass)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid Input"})
+	}
+	var acc models.Account
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return
+	}
+	acc.Email = claims.Gmail
+	err = acc.ChangePassword(pass)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"message": "Change password succesfully!"})
+}
+
+func UpdateProfile(context *gin.Context) {
+	var acc models.Account
+	var err error
+	context.ShouldBindBodyWithJSON(&acc)
+	if acc.Role == "staff" {
+		err = acc.UpdateStaff()
+	} else if acc.Role == "owner" {
+		err = acc.UpdateOwner()
+	} else if acc.Role == "customer" {
+		err = acc.UpdateCustomer()
+	}
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+	}
+	context.JSON(http.StatusOK, gin.H{"messge": "Update successfully!!"})
 }

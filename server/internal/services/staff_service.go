@@ -3,10 +3,12 @@ package services
 import (
 	"database/sql"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/restaurent_table_booking/internal/db"
 	"github.com/restaurent_table_booking/internal/models"
+	"github.com/restaurent_table_booking/internal/utils"
 )
 
 // Lấy danh sách nhân viên
@@ -49,31 +51,29 @@ func GetStaffByID(c *gin.Context) {
 }
 
 // Tạo nhân viên mới
-func CreateStaff(c *gin.Context) {
-	var staff models.Staff
-	if err := c.ShouldBindJSON(&staff); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	result, err := db.DB.Exec("INSERT INTO staffs (gmail, name, phone, status, password, restaurant_id) VALUES (?, ?, ?, ?, ?, ?)",
-		staff.Gmail, staff.Name, staff.Phone, staff.Status, staff.Password, staff.RestaurantID)
+func CreateStaff(context *gin.Context) {
+	var staff *models.Staff
+	err := context.ShouldBindBodyWithJSON(&staff)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	userId := CurrentUser(context)
+
+	err = staff.CreateStaff(userId)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
-	insertedID, _ := result.LastInsertId()
-	staff.ID = int(insertedID)
-
-	c.JSON(http.StatusCreated, staff)
+	context.JSON(http.StatusCreated, staff)
 }
 
 // Sửa thông tin nhân viên
 func EditStaff(c *gin.Context) {
 	staffID := c.Param("staff_id")
 	var staff models.Staff
-	if err := c.ShouldBindJSON(&staff); err != nil {
+	if err := c.ShouldBindBodyWithJSON(&staff); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
@@ -122,4 +122,62 @@ func SearchStaffs(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, staffs)
+}
+
+func GetStaffByRestaurantId(context *gin.Context) {
+	var staff []models.Staff
+	restaurantId, err := strconv.ParseInt(context.Param("restaurant_id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't take input information"})
+	}
+	staff, err = models.GetAllStaffEachRestaurant(restaurantId)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Can't get information in database"})
+	}
+	context.JSON(http.StatusOK, gin.H{"staff": staff})
+}
+
+func LockStaff(context *gin.Context) {
+	var staff models.Staff
+	userId := CurrentUser(context)
+	err := context.ShouldBindBodyWithJSON(&staff)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't take input information"})
+		return
+	}
+	if staff.Status == "active" {
+		err = models.LockStaff(userId, staff.ID)
+		if err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
+		}
+		context.JSON(http.StatusOK, gin.H{"message": "Lock successfully!!!"})
+	} else if staff.Status == "inactive" {
+		err = models.UnlockStaff(userId, staff.ID)
+		if err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
+		}
+		context.JSON(http.StatusOK, gin.H{"message": "Unlock successfully!!!"})
+	} else if staff.Status == "ban" {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "This account was banned by admin"})
+	}
+
+}
+
+func CurrentUser(context *gin.Context) int64 {
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return 0
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return 0
+	}
+	userId := claims.UserID
+	return userId
 }

@@ -13,7 +13,7 @@ type Restaurant struct {
 	Description string
 	Started     string
 	Ended       string
-	Owner_id    int
+	Owner_id    int64
 	Location    string
 }
 
@@ -81,14 +81,14 @@ func GetAllRestaurants() ([]Restaurant, error) {
 
 func (r *Restaurant) CreateRestaurant() error {
 	query := `
-	INSERT INTO restaurants(name, description, time_start, time_end, owner_id)
-	VALUES (?, ?, ?,?,?)`
+	INSERT INTO restaurants(name, description, time_start, time_end, location, owner_id)
+	VALUES (?, ?, ?, ?, ?, ?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	result, err := stmt.Exec(r.Name, r.Description, r.Started, r.Ended, r.Owner_id, r.Location)
+	result, err := stmt.Exec(r.Name, r.Description, r.Started, r.Ended, r.Location, r.Owner_id)
 	fmt.Print(r.Owner_id)
 	if err != nil {
 		return err
@@ -100,13 +100,14 @@ func (r *Restaurant) CreateRestaurant() error {
 	r.Id = id
 	return nil
 }
+
 func GetRestaurantByID(id string) (Restaurant, error) {
 	var r Restaurant
 	query := `SELECT * FROM restaurants WHERE id = ?`
 	err := db.DB.QueryRow(query, id).Scan(&r.Id, &r.Name, &r.Description, &r.Started, &r.Ended, &r.Location, &r.Owner_id)
-	// fmt.Println(err.Error())
+
 	if err != nil {
-		return r, errors.New("Restaurant not found")
+		return r, err
 	}
 
 	return r, nil
@@ -148,4 +149,32 @@ func DeleteRestaurantByID(id int64) error {
 	}
 
 	return nil
+}
+
+// alpha
+
+func GetRestaurantByOwnerID(id int64) (error, []Restaurant) {
+	var res []Restaurant
+	query := `
+	SELECT * FROM restaurants
+	WHERE owner_id = ?
+	`
+	rows, err := db.DB.Query(query, id)
+	if err != nil {
+		panic(err)
+		return err, nil
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var e Restaurant
+		err := rows.Scan(&e.Id, &e.Name, &e.Description, &e.Started, &e.Ended, &e.Location, &e.Owner_id)
+		if err != nil {
+			panic(err)
+			return err, nil
+		}
+		res = append(res, e)
+	}
+	return nil, res
 }

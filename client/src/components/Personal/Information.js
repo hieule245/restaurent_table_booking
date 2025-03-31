@@ -6,7 +6,7 @@ import axios from "axios";
 import { useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 
-const ProfileUpdate = () => {
+const Information = () => {
   const [originalUser, setOriginalUser] = useState(null);
   
   const [user, setUser] = useState({
@@ -125,7 +125,7 @@ const ProfileUpdate = () => {
               </button>
             </>
           ) : (
-            <button className="btn btn-dark rounded-pill px-4 py-3" onClick={() => setIsEditing(true)}>
+            <button className="btn btn-danger rounded-pill px-4 py-3" onClick={() => setIsEditing(true)}>
               <h5 className="mb-0"><strong>Update Profile</strong></h5>
             </button>
           )}
@@ -135,4 +135,4 @@ const ProfileUpdate = () => {
   );
 };
 
-export default ProfileUpdate;
+export default Information;

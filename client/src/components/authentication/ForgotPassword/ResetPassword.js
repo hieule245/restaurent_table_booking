@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { useEffect } from "react";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -27,8 +28,8 @@ const ResetPassword = () => {
       validationErrors.confirmpassword = "Confirm password is required.";
     } else if (password !== confirmPassword) {
       validationErrors.confirmpassword = "Confirm password is not same at password.";
-    } 
-    
+    }
+
     if (!password) {
       validationErrors.password = "Password is required.";
     } else if (!isValidPassword(password)) {
@@ -52,6 +53,12 @@ const ResetPassword = () => {
       console.error("Mật khẩu không hợp lệ:", error);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem("resetEmail"); // Xóa email khi rời trang
+    };
+  }, []);
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
@@ -81,8 +88,8 @@ const ResetPassword = () => {
                 </span>
               </div>
               {error.password && (
-                    <small className="text-danger">{error.password}</small>
-                  )}
+                <small className="text-danger">{error.password}</small>
+              )}
             </div>
             <div className="input-group mb-3">
               <label htmlFor="confirmPassword" className="form-label">Confim new password</label>

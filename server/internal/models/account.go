@@ -115,47 +115,6 @@ func (u *Account) RegisterAdmin() error {
 	return nil
 }
 
-func (u *Account) RegisterStaff() error {
-	// Check if the account already exists
-	_, check := CheckAccount(u)
-	if !check {
-		return errors.New("this email is already associated with an existing account")
-	}
-
-	// Prepare the SQL query
-	query := `INSERT INTO staffs(name, gmail, phone, password, status, restaurant_id) 
-        VALUES (?,?,?,?,?,?)`
-	stmt, err := db.DB.Prepare(query)
-	if err != nil {
-		return errors.New("failed to prepare the SQL statement for registering staff")
-	}
-	defer stmt.Close()
-
-	// Hash the password
-	hashPassword, err := utils.HashPassword(u.Password)
-	if err != nil {
-		return errors.New("failed to hash the password")
-	}
-
-	// Set the account status to active
-	u.Status = "active"
-
-	// Execute the SQL query
-	result, err := stmt.Exec(u.Name, u.Email, u.Phone, hashPassword, u.Status, u.Orther_id)
-	if err != nil {
-		return errors.New("failed to execute the SQL statement for registering staff")
-	}
-
-	// Retrieve the last inserted ID
-	id, err := result.LastInsertId()
-	if err != nil {
-		return errors.New("failed to retrieve the last inserted ID for the new staff account")
-	}
-
-	// Set the ID of the newly created account
-	u.Id = id
-	return nil
-}
 func (u *Account) Login() error {
 	retrievedPassword, ok := CheckAccount(u)
 	if ok {

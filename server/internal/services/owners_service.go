@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/restaurent_table_booking/internal/models"
+	"github.com/restaurent_table_booking/internal/utils"
 )
 
 // RESTAURANT HANDLER
@@ -18,20 +19,59 @@ func GetAllRestaurants(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"restaurants": restaurants})
 }
+
+func GetAllOwnerRestaurants(context *gin.Context) {
+	var acc models.Account
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return
+	}
+	acc.Id = claims.UserID
+
+	err, restaurant := models.GetRestaurantByOwnerID(acc.Id)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can't collect data"})
+		context.Abort()
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"Owner restaurants": restaurant})
+}
+
 func GetRestaurantByID(context *gin.Context) {
 	restaurantID := context.Param("restaurant_id") // Lấy ID từ URL
 	restaurant, err := models.GetRestaurantByID(restaurantID)
-
 	if err != nil {
-		context.JSON(http.StatusNotFound, gin.H{"message": "Restaurant not found"})
+		context.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
 	}
 
 	context.JSON(http.StatusOK, gin.H{"restaurant": restaurant})
 }
+
 func CreateRestaurant(context *gin.Context) {
 	var r models.Restaurant
 	err := context.ShouldBindBodyWithJSON(&r)
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return
+	}
+	r.Owner_id = claims.UserID
 	if err != nil {
 		context.JSON(http.StatusBadGateway, gin.H{"message": "Can't take any input information"})
 		return
@@ -43,6 +83,7 @@ func CreateRestaurant(context *gin.Context) {
 	}
 	context.JSON(http.StatusOK, gin.H{"message": "Create succesfully", "restaurant": r})
 }
+
 func EditRestaurant(context *gin.Context) {
 	restaurantIDStr := context.Param("restaurant_id") // Lấy ID từ URL
 
@@ -132,7 +173,7 @@ func CreateTable(context *gin.Context) {
 
 	var table models.Table
 	if err := context.ShouldBindJSON(&table); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -151,13 +192,13 @@ func EditTable(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid table ID"})
 		return
 	}
-
 	var table models.Table
-	if err := context.ShouldBindJSON(&table); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+	err = context.ShouldBindJSON(&table)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-
+	
 	table.ID = tableID
 
 	if err := table.UpdateTable(); err != nil {

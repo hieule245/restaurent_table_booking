@@ -1,0 +1,11 @@
+POST http://localhost:8080/owners/:owner_id/58/staffs
+Content-Type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImdtYWlsIjoiaGlldWxlMjQ1MjAwM0BnbWFpbC5jb20iLCJyb2xlIjoib3duZXIiLCJleHAiOjE3NDMxNTkwMTV9.CCtlPoPPaPVRlJt0DaakcdhO0yEhjezVqhzl0hrjXzE
+
+{
+    "name": "123",
+	"gmail": "123@gmail.com",
+	"password":"Lengochieu@245",
+	"phone": "0919280763",
+    "restaurant_id": 50
+}

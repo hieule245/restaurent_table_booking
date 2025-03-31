@@ -12,10 +12,10 @@ func OwnerRoutes(server *gin.Engine) {
 	owner.Use(middlewares.AuthMiddleware()) // Yêu cầu đăng nhập
 	owner.Use(middlewares.OwnerOnly)        // Chỉ cho phép owner truy cập
 
-	{
+	{ 
 		restaurant := owner.Group("/restaurants")
 		{
-			restaurant.GET("", services.GetAllRestaurants)
+			restaurant.GET("", services.GetAllOwnerRestaurants)
 			restaurant.GET("/:restaurant_id", services.GetRestaurantByID)
 			restaurant.POST("", services.CreateRestaurant)
 			restaurant.PUT("/:restaurant_id", services.EditRestaurant)
@@ -32,18 +32,16 @@ func OwnerRoutes(server *gin.Engine) {
 				// Tìm kiếm bàn
 				table.GET("/search", services.SearchTables)
 			}
-		}
-
-		// Các route cho quản lý nhân viên
-		staff := owner.Group("/staffs")
-		{
-			staff.GET("", services.GetAllStaffs)
-			staff.GET("/:staff_id", services.GetStaffByID)
-			staff.POST("", services.CreateStaff)
-			staff.PUT("/:staff_id", services.EditStaff)
-			staff.DELETE("/:staff_id", services.DeleteStaff)
-			// Tìm kiếm nhân viên
-			staff.GET("/search", services.SearchStaffs)
+			staff := owner.Group("/:restaurant_id/staffs")
+			{
+				staff.GET("", services.GetStaffByRestaurantId)
+				staff.GET("/:staff_id", services.GetStaffByID)
+				staff.POST("", services.CreateStaff)
+				staff.PUT("/:staff_id", services.EditStaff)
+				staff.DELETE("/:staff_id", services.DeleteStaff)
+				staff.POST("/:staff_id", services.LockStaff)
+				staff.GET("/search", services.SearchStaffs) // 🔍 Tìm kiếm nhân viên
+			}
 		}
 	}
 }
