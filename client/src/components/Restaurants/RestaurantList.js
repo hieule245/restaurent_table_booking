@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSortAlphaDown, faSearch, faEye, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faChevronRight, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate, useParams } from "react-router-dom";
 import "../Specials/Specials.styles.css";
 import "../../pages/Restaurant/Restaurant.styles.css";
 import { toast } from "react-toastify";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { ToastContainer } from "react-toastify";
+import { FaSortAlphaDown, FaSortAlphaUp, FaSortAmountDown } from "react-icons/fa";
 
 const RestaurantList = () => {
     const navigate = useNavigate();
@@ -24,13 +25,21 @@ const RestaurantList = () => {
             [e.target.name]: e.target.value,
         });
     };
+    const modalRef = useRef(null);
+    const [sortType, setSortType] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post(`http://localhost:8080/owners/${ownerId}/restaurants`, restaurantData, { withCredentials: true })
+            const response = await axios.post(`http://localhost:8080/owners/${ownerId}/restaurants`, restaurantData, { withCredentials: true });
+
             console.log("Response", response.data);
-            toast.success("Create restaurant succesfully !!!")
+            toast.success("Create restaurant successfully!!!");
+
+            // Cập nhật danh sách mà không cần gọi lại API
+            setRestaurants([...restaurants, response.data]);
+
+            // Reset form
             setRestaurantData({
                 name: "",
                 description: "",
@@ -39,10 +48,10 @@ const RestaurantList = () => {
                 location: "",
             });
         } catch (error) {
-            console.log("Error:", error)
-            toast.error("Fail to create!!")
+            console.log("Error:", error);
+            toast.error("Fail to create!!");
         }
-    }
+    };
 
     const [searchTerm, setSearchTerm] = useState("");
     const [Started] = useState("");
@@ -68,28 +77,66 @@ const RestaurantList = () => {
             });
     }, []);
 
-
-
-    const filteredRestaurants = (Array.isArray(restaurants) ? restaurants : []).filter((restaurant) => {
-        return restaurant.Name.toLowerCase().includes(searchTerm.toLowerCase());
-    });
-
+    const handleSort = (type) => {
+        setSortType(type);
+        let sortedRes = [...restaurants];
+        if (type === "name-asc") {
+            sortedRes.sort((a, b) => (a.Name || "").localeCompare(b.Name || ""));
+        } else if (type === "name-desc") {
+            sortedRes.sort((a, b) => (b.Name || "").localeCompare(a.Name || ""));
+        }
+        setRestaurants(sortedRes);
+    };
+    
+    const filteredRestaurants = (Array.isArray(restaurants) ? restaurants : []).filter((restaurant) =>
+        restaurant && restaurant.Name && restaurant.Name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const totalPages = Math.ceil(filteredRestaurants.length / itemsPerPage);
-    const paginatedRestaurants = filteredRestaurants.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
+    const paginatedRestaurants = filteredRestaurants.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
         <div className="container mt-3">
-            <div className="row mb-3 justify-content-end">
-                <div className="col-md-2 mx-0">
-                    <button type="button" className="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#myModal">
-                        Add restaurant
-                    </button>
+            <ToastContainer />
+            <div className="row mb-0">
+                {/* Thanh công cụ */}
+                <div className="d-flex mb-3 justify-content-between align-items-center">
+                    <div className="me-2">
+                        <div className="input-group">
+                            <span className="input-group-text">
+                                <FontAwesomeIcon icon={faSearch} />
+                            </span>
+                            <input type="text" className="form-control" placeholder="Search by name" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                        </div>
+                    </div>
+                    <div className="d-flex align-items-center">
+                        <div className="me-2">
+                            <button className="btn btn-outline-danger py-2" data-bs-toggle="modal" data-bs-target="#myModal">
+                                Add restaurant
+                            </button>
+                        </div>
+                        {/* Nút sắp xếp có cùng chiều cao với input */}
+                        <div className="dropdown">
+                            {/* Button dropdown */}
+                            <button
+                                type="button"
+                                className="btn btn-danger fw-bolder d-flex align-items-center px-3"
+                                data-bs-toggle="dropdown"
+                            // Đảm bảo đồng bộ chiều cao
+                            >
+                                <FaSortAmountDown className="me-2" />
+                                Sort
+                            </button>
+
+                            {/* Dropdown menu */}
+                            <ul className="dropdown-menu shadow rounded-3">
+                                <li><button className="dropdown-item" onClick={() => handleSort("name-asc")}><FaSortAlphaDown className="me-2 text-danger" /> Name (A-Z)</button></li>
+                                <li><button className="dropdown-item" onClick={() => handleSort("name-desc")}><FaSortAlphaUp className="me-2 text-danger" /> Name (Z-A)</button></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <div className="modal" id="myModal">
+                <div ref={modalRef} className="modal fade" id="myModal" tabIndex="-1" aria-hidden="true">
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content">
                             <div className="modal-header">
@@ -155,31 +202,11 @@ const RestaurantList = () => {
                                     </div>
                                 </div>
                                 <div className="modal-footer">
-                                    <button type="submit" className="btn btn-outline-danger p-2">Create</button>
+                                    <button type="submit" className="btn btn-outline-danger" data-bs-dismiss="modal">Create</button>
                                     <button type="button" className="btn btn-danger border-0 p-2" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </form>
                         </div>
-                    </div>
-                </div>
-
-                <div className="col-md-3">
-                    <div className="input-group">
-                        <span className="input-group-text">
-                            <FontAwesomeIcon icon={faSearch} />
-                        </span>
-                        <input
-                            type="text"
-                            className="form-control h-100"
-                            placeholder="Search by name"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                </div>
-                <div className="col-md-1 mx-0">
-                    <div className="h-100">
-                        <FontAwesomeIcon icon={faSortAlphaDown} className="fs-5 btn btn-danger" />
                     </div>
                 </div>
             </div>
@@ -188,8 +215,8 @@ const RestaurantList = () => {
                 {paginatedRestaurants.map((restaurant) => (
                     <div
                         key={restaurant.Id}
-                        className="col-md-3 mb-4"
-                        onClick={() => { 
+                        className="col-md-3 mb-3"
+                        onClick={() => {
                             navigate(`/owner/restaurants/${restaurant.Id}/detail`);
                         }}
                     >
@@ -222,24 +249,27 @@ const RestaurantList = () => {
                 ))}
             </div>
 
-            <nav>
-                <ul className="pagination justify-content-center">
-                    {Array.from({ length: totalPages }, (_, index) => (
-                        <li
-                            className={`page-item ${currentPage === index + 1 ? "active" : ""
-                                }`}
-                            key={index}
-                        >
-                            <button
-                                className="page-link"
-                                onClick={() => setCurrentPage(index + 1)}
-                            >
-                                {index + 1}
+            {totalPages > 1 && (
+                <nav className="d-flex justify-content-center mt-3">
+                    <ul className="pagination">
+                        <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                            <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>
+                                <FontAwesomeIcon icon={faChevronLeft} />
                             </button>
                         </li>
-                    ))}
-                </ul>
-            </nav>
+                        {Array.from({ length: totalPages }, (_, index) => (
+                            <li key={index} className={`page-item ${currentPage === index + 1 ? "active" : ""}`}>
+                                <button className="page-link" onClick={() => setCurrentPage(index + 1)}>{index + 1}</button>
+                            </li>
+                        ))}
+                        <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                            <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>
+                                <FontAwesomeIcon icon={faChevronRight} />
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            )}
         </div>
     );
 };

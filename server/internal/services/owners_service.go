@@ -192,13 +192,13 @@ func EditTable(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid table ID"})
 		return
 	}
-
 	var table models.Table
-	if err := context.ShouldBindJSON(&table); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+	err = context.ShouldBindJSON(&table)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-
+	
 	table.ID = tableID
 
 	if err := table.UpdateTable(); err != nil {

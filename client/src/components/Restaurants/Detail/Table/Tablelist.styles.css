@@ -93,3 +93,17 @@
     transform: translateY(-5px);
     box-shadow: 0px 8px 15px rgba(220, 53, 69, 0.3);
 }
+
+.table-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 78vh; /* Đảm bảo chiều cao tối thiểu */
+  }
+  
+  .pagination-container {
+    margin-top: auto;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+  }
+  

@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"strconv"
 
 	"github.com/restaurent_table_booking/internal/db"
 )
@@ -13,7 +12,7 @@ type Table struct {
 	ID           int    `json:"id"`
 	Name         string `json:"name"`
 	Type         string `json:"type"`
-	Seats        string `json:"seats"`
+	Seats        int    `json:"seats"`
 	RestaurantID int    `json:"restaurant_id"`
 	Description  string
 }
@@ -115,12 +114,12 @@ func (t *Table) CreateTable() error {
 	if !exists {
 		return errors.New("Restaurant does not exist")
 	}
-	seatNumber, err := strconv.ParseInt(t.Seats, 10, 64)
+
 	if err != nil {
 		panic(err)
 		return err
 	}
-	if seatNumber <= 0 {
+	if t.Seats <= 0 {
 		return errors.New("This table should have seat!!")
 	}
 
@@ -132,7 +131,7 @@ func (t *Table) CreateTable() error {
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(t.Name, t.Type, seatNumber, t.RestaurantID, t.Description)
+	result, err := stmt.Exec(t.Name, t.Type, t.Seats, t.RestaurantID, t.Description)
 	if err != nil {
 		panic(err)
 		return err
@@ -150,8 +149,8 @@ func (t *Table) CreateTable() error {
 
 // Cập nhật bàn ăn
 func (t *Table) UpdateTable() error {
-	query := `UPDATE tables SET name = ?, type = ?, seats = ? WHERE id = ?`
-	_, err := db.DB.Exec(query, t.Name, t.Type, t.Seats, t.ID)
+	query := `UPDATE tables SET name = ?, type = ?, seats = ?, description = ? WHERE id = ?`
+	_, err := db.DB.Exec(query, t.Name, t.Type, t.Seats, t.Description, t.ID)
 	return err
 }
 

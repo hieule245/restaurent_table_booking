@@ -12,7 +12,7 @@ func OwnerRoutes(server *gin.Engine) {
 	owner.Use(middlewares.AuthMiddleware()) // Bắt buộc phải đăng nhập trước
 	owner.Use(middlewares.OwnerOnly)        // Gắn middleware vào nhóm router admin
 
-	{
+	{ 
 		restaurant := owner.Group("/restaurants")
 		{
 			restaurant.GET("", services.GetAllOwnerRestaurants)

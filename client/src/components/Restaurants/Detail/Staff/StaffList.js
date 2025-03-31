@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FaLock, FaUnlock, FaPhone, FaEnvelope, FaEye, FaEyeSlash, FaSearch, FaSortAmountDown, FaSortAlphaDown, FaSortAlphaUp, FaSortNumericDown, FaSortNumericUp } from "react-icons/fa";
+import { FaLock, FaUnlock, FaPhone, FaEnvelope, FaSearch, FaSortAmountDown, FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { toast, ToastContainer } from "react-toastify";
 import './StaffList.style.css'
 import axios from "axios";
-import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
+import { Modal } from "bootstrap";
 import AddStaff from "./AddStaff"
 
 
@@ -14,15 +13,20 @@ export default function StaffList({ restaurant_id }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedStaff, setSelectedStaff] = useState(null);
     const [modalInstance, setModalInstance] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [sortType, setSortType] = useState(null);
+    const itemsPerPage = 12;
     useEffect(() => {
         if (!restaurant_id) return;
         fetchStaff();
 
-        // Khởi tạo modal Bootstrap
-        const modalElement = document.getElementById("confirmModal");
-        if (modalElement) {
-            setModalInstance(new Modal(modalElement));
-        }
+        // Đợi DOM sẵn sàng trước khi khởi tạo modal
+        setTimeout(() => {
+            const modalElement = document.getElementById("confirmModal");
+            if (modalElement) {
+                setModalInstance(new Modal(modalElement));
+            }
+        }, 500);
     }, [restaurant_id]);
 
     const fetchStaff = () => {
@@ -34,6 +38,17 @@ export default function StaffList({ restaurant_id }) {
                 toast.error("Error fetching staff list!");
                 console.error("Error:", err);
             });
+    };
+
+    const handleSort = (type) => {
+        setSortType(type);
+        let sortedStaff = [...staff];
+        if (type === "name-asc") {
+            sortedStaff.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (type === "name-desc") {
+            sortedStaff.sort((a, b) => b.name.localeCompare(a.name));
+        }
+        setStaff(sortedStaff);
     };
 
     // Hàm này sẽ được truyền xuống AddStaffForm
@@ -55,7 +70,7 @@ export default function StaffList({ restaurant_id }) {
         try {
             await axios.post(
                 `http://localhost:8080/owners/:owner_id/${restaurant_id}/staffs/${id}`,
-                { Status: newStatus, Id: id },
+                { Status: status, Id: id },
                 { withCredentials: true }
             );
 
@@ -72,6 +87,11 @@ export default function StaffList({ restaurant_id }) {
 
         modalInstance?.hide();
     };
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentStaff = staff.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(staff.length / itemsPerPage);
 
     return (
         <div className="container mt-4">
@@ -118,50 +138,28 @@ export default function StaffList({ restaurant_id }) {
 
                         {/* Dropdown menu */}
                         <ul className="dropdown-menu shadow rounded-3">
-                            <li>
-                                <a className="dropdown-item d-flex align-items-center" href="#">
-                                    <FaSortAlphaDown className="me-2 text-danger" />
-                                    Name (A-Z)
-                                </a>
-                            </li>
-                            <li>
-                                <a className="dropdown-item d-flex align-items-center" href="#">
-                                    <FaSortAlphaUp className="me-2 text-danger" />
-                                    Name (Z-A)
-                                </a>
-                            </li>
-                            <li>
-                                <a className="dropdown-item d-flex align-items-center" href="#">
-                                    <FaSortNumericDown className="me-2 text-danger" />
-                                    Earlier Open
-                                </a>
-                            </li>
-                            <li>
-                                <a className="dropdown-item d-flex align-items-center" href="#">
-                                    <FaSortNumericUp className="me-2 text-danger" />
-                                    Laster Open
-                                </a>
-                            </li>
+                            <li><button className="dropdown-item" onClick={() => handleSort("name-asc")}><FaSortAlphaDown className="me-2 text-danger" /> Name (A-Z)</button></li>
+                            <li><button className="dropdown-item" onClick={() => handleSort("name-desc")}><FaSortAlphaUp className="me-2 text-danger" /> Name (Z-A)</button></li>
                         </ul>
                     </div>
 
                 </div>
             </div>
 
-            <AddStaff restaurantId={restaurant_id} onStaffAdded={handleStaffAdded} />
+            {restaurant_id && <AddStaff restaurant_id={restaurant_id} onStaffAdded={handleStaffAdded} />}
 
             <div className="row">
-                {Array.isArray(staff) && staff.map(({ id, name, gmail, phone, status }) => (
+                {currentStaff.map(({ id, name, gmail, phone, status }) => (
                     <div key={id} className="col-md-3 mb-4">
                         <div className="card w-100 h-100 shadow-lg border-2 border-danger rounded-4 bg-light text-dark position-relative p-3">
                             <button
-                                className={`btn btn-square position-absolute top-0 end-0 m-2 ${status === "active" ? "btn-danger" : "btn-outline-danger"}`}
-                                onClick={() => handleOpenModal({ id, name, status })}
+                                className={`btn btn-square position-absolute top-0 end-0 m-2 
+                                ${status === "ban" ? "btn-secondary" : status === "active" ? "btn-outline-danger" : "btn-danger"}`}
+                                onClick={() => status !== "ban" && handleOpenModal({ id, name, status })}
+                                disabled={status === "ban"}
                             >
-                                {status === "active" ? <FaLock /> : <FaUnlock />}
+                                {status === "active" ? <FaUnlock /> : status === "inactive" ? <FaLock /> : <FaUnlock />}
                             </button>
-
-
 
                             <div className="text-center">
                                 <img src="https://tamanh.net/wp-content/uploads/2023/03/kieu-toc-mini-man-bun.jpg" alt={name} className="rounded-circle border border-danger p-1 mb-3" width={80} height={80} />
@@ -179,7 +177,6 @@ export default function StaffList({ restaurant_id }) {
             <div className="modal fade" id="confirmModal" tabIndex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content rounded-4 shadow-lg border-0">
-                        {/* Header */}
                         <div className="modal-header bg-dark text-white rounded-top-4">
                             <h4 className="modal-title fw-bold" id="confirmModalLabel">
                                 {selectedStaff?.status === "active" ? "Lock Staff" : "Unlock Staff"}
@@ -187,13 +184,13 @@ export default function StaffList({ restaurant_id }) {
                             <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
 
-                        {/* Body */}
                         <div className="modal-body p-4 bg-white">
                             <p className="text-dark">
-                                Are you sure you want to <strong>{selectedStaff?.status === "active" ? "lock" : "unlock"}</strong> staff <strong className="text-danger">{selectedStaff?.name}</strong>?
+                                Are you sure you want to <strong>{selectedStaff?.status === "active" ? "lock" : "unlock"} </strong>
+                                staff <strong className="text-danger">{selectedStaff?.name}</strong>?
                             </p>
                         </div>
-
+                        
                         {/* Footer */}
                         <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
                             <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal">
@@ -205,6 +202,24 @@ export default function StaffList({ restaurant_id }) {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div className="d-flex justify-content-center align-items-center mt-3">
+                <button
+                    className="btn btn-outline-danger me-2"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                >
+                    Previous
+                </button>
+                <span className="fw-bold">Page {currentPage} of {totalPages}</span>
+                <button
+                    className="btn btn-outline-danger ms-2"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                >
+                    Next
+                </button>
             </div>
         </div>
     );

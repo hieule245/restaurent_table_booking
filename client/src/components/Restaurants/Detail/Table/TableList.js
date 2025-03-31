@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import TableCard from "../../../Card/TableCard";
 import "./Tablelist.styles.css";
 import { ToastContainer } from "react-toastify";
+import { Modal } from "bootstrap";
 
 const TableList = ({ restaurant_id }) => {
   const [tables, setTables] = useState([]);
@@ -15,12 +16,22 @@ const TableList = ({ restaurant_id }) => {
   const [newTable, setNewTable] = useState({ name: "", type: "", seats: "", Description: "" });
   const modalRef = useRef(null);
   const addTableModalRef = useRef(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const tablesPerPage = 6;
 
   useEffect(() => {
-    axios.get(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables`, { withCredentials: true })
+    fetchTables();
+  }, [restaurant_id]);
+
+  const fetchTables = async () => {
+    try {
+      const response = axios.get(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables`, { withCredentials: true })
       .then((res) => setTables(res.data.tables || []))
       .catch(() => toast.error("Error fetching table list!"));
-  }, [restaurant_id]);
+    } catch (error) {
+      console.error("Error fetching tables:", error);
+    }
+  };
 
   useEffect(() => {
     axios.get(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}`, { withCredentials: true })
@@ -54,7 +65,7 @@ const TableList = ({ restaurant_id }) => {
     e.preventDefault();
     axios.post(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables`, newTable, { withCredentials: true })
       .then((res) => {
-        setTables([...tables, res.data]);
+        setTables([...tables, newTable]);
         toast.success("Table added successfully!");
         addTableModalRef.current.querySelector(".btn-close").click();
       })
@@ -67,12 +78,41 @@ const TableList = ({ restaurant_id }) => {
       });
   };
 
+  const handleDeleteRestaurant = () => {
+    axios.delete(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}`, { withCredentials: true })
+      .then(() => {
+        toast.success("Restaurant deleted successfully!");
+
+        // Ẩn modal bằng Bootstrap Modal instance
+        const deleteModalElement = document.getElementById("deleteRestaurantModal");
+        if (deleteModalElement) {
+          const deleteModalInstance = new Modal(deleteModalElement);
+          deleteModalInstance.hide();
+        }
+        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+        // Quay lại trang trước sau khi xóa
+        setTimeout(() => {
+          window.history.back();
+        }, 1000); // Đợi 1 giây để hiển thị toast
+      })
+      .catch(() => {
+        toast.error("Error deleting restaurant!");
+      });
+  };
+
+
+
+  const indexOfLastTable = currentPage * tablesPerPage;
+  const indexOfFirstTable = indexOfLastTable - tablesPerPage;
+  const currentTables = tables.slice(indexOfFirstTable, indexOfLastTable);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div className="container-fluid row align-items-center">
-      <ToastContainer/>
+      <ToastContainer />
       <div className="col-9">
         <div className="">
-          <div className="restaurant-details mt-4">
+          <div className="restaurant-details mt-1">
             <h1 className="restaurant-name text-dark mb-2">{restaurant.Name}</h1>
             <p className="restaurant-description text-muted">{restaurant.Description}</p>
             <p className="restaurant-address-text">
@@ -92,14 +132,48 @@ const TableList = ({ restaurant_id }) => {
       </div>
 
       <div className="col-3 text-end pe-5">
-        <button className="btn btn-outline-success ms-3" data-bs-toggle="modal" data-bs-target="#addTableModal"><FontAwesomeIcon icon={faPlus} /></button>
+        <button className="btn btn-outline-success me-3" data-bs-toggle="modal" data-bs-target="#addTableModal"><FontAwesomeIcon icon={faPlus} /></button>
         <button className="btn btn-outline-primary me-3" data-bs-toggle="modal" data-bs-target="#editRestaurantModal"><FaPen /></button>
-        <button className="btn btn-outline-danger"><FaStoreSlash /></button>
+        <button className="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteRestaurantModal">
+          <FaStoreSlash />
+        </button>
+
+
       </div>
-      <div className="row mt-4">
-        {tables.length > 0 ? tables.map((table) => (
-          <div className="col-md-4 mb-3" key={table.id}><TableCard restaurant_id={restaurant_id} table={table} /></div>
-        )) : (<p className="text-center text-muted">No tables available.</p>)}
+      <div className="table-container">
+        <div className="row mt-1">
+          {currentTables.length > 0 ? (
+            currentTables.map((table) => (
+              <div className="col-md-4 mb-3" key={table.id}>
+                <TableCard restaurant_id={restaurant_id} table={table} onUpdate={fetchTables}/>
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-muted fs-1">No tables available.</p>
+          )}
+        </div>
+
+        {/* Pagination */}
+        {tables.length > tablesPerPage && (
+          <div className="pagination-container">
+            <button className="btn btn-outline-dark me-2" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+              &laquo;
+            </button>
+            {[...Array(Math.ceil(tables.length / tablesPerPage)).keys()].map(number => (
+              <button
+                key={number + 1}
+                className={`btn ${currentPage === number + 1 ? "btn-dark" : "btn-outline-dark"} mx-1`}
+                onClick={() => paginate(number + 1)}
+              >
+                {number + 1}
+              </button>
+            ))}
+            <button className="btn btn-outline-dark ms-2" onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(tables.length / tablesPerPage)}>
+              &raquo;
+            </button>
+          </div>
+        )}
+
       </div>
 
       {/* Modal chỉnh sửa nhà hàng */}
@@ -141,6 +215,24 @@ const TableList = ({ restaurant_id }) => {
           </div>
         </div>
       </div>
+      <div ref={modalRef} className="modal fade" id="deleteRestaurantModal" tabIndex="-1" aria-labelledby="deleteRestaurantModalLabel" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content rounded-4 shadow-lg border-0">
+            <div className="modal-header bg-danger text-white rounded-top-4">
+              <h4 className="modal-title fw-bold" id="deleteRestaurantModalLabel">Confirm Deletion</h4>
+              <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div className="modal-body p-4 bg-white">
+              <p className="text-dark fs-5">Are you sure you want to delete this restaurant? This action cannot be undone.</p>
+            </div>
+            <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
+              <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" className="btn btn-danger fw-bold px-4" onClick={handleDeleteRestaurant}>Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Modal thêm bàn */}
       <div ref={addTableModalRef} className="modal fade" id="addTableModal" tabIndex="-1" aria-labelledby="addTableModalLabel" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">

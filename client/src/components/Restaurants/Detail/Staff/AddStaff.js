@@ -1,112 +1,141 @@
-import { useEffect, useState, useRef } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
-import { FaPen, FaStoreSlash } from "react-icons/fa";
-import axios from "axios";
+import { useState } from "react";
 import { toast } from "react-toastify";
-import TableCard from "../../../Card/TableCard";
-// import "./Tablelist.styles.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import axios from "axios";
 
-const TableRestaurant = ({ restaurant_id }) => {
-  const [tables, setTables] = useState([]);
-  const [restaurant, setRestaurant] = useState({});
-  const [formData, setFormData] = useState({});
-  const modalRef = useRef(null);
+export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
 
-  useEffect(() => {
-    axios.get(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables`, { withCredentials: true })
-      .then((res) => setTables(res.data.tables || []))
-      .catch(() => toast.error("Error fetching table list!"));
-  }, [restaurant_id]);
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({ name: "", gmail: "", password: "", phone: "", restaurant_id: 0 });
+  const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    axios.get(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}`, { withCredentials: true })
-      .then((res) => {
-        setRestaurant(res.data.restaurant || {});
-        setFormData(res.data.restaurant || {});
-      })
-      .catch(() => toast.error("Error fetching restaurant!"));
-  }, [restaurant_id]);
+  const isValidGmail = (gmail) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(gmail);
+  const isValidPassword = (password) =>
+    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    axios.put(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}`, formData, { withCredentials: true })
-      .then(() => {
-        setRestaurant(formData);
-        toast.success("Restaurant updated successfully!");
-      })
-      .catch(() => toast.error("Error updating restaurant!"));
+    let validationErrors = {};
+
+    if (!formData.name) validationErrors.name = "Name is required.";
+    if (!formData.gmail) validationErrors.gmail = "Gmail is required.";
+    else if (!isValidGmail(formData.gmail)) validationErrors.gmail = "Invalid gmail format.";
+    if (!formData.password) validationErrors.password = "Password is required.";
+    else if (!isValidPassword(formData.password))
+      validationErrors.password =
+        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.";
+    if (!formData.phone) validationErrors.phone = "Phone number is required.";
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/owners/:owner_id/${restaurant_id}/staffs`,
+        { ...formData, restaurant_id: restaurant_id},
+        { withCredentials: true }
+      );
+
+      toast.success("Staff created successfully!");
+
+      onStaffAdded(formData);
+
+      // Reset form
+      setFormData({ name: "", gmail: "", password: "", phone: "", restaurant_id: 0 });
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to create staff.");
+    }
   };
 
+ 
   return (
-    <div className="container-fluid row align-items-center">
-      <div className="col-9">
-        <div className="p-4">
-          <div className="restaurant-details">
-            <h1 className="restaurant-name text-dark mb-2">{restaurant.Name}</h1>
-            <p className="restaurant-description text-muted">{restaurant.Description}</p>
-            <p className="restaurant-address-text">
-              <FontAwesomeIcon icon={faMapMarkerAlt} className="text-danger me-2" />
-              <span className="text-dark">{restaurant.Location}</span>
-            </p>
+    <div className="modal fade" id="myModal" tabIndex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div className="modal-dialog modal-dialog-centered">
+        <div className="modal-content rounded-4 shadow-lg border-0">
+          <div className="modal-header bg-dark text-white rounded-top-4">
+            <h4 className="modal-title fw-bold" id="myModalLabel">Create New Staff</h4>
+            <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-        </div>
-      </div>
-      <div className="col-3 text-end pe-5">
-        <button className="btn btn-outline-primary me-3" data-bs-toggle="modal" data-bs-target="#editRestaurantModal"><FaPen /></button>
-        <button className="btn btn-outline-danger"><FaStoreSlash /></button>
-      </div>
-      <div className="row mt-4">
-        {tables.length > 0 ? tables.map((table) => (
-          <div className="col-md-4 mb-3" key={table.id}><TableCard restaurant_id={restaurant_id} table={table} /></div>
-        )) : (<p className="text-center text-muted">No tables available.</p>)}
-      </div>
-
-      {/* Modal chỉnh sửa nhà hàng */}
-      <div ref={modalRef} className="modal fade" id="editRestaurantModal" tabIndex="-1" aria-labelledby="editRestaurantModalLabel" aria-hidden="true">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content rounded-4 shadow-lg border-0">
-            <div className="modal-header bg-dark text-white rounded-top-4">
-              <h4 className="modal-title fw-bold" id="editRestaurantModalLabel">Edit Restaurant</h4>
-              <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          <form onSubmit={handleSubmit}>
+            <div className="modal-body p-4 bg-white">
+              <div className="form-group mb-3">
+                <label className="form-label fw-bold text-dark">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  className="form-control border-secondary rounded-3"
+                  placeholder="Full Name"
+                  value={formData.name}
+                  onChange={handleChange}
+                />
+                {errors.name && <small className="text-danger">{errors.name}</small>}
+              </div>
+              <div className="form-group mb-3">
+                <label className="form-label fw-bold text-dark">Gmail</label>
+                <input
+                  type="email"
+                  name="gmail"
+                  className="form-control border-secondary rounded-3"
+                  placeholder="Gmail"
+                  value={formData.gmail}
+                  onChange={handleChange}
+                />
+                {errors.gmail && <small className="text-danger">{errors.gmail}</small>}
+              </div>
+              <div className="form-group mb-3">
+                <label className="form-label fw-bold text-dark">Password</label>
+                <div className="input-group">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    className="form-control border-secondary rounded-3"
+                    placeholder="Enter password"
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                  <span
+                    className="input-group-text bg-white"
+                    style={{ cursor: "pointer", borderLeft: 0 }}
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    <FontAwesomeIcon icon={showPassword ? FaEye : FaEyeSlash} />
+                  </span>
+                </div>
+                {errors.password && <small className="text-danger">{errors.password}</small>}
+              </div>
+              <div className="form-group mb-3">
+                <label className="form-label fw-bold text-dark">Phone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  className="form-control border-secondary rounded-3"
+                  placeholder="Phone number"
+                  value={formData.phone}
+                  onChange={handleChange}
+                />
+                {errors.phone && <small className="text-danger">{errors.phone}</small>}
+              </div>
             </div>
-            <form onSubmit={handleSubmit}>
-              <div className="modal-body p-4 bg-white">
-                <div className="form-group mb-3">
-                  <label className="form-label fw-bold text-dark">Name</label>
-                  <input type="text" name="Name" className="form-control border-secondary rounded-3" value={formData.Name} onChange={handleChange} />
-                </div>
-                <div className="form-group mb-3">
-                  <label className="form-label fw-bold text-dark">Description</label>
-                  <input type="text" name="Description" className="form-control border-secondary rounded-3" value={formData.Description} onChange={handleChange} />
-                </div>
-                <div className="form-group mb-3">
-                  <label className="form-label fw-bold text-dark">Location</label>
-                  <input type="text" name="Location" className="form-control border-secondary rounded-3" value={formData.Location} onChange={handleChange} />
-                </div>
-                <div className="form-group mb-3">
-                  <label className="form-label fw-bold text-dark">Opening Time</label>
-                  <input type="time" name="Started" className="form-control border-secondary rounded-3" value={formData.Started} onChange={handleChange} />
-                </div>
-                <div className="form-group mb-3">
-                  <label className="form-label fw-bold text-dark">Closing Time</label>
-                  <input type="time" name="Ended" className="form-control border-secondary rounded-3" value={formData.Ended} onChange={handleChange} />
-                </div>
-              </div>
-              <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
-                <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal">Close</button>
-                <button type="submit" className="btn btn-danger fw-bold px-4">Save</button>
-              </div>
-            </form>
-          </div>
+            <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
+              <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal">
+                Close
+              </button>
+              <button type="submit" className="btn btn-danger fw-bold px-4" data-bs-dismiss="modal">
+                Create
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
   );
-};
+}
 
-export default TableRestaurant;

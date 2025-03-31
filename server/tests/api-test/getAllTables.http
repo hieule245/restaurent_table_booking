@@ -1,11 +1,10 @@
-POST http://localhost:8080/owners/:owner_id/restaurants/58/tables
+PUT http://localhost:8080/owners/:owner_id/restaurants/58/tables/1
 Content-Type: application/json
-Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImdtYWlsIjoiaGlldWxlMjQ1MjAwM0BnbWFpbC5jb20iLCJyb2xlIjoib3duZXIiLCJleHAiOjE3NDMxNjE5MjB9.y7o1AKL3ZDhT4jRpfIRqjbuHUWtv3lumpSbr1AoDrRo
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImdtYWlsIjoiaGlldWxlMjQ1MjAwM0BnbWFpbC5jb20iLCJyb2xlIjoib3duZXIiLCJleHAiOjE3NDMzOTczNTR9.1jIltGu-n9JSfJjQmH_yUos_4PD2-rz6qv4Qb422-K4
 
 {
     "name": "Table 1",
     "type": "VIP",
-    "seats": 4,
-    "restaurant_id": 58,
+    "seats": "4",
     "Description": "A cozy VIP table near the window"
 }
