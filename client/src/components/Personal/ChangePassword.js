@@ -15,7 +15,7 @@ const ChangePassword = () => {
 
   // Kiểm tra mật khẩu có ít nhất 8 ký tự, 1 chữ hoa, 1 chữ thường, 1 số, 1 ký tự đặc biệt
   const isValidPassword = (password) => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
     return passwordRegex.test(password);
   };
 
@@ -30,7 +30,7 @@ const ChangePassword = () => {
       validationErrors.newPassword = "New password is required.";
     } else if (!isValidPassword(newPassword)) {
       validationErrors.newPassword =
-        "Password must be at least 8 characters, include uppercase, lowercase, number, and special character.";
+        "Password must be at least 8 characters, include uppercase, lowercase, number, and special character (@$!%*?&_).";
     }
     if (!confirmPassword) {
       validationErrors.confirmPassword = "Confirm password is required.";

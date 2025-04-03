@@ -90,11 +90,11 @@ export default function StaffList({ restaurant_id }) {
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentStaff = staff.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(staff.length / itemsPerPage);
+    const currentItems = staff.slice(indexOfFirstItem, indexOfLastItem);
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
-        <div className="container mt-4">
+        <div className="container mt-5">
             <ToastContainer />
             <div className="d-flex justify-content-between align-items-center mb-3">
                 {/* Nút thêm nhân viên */}
@@ -148,30 +148,32 @@ export default function StaffList({ restaurant_id }) {
 
             {restaurant_id && <AddStaff restaurant_id={restaurant_id} onStaffAdded={handleStaffAdded} />}
 
-            <div className="row">
-                {currentStaff.map(({ id, name, gmail, phone, status }) => (
-                    <div key={id} className="col-md-3 mb-4">
-                        <div className="card w-100 h-100 shadow-lg border-2 border-danger rounded-4 bg-light text-dark position-relative p-3">
-                            <button
-                                className={`btn btn-square position-absolute top-0 end-0 m-2 
+            <div className="staff-container">
+                <div className="row">
+                    {currentItems.map(({ id, name, gmail, phone, status }) => (
+                        <div key={id} className="col-md-3 mb-4">
+                            <div className="card w-100 h-100 shadow-lg border-2 border-danger rounded-4 bg-light text-dark position-relative p-3">
+                                <button
+                                    className={`btn btn-square position-absolute top-0 end-0 m-2 
                                 ${status === "ban" ? "btn-secondary" : status === "active" ? "btn-outline-danger" : "btn-danger"}`}
-                                onClick={() => status !== "ban" && handleOpenModal({ id, name, status })}
-                                disabled={status === "ban"}
-                            >
-                                {status === "active" ? <FaUnlock /> : status === "inactive" ? <FaLock /> : <FaUnlock />}
-                            </button>
+                                    onClick={() => status !== "ban" && handleOpenModal({ id, name, status })}
+                                    disabled={status === "ban"}
+                                >
+                                    {status === "active" ? <FaUnlock /> : status === "inactive" ? <FaLock /> : <FaUnlock />}
+                                </button>
 
-                            <div className="text-center">
-                                <img src="https://tamanh.net/wp-content/uploads/2023/03/kieu-toc-mini-man-bun.jpg" alt={name} className="rounded-circle border border-danger p-1 mb-3" width={80} height={80} />
-                                <h4 className="fw-bold text-danger">{name}</h4>
-                                <p className="text-dark mb-1"><FaEnvelope className="text-danger me-2" />{gmail}</p>
-                                <p className="d-flex align-items-center mb-1 justify-content-center text-dark">
-                                    <FaPhone className="text-danger me-2" />{phone}
-                                </p>
+                                <div className="text-center">
+                                    <img src="https://tamanh.net/wp-content/uploads/2023/03/kieu-toc-mini-man-bun.jpg" alt={name} className="rounded-circle border border-danger p-1 mb-3" width={80} height={80} />
+                                    <h4 className="fw-bold text-danger">{name}</h4>
+                                    <p className="text-dark mb-1"><FaEnvelope className="text-danger me-2" />{gmail}</p>
+                                    <p className="d-flex align-items-center mb-1 justify-content-center text-dark">
+                                        <FaPhone className="text-danger me-2" />{phone}
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
             {/* Modal xác nhận khóa/mở khóa */}
             <div className="modal fade" id="confirmModal" tabIndex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
@@ -190,7 +192,7 @@ export default function StaffList({ restaurant_id }) {
                                 staff <strong className="text-danger">{selectedStaff?.name}</strong>?
                             </p>
                         </div>
-                        
+
                         {/* Footer */}
                         <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
                             <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal">
@@ -204,23 +206,25 @@ export default function StaffList({ restaurant_id }) {
                 </div>
             </div>
 
-            <div className="d-flex justify-content-center align-items-center mt-3">
-                <button
-                    className="btn btn-outline-danger me-2"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                >
-                    Previous
-                </button>
-                <span className="fw-bold">Page {currentPage} of {totalPages}</span>
-                <button
-                    className="btn btn-outline-danger ms-2"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                >
-                    Next
-                </button>
-            </div>
+            {staff.length > itemsPerPage && (
+                <div className="pagination-container">
+                    <button className="btn btn-outline-dark me-2" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+                        &laquo;
+                    </button>
+                    {[...Array(Math.ceil(staff.length / itemsPerPage)).keys()].map(number => (
+                        <button
+                            key={number + 1}
+                            className={`btn ${currentPage === number + 1 ? "btn-dark" : "btn-outline-dark"} mx-1`}
+                            onClick={() => paginate(number + 1)}
+                        >
+                            {number + 1}
+                        </button>
+                    ))}
+                    <button className="btn btn-outline-dark ms-2" onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(staff.length / itemsPerPage)}>
+                        &raquo;
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

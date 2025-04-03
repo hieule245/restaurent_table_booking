@@ -4,8 +4,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
 ChartJS.register(ArcElement, Tooltip, Legend);
+
 
 const data = {
     labels: ["Bàn do khách đặt", "Bàn do staff đặt", "Others"],
@@ -19,6 +22,7 @@ const data = {
     ],
 };
 
+
 const options = {
     cutout: "70%",
     plugins: {
@@ -28,14 +32,32 @@ const options = {
 };
 
 const Dashboard = () => {
+    const [revenues, SetRevenues] = useState([]);
+    const fetch = () => {
+        try {
+            axios.get(`http://localhost:8080/owners/:owner_id`, { withCredentials: true })
+                .then((res) => {
+                    console.log("API Response:", res.data); // Kiểm tra dữ liệu trả về
+                    SetRevenues(res.data.message || {}); // Gán dữ liệu vào state
+                })
+                .catch((err) => toast.error(err));
+        } catch (err) {
+            toast.error(err);
+        }
+    };
+
+    useEffect(() => {
+        fetch();
+    }, []);
+
     return (
         <div className="container-fluid min-vh-100 p-4" style={{ background: "#F1F8FF" }}>
             {/* Statistics Cards */}
             <div className="row">
                 {[
-                    { title: "Số lượng người đặt bàn", amount: "$12.34", change: "+3.5%", up: true },
-                    { title: "Số tiền kiếm được", amount: "$17.34", change: "+11%", up: true },
-                    { title: "Số bàn bị hủy", amount: "$12.34", change: "-2.4%", up: false }
+                    { title: "Revenue for this week", amount: revenues?.WeeklyRevenue ? revenues.WeeklyRevenue.toLocaleString() + " VND" : "0 VND", change: "+3.5%", up: true }, ,
+                    { title: "Booked and used tables", amount: revenues.BookNumber , change: "+11%", up: true },
+                    { title: "Cancelled tables", amount: revenues.CanceledBook, change: "-2.4%", up: false }
                 ].map((stat, index) => (
                     <div key={index} className="col-md-4 mb-3">
                         <div className="p-3 py-4 rounded shadow-sm"

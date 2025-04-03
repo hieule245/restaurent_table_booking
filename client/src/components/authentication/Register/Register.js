@@ -31,7 +31,7 @@ const RegisterPage = () => {
   };
 
   const isValidPassword = (password) => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
     return passwordRegex.test(password);
   };
 
@@ -63,7 +63,7 @@ const RegisterPage = () => {
     if (!password) {
       validationErrors.password = "Password is required.";
     } else if (!isValidPassword(password)) {
-      validationErrors.password = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&).";
+      validationErrors.password = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
     }
     if (!confirmPassword) {
       validationErrors.confirmpassword = "Confirm password is required.";

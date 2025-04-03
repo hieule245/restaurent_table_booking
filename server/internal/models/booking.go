@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/restaurent_table_booking/internal/db"
 )
@@ -127,3 +128,80 @@ func GetBookingsByCustomer(customerID int) ([]Booking, error) {
 	}
 	return bookings, nil
 }
+
+type Reservations struct {
+	Id           int64
+	CustomerName string
+	BookingDate  time.Time
+	BookingTime  string
+	ActualTime   string
+	TableName    string
+	Price        float64
+	Status       int
+}
+
+func GetBookingByOwner(ownerId int64) ([]Reservations, error) {
+	var reservation []Reservations
+	query := `
+	SELECT
+	b.id,
+    t.name,
+    c.name,
+    b.book_date,
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.time_end, b.time_start)))),
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.actual_end, b.time_start)))),
+    b.price,
+	b.status
+	FROM reservations b
+	JOIN tables t ON b.table_id = t.id
+	JOIN restaurants r ON t.restaurant_id = r.id
+	JOIN owners o ON r.owner_id = o.id
+	JOIN customers c On c.gmail = b.customer_email
+	WHERE o.id = ?;
+	`
+
+	rows, err := db.DB.Query(query, ownerId)
+	if err != nil {
+		panic(err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var book Reservations
+		err = rows.Scan(&book.Id, &book.TableName, &book.CustomerName, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status)
+		if err != nil {
+			panic(err)
+			return nil, err
+		}
+		reservation = append(reservation, book)
+	}
+	return reservation, nil
+}
+
+// Owner or staff presses 'Finish' to free the table and record the bill.
+func (res *Booking) Checkout() error {
+	query := `
+	UPDATE reservations SET price = ?, status = 4, actual_end = ?
+	WHERE id = ?
+	`
+	_, err := db.DB.Exec(query, res.Price, res.ActualEnd, res.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (res *Booking) EditCheckout() error {
+	query := `
+	UPDATE reservations SET price = ?, 
+	WHERE id = ?
+	`
+	_, err := db.DB.Exec(query, res.Price)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+

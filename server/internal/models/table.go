@@ -88,19 +88,19 @@ func GetAllTables(restaurantID int) ([]Table, error) {
 }
 
 // Lấy chi tiết một bàn ăn
-func GetTableByID(tableID int) (Table, error) {
-	table := Table{}
+func GetTableByID(tableID int) (*Table, error) {
+	var table Table
 	err := db.DB.QueryRow("SELECT id, name, type, seats, restaurant_id FROM tables WHERE id = ?", tableID).
 		Scan(&table.ID, &table.Name, &table.Type, &table.Seats, &table.RestaurantID)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return table, err
+			return nil, nil
 		}
-		return table, err
+		return nil, err
 	}
 
-	return table, nil
+	return &table, nil
 }
 
 // Tạo bàn ăn mới
@@ -114,7 +114,6 @@ func (t *Table) CreateTable() error {
 	if !exists {
 		return errors.New("Restaurant does not exist")
 	}
-
 	if err != nil {
 		panic(err)
 		return err
@@ -149,8 +148,8 @@ func (t *Table) CreateTable() error {
 
 // Cập nhật bàn ăn
 func (t *Table) UpdateTable() error {
-	query := `UPDATE tables SET name = ?, type = ?, seats = ?, description = ? WHERE id = ?`
-	_, err := db.DB.Exec(query, t.Name, t.Type, t.Seats, t.Description, t.ID)
+	query := `UPDATE tables SET name = ?, type = ?, seats = ? WHERE id = ?`
+	_, err := db.DB.Exec(query, t.Name, t.Type, t.Seats, t.ID)
 	return err
 }
 

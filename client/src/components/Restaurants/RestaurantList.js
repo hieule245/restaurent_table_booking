@@ -8,6 +8,7 @@ import "../../pages/Restaurant/Restaurant.styles.css";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import { FaSortAlphaDown, FaSortAlphaUp, FaSortAmountDown } from "react-icons/fa";
+import "./RestaurantList.styles.css"
 
 const RestaurantList = () => {
     const navigate = useNavigate();
@@ -36,8 +37,7 @@ const RestaurantList = () => {
             console.log("Response", response.data);
             toast.success("Create restaurant successfully!!!");
 
-            // Cập nhật danh sách mà không cần gọi lại API
-            setRestaurants([...restaurants, response.data]);
+            fetchRestaurant()
 
             // Reset form
             setRestaurantData({
@@ -60,7 +60,11 @@ const RestaurantList = () => {
     const itemsPerPage = 8;
     const { ownerId } = useParams();
     useEffect(() => {
-        axios
+        fetchRestaurant();
+    }, []);
+
+    const fetchRestaurant = async () => {
+        const response = axios
             .get(`http://localhost:8080/owners/${ownerId}/restaurants`, { withCredentials: true })
             .then((response) => {
                 console.log("API Response:", response.data);
@@ -75,7 +79,7 @@ const RestaurantList = () => {
                 console.error("Error fetching restaurants:", error);
                 setRestaurants([]); // Đảm bảo `restaurants` luôn là mảng
             });
-    }, []);
+    }
 
     const handleSort = (type) => {
         setSortType(type);
@@ -87,7 +91,7 @@ const RestaurantList = () => {
         }
         setRestaurants(sortedRes);
     };
-    
+
     const filteredRestaurants = (Array.isArray(restaurants) ? restaurants : []).filter((restaurant) =>
         restaurant && restaurant.Name && restaurant.Name.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -211,49 +215,51 @@ const RestaurantList = () => {
                 </div>
             </div>
 
-            <div className="row restaurant-list-container">
-                {paginatedRestaurants.map((restaurant) => (
-                    <div
-                        key={restaurant.Id}
-                        className="col-md-3 mb-3"
-                        onClick={() => {
-                            navigate(`/owner/restaurants/${restaurant.Id}/detail`);
-                        }}
-                    >
-                        <div className="card restaurant-card h-100">
-                            {/* Hình ảnh */}
-                            <div className="image-container">
-                                <img
-                                    src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/c9/02/06/discovering-sky-view.jpg?w=900&h=500&s=1"
-                                    alt={restaurant.Name}
-                                    className="card-img-top restaurant-image"
-                                />
-                            </div>
+            <div className="restaurant-list-container">
+                <div className="row">
+                    {paginatedRestaurants.map((restaurant) => (
+                        <div
+                            key={restaurant.Id}
+                            className="col-md-3 mb-3"
+                            onClick={() => {
+                                navigate(`/owner/restaurants/${restaurant.Id}/detail`);
+                            }}
+                        >
+                            <div className="card restaurant-card h-100">
+                                {/* Hình ảnh */}
+                                <div className="image-container">
+                                    <img
+                                        src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/c9/02/06/discovering-sky-view.jpg?w=900&h=500&s=1"
+                                        alt={restaurant.Name}
+                                        className="card-img-top restaurant-image"
+                                    />
+                                </div>
 
-                            {/* Nội dung */}
-                            <div className="card-body text-center">
-                                <h5 className="card-title">{restaurant.Name}</h5>
-                                <p className="card-text text-muted">
-                                    {restaurant.Description}
-                                </p>
+                                {/* Nội dung */}
+                                <div className="card-body text-center">
+                                    <h5 className="card-title">{restaurant.Name}</h5>
+                                    <p className="card-text text-muted">
+                                        {restaurant.Description}
+                                    </p>
 
-                                {/* Giờ mở cửa */}
-                                <div className="restaurant-hours">
-                                    <span className="open-time">
-                                        🕒 {restaurant.Started} - {restaurant.Ended}
-                                    </span>
+                                    {/* Giờ mở cửa */}
+                                    <div className="restaurant-hours">
+                                        <span className="open-time">
+                                            🕒 {restaurant.Started} - {restaurant.Ended}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
 
             {totalPages > 1 && (
                 <nav className="d-flex justify-content-center mt-3">
                     <ul className="pagination">
                         <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                            <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>
+                            <button className="page-link text-dark" onClick={() => setCurrentPage(currentPage - 1)}>
                                 <FontAwesomeIcon icon={faChevronLeft} />
                             </button>
                         </li>
@@ -263,7 +269,7 @@ const RestaurantList = () => {
                             </li>
                         ))}
                         <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-                            <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>
+                            <button className="page-link text-dark" onClick={() => setCurrentPage(currentPage + 1)}>
                                 <FontAwesomeIcon icon={faChevronRight} />
                             </button>
                         </li>

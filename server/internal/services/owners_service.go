@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -198,7 +199,7 @@ func EditTable(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	
+
 	table.ID = tableID
 
 	if err := table.UpdateTable(); err != nil {
@@ -208,6 +209,7 @@ func EditTable(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"message": "Table updated", "table": table})
 }
+
 func DeleteTable(context *gin.Context) {
 	tableID, err := strconv.Atoi(context.Param("table_id"))
 	if err != nil {
@@ -221,4 +223,77 @@ func DeleteTable(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusOK, gin.H{"message": "Table deleted"})
+}
+
+func GetAllReservations(context *gin.Context) {
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return
+	}
+	user_id := claims.UserID
+	reservation, err := models.GetBookingByOwner(user_id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		context.Abort()
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"booking": reservation})
+}
+
+func EndingUsingTable(context *gin.Context) {
+	var res *models.Booking
+	err := context.ShouldBindBodyWithJSON(&res)
+	if err != nil {
+		fmt.Println("1", err)
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	if res.Status == 4 {
+		err = res.EditCheckout()
+		if err != nil {
+			fmt.Println("3", err)
+			context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
+		}
+	}
+
+	err = res.Checkout()
+	if err != nil {
+		fmt.Println("2", err)
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"message": "Update successfully !!!"})
+}
+
+func StaticRevenue(context *gin.Context) {
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return
+	}
+	rev := &models.Revenues{}
+	err = rev.GetCurrentWeekRevenue(claims.UserID)
+
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"message": rev})
 }
