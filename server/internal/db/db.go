@@ -21,6 +21,18 @@ func InitDB() {
 }
 
 func createTable() {
+
+	ImageQuery := `
+	CREATE TABLE IF NOT EXISTS images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    file_data LONGBLOB NOT NULL
+	);
+	`
+	_, err := DB.Exec(ImageQuery)
+	if err != nil {
+		panic(err)
+	}
+
 	CustomerQuery := `
 	CREATE TABLE IF NOT EXISTS customers (
 		id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -33,7 +45,7 @@ func createTable() {
 		FOREIGN KEY (image_id) REFERENCES images(id)
 	)	
 	`
-	_, err := DB.Exec(CustomerQuery)
+	_, err = DB.Exec(CustomerQuery)
 	if err != nil {
 		panic(err)
 	}
@@ -144,17 +156,6 @@ func createTable() {
 	)	
 	`
 	_, err = DB.Exec(ReservationQuery)
-	if err != nil {
-		panic(err)
-	}
-
-	ImageQuery := `
-	CREATE TABLE IF NOT EXISTS images (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    image_url VARCHAR(255) NOT NULL
-	)
-	`
-	_, err = DB.Exec(ImageQuery)
 	if err != nil {
 		panic(err)
 	}
