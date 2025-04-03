@@ -1,4 +1,4 @@
-function TestOwner({ callApi }) {
+function TestOwner({ callAPI }) {
   return (
     <>
       <div name="container" className="">

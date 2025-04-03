@@ -1,12 +1,9 @@
 import axios from "axios";
+import { REST_API_URL } from "../../../data";
 
 const HandleLogout = async () => {
   try {
-    await axios.post(
-      "http://localhost:8080/logout",
-      {},
-      { withCredentials: true }
-    );
+    await axios.post(`${REST_API_URL}/logout`, {}, { withCredentials: true });
     window.location.href = "/";
   } catch (error) {
     console.error("Logout failed:", error);

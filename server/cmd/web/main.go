@@ -16,7 +16,12 @@ func main() {
 	server := gin.Default()
 
 	server.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"}, // Chỉ cho phép frontend của bạn truy cập
+		// Chỉ cho phép frontend truy cập
+		AllowOrigins: []string{"http://localhost:3000"},
+		// AllowOriginFunc: func(origin string) bool {
+		// 	fmt.Println("Incoming Origin:", origin)
+		// 	return strings.Contains(origin, "ngrok-free.app")
+		// },
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		AllowCredentials: true, // Cho phép gửi cookie qua CORS

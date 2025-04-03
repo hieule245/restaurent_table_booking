@@ -8,7 +8,7 @@ import "./NavBar.styles.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import avatar from "../../assets/image/avatar.jpeg";
-
+import { REST_API_URL } from "../../data";
 const NavBar = () => {
   // STATE FOR HAMBURGER MENU
   const [nav, setNav] = useState(false);
@@ -19,7 +19,7 @@ const NavBar = () => {
   // Lưu thông tin từ cookie
   useEffect(() => {
     axios
-      .get("http://localhost:8080/me", { withCredentials: true })
+      .get(`${REST_API_URL}/me`, { withCredentials: true })
       .then((res) => {
         setUser(res.data); // lưu thông tin user
       })
@@ -31,11 +31,7 @@ const NavBar = () => {
   // Xử lý Logout
   const handleLogout = async () => {
     try {
-      await axios.post(
-        "http://localhost:8080/logout",
-        {},
-        { withCredentials: true }
-      );
+      await axios.post(`${REST_API_URL}/logout`, {}, { withCredentials: true });
       setUser(null);
       navigate("/");
     } catch (error) {

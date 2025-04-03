@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import { REST_API_URL } from "../../data";
 const BookingCalendar = ({ table }) => {
   // Lấy thông tin thời gian hiện tại
   const today = new Date();
@@ -41,7 +42,7 @@ const BookingCalendar = ({ table }) => {
   // Fetch thông tin user
   useEffect(() => {
     axios
-      .get("http://localhost:8080/me", { withCredentials: true })
+      .get(`${REST_API_URL}/me`, { withCredentials: true })
       .then((res) => {
         if (res.data && res.data.user) {
           setUser(res.data.user);
@@ -124,7 +125,7 @@ const BookingCalendar = ({ table }) => {
 
     try {
       // Cập nhật thông tin user
-      const res = await axios.get("http://localhost:8080/me", {
+      const res = await axios.get(`${REST_API_URL}/me`, {
         withCredentials: true,
       });
       if (res.data && res.data.user) {

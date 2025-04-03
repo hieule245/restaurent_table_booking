@@ -12,11 +12,13 @@ import jane from "./assets/testimonials/jane.jpg";
 import john from "./assets/testimonials/john.jpg";
 import mark from "./assets/testimonials/mark.jpg";
 
+export const REST_API_URL = "http://localhost:8080";
 
 export const specials = [
   {
     id: 1,
     image: greekSalad,
+
     name: "Greek Salad",
     price: "$ 12.99",
     description:

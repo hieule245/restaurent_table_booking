@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import axios from "axios";
 import TestUser from "./TestUsers/TestUsers";
-// import TestAdmin from "./TestAdmin/TestAdmin";
-// import TestOwner from "./TestOwner/TestOwner";
-// import TestCustomer from "./TestCustomer/TestCustomer";
-
+import TestAdmin from "./TestAdmin/TestAdmin";
+import TestOwner from "./TestOwner/TestOwner";
+import TestCustomer from "./TestCustomer/TestCustomer";
 import TestStaff from "./TestStaff/TestStaff";
+
+import { REST_API_URL } from "../data";
 function TestAPI() {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const baseURL = "http://localhost:8080"; // Thay đổi thành URL backend của bạn
+  const baseURL = REST_API_URL; // Thay đổi thành URL backend của bạn
 
   // Hàm gọi API với Axios
   const callAPI = async (method, endpoint, data = null) => {
@@ -52,18 +53,18 @@ function TestAPI() {
 
         <h2>🔍 Test REST API bằng Axios</h2>
       </div>
-
+      <p>{REST_API_URL}</p>
       {/* Users */}
       <TestUser callAPI={callAPI} />
       <hr />
 
-      {/* <TestAdmin callAPI={callAPI} /> */}
+      <TestAdmin callAPI={callAPI} />
       <hr />
 
-      {/* <TestOwner callAPI={callAPI} /> */}
+      <TestOwner callAPI={callAPI} />
       <hr />
 
-      {/* <TestCustomer callAPI={callAPI} /> */}
+      <TestCustomer callAPI={callAPI} />
       <hr />
 
       <TestStaff callAPI={callAPI} />

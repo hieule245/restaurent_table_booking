@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion"; // Import animation
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-
+import { REST_API_URL } from "../../../data";
 const RegisterPage = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -31,7 +31,8 @@ const RegisterPage = () => {
   };
 
   const isValidPassword = (password) => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return passwordRegex.test(password);
   };
 
@@ -58,12 +59,14 @@ const RegisterPage = () => {
     if (!phone) {
       validationErrors.phone = "Phone number is required.";
     } else if (!isValidPhone(phone)) {
-      validationErrors.phone = "Phone number must be exactly 10 digits.(e.g. 093*******)";
+      validationErrors.phone =
+        "Phone number must be exactly 10 digits.(e.g. 093*******)";
     }
     if (!password) {
       validationErrors.password = "Password is required.";
     } else if (!isValidPassword(password)) {
-      validationErrors.password = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&).";
+      validationErrors.password =
+        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&).";
     }
     if (!confirmPassword) {
       validationErrors.confirmpassword = "Confirm password is required.";
@@ -77,7 +80,7 @@ const RegisterPage = () => {
     }
     console.log(role);
     try {
-      const res = await axios.post("http://localhost:8080/register", {
+      const res = await axios.post(`${REST_API_URL}/register`, {
         Name: name,
         Email: email,
         Password: password,
@@ -152,7 +155,9 @@ const RegisterPage = () => {
                       style={{ cursor: "pointer", borderLeft: 0 }}
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+                      <FontAwesomeIcon
+                        icon={showPassword ? faEye : faEyeSlash}
+                      />
                     </span>
                   </div>
                   {errors.password && (
@@ -162,20 +167,24 @@ const RegisterPage = () => {
                 <div className="form-group my-2">
                   <label className="form-label">Confirm Password</label>
                   <div className="input-group">
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    className="form-control"
-                    placeholder="Confirm Password"
-                    style={{ borderRight: 0 }}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
-                  <span
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      className="form-control"
+                      placeholder="Confirm Password"
+                      style={{ borderRight: 0 }}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    <span
                       className="input-group-text bg-white"
                       style={{ cursor: "pointer", borderLeft: 0 }}
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                     >
-                      <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
+                      <FontAwesomeIcon
+                        icon={showConfirmPassword ? faEye : faEyeSlash}
+                      />
                     </span>
                   </div>
                   {errors.confirmPassword && (

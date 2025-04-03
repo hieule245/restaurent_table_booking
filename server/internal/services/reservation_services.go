@@ -81,19 +81,17 @@ func GetAvailableTables(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"tables": availableTables})
 }
 
-func GetAllReservationOfRestaurant(context *gin.Context) {
-	restaurant_id, err := strconv.ParseInt(context.Param("restaurant_id"), 10, 64)
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "can't convert to int 64"})
-		return
-	}
+// func GetAllReservationOfRestaurant(context *gin.Context) {
+// 	restaurant_id, err := strconv.ParseInt(context.Param("restaurant_id"), 10, 64)
+// 	if err != nil {
+// 		context.JSON(http.StatusInternalServerError, gin.H{"error": "can't convert to int 64"})
+// 		return
+// 	}
 
-	tables, err := models.GetAllTables(restaurant_id)
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch tables"})
-		return
-	}
+// 	tables, err := models.GetAllTables(restaurant_id)
+// 	if err != nil {
+// 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch tables"})
+// 		return
+// 	}
 
-	
-
-}
+// }

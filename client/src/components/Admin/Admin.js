@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { restaurants } from "../../data";
 import HandleLogout from "../authentication/Logout/Logout";
+import { REST_API_URL } from "../../data";
 const Admin = () => {
   const [reservations] = useState([]);
   const [users, setUsers] = useState([]);
@@ -24,7 +25,7 @@ const Admin = () => {
 
     // Fetch users from the server
     axios
-      .get("http://localhost:8080/user_list")
+      .get(`${REST_API_URL}/user_list`)
       .then((response) => {
         setUsers(response.data.users);
       })
@@ -35,7 +36,7 @@ const Admin = () => {
 
     // Fetch restaurants owned by the admin
     // axios
-    //   .get("http://localhost:8080/restaurants")
+    //   .get(`${REST_API_URL}/restaurants")
     //   .then((response) => {
     //     setRestaurants(response.data.restaurants);
     //   })

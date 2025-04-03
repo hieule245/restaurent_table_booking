@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/restaurent_table_booking/internal/middlewares"
 	"github.com/restaurent_table_booking/internal/services"
@@ -8,6 +10,7 @@ import (
 
 // Routes định nghĩa tất cả các route của ứng dụng.
 func Routes(server *gin.Engine) {
+	server.GET("/", welcome)
 	restaurant := server.Group("/restaurant")
 	{
 		restaurant.GET("/:restaurant_id", services.GetRestaurantByID)
@@ -27,6 +30,10 @@ func Routes(server *gin.Engine) {
 		AdminRoutes(User)
 		OwnerRoutes(User)
 		CustomerRoutes(User)
-		StaffRoutes(User)
+		// StaffRoutes(User)
 	}
+}
+
+func welcome(context *gin.Context) {
+	context.JSON(http.StatusOK, gin.H{"message": "Hello"})
 }

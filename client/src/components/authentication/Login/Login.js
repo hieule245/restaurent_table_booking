@@ -7,19 +7,26 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import './Login.style.css'
-
+import {
+  faEye,
+  faEyeSlash,
+  faArrowLeft,
+} from "@fortawesome/free-solid-svg-icons";
+import "./Login.style.css";
+import { REST_API_URL } from "../../../data";
 const LoginPage = () => {
   const navigate = useNavigate();
 
-  const handleNavigation = useCallback((role) => {
-    if (role === "admin") {
-      navigate("/admin");
-    } else {
-      navigate("/");
-    }
-  }, [navigate]);
+  const handleNavigation = useCallback(
+    (role) => {
+      if (role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+    },
+    [navigate]
+  );
 
   let [email, setEmail] = useState("");
   let [password, setPassword] = useState("");
@@ -29,7 +36,7 @@ const LoginPage = () => {
   useEffect(() => {
     import("bootstrap/dist/js/bootstrap.bundle.min");
     axios
-      .get("http://localhost:8080/me", { withCredentials: true })
+      .get(`${REST_API_URL}/me`, { withCredentials: true })
       .then((res) => {
         setTimeout(() => {
           handleNavigation(res.data.role);
@@ -71,7 +78,7 @@ const LoginPage = () => {
     }
     try {
       let res = await axios.post(
-        "http://localhost:8080/login",
+        `${REST_API_URL}/login`,
         { Email: email, Password: password },
         { withCredentials: true }
       );
@@ -80,7 +87,7 @@ const LoginPage = () => {
         await toast.success("Login successful!");
 
         axios
-          .get("http://localhost:8080/me", { withCredentials: true })
+          .get(`${REST_API_URL}/me`, { withCredentials: true })
           .then((res) => {
             setTimeout(() => {
               const userRole = res.data.role;
@@ -105,7 +112,10 @@ const LoginPage = () => {
       <ToastContainer />
 
       {/* Nút Quay Lại Trang Chủ */}
-      <button className="btn btn-outline-light back-home-btn" onClick={() => navigate("/")}>
+      <button
+        className="btn btn-outline-light back-home-btn"
+        onClick={() => navigate("/")}
+      >
         <FontAwesomeIcon icon={faArrowLeft} /> Back to Home
       </button>
 
@@ -155,7 +165,9 @@ const LoginPage = () => {
                       style={{ cursor: "pointer", borderLeft: 0 }}
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+                      <FontAwesomeIcon
+                        icon={showPassword ? faEye : faEyeSlash}
+                      />
                     </span>
                   </div>
                   {errors.password && (
