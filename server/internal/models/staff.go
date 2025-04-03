@@ -7,6 +7,7 @@ import (
 
 	"github.com/restaurent_table_booking/internal/db"
 	"github.com/restaurent_table_booking/internal/utils"
+	pkg "github.com/restaurent_table_booking/pkg/email"
 )
 
 type Staff struct {
@@ -135,6 +136,7 @@ func (staff *Staff) CreateStaff(userId int64) error {
 	if err != nil {
 		return err
 	}
+
 	rows, err := db.DB.Query(`SELECT id, restaurant_id, status FROM staffs WHERE gmail = ?`, staff.Gmail)
 	for rows.Next() {
 		var st Staff
@@ -166,6 +168,11 @@ func (staff *Staff) CreateStaff(userId int64) error {
 	}
 
 	result, err := stmt.Exec(staff.Gmail, staff.Name, staff.Phone, staff.Status, hashPassword, staff.RestaurantID)
+	if err != nil {
+		return err
+	}
+
+	err = pkg.SendMailStaff(staff.Gmail, staff.Name, staff.Password)
 	if err != nil {
 		return err
 	}

@@ -4,7 +4,7 @@
     {
       "label": "Server",
       "type": "shell",
-      "command": "go run ./cmd/web/main.go",
+      "command": "go run ./cmd/background/main.go",
       "options": {
         "cwd": "${workspaceFolder}/server"
       },

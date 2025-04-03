@@ -10,7 +10,7 @@ var DB *sql.DB
 
 func InitDB() {
 	var err error = nil
-	DB, err = sql.Open("mysql", "root:123@tcp(localhost:3306)/restaurant_bookings")
+	DB, err = sql.Open("mysql", "root:123@tcp(localhost:3306)/restaurant_bookings?parseTime=true")
 	if err != nil {
 		panic("Cannot connect to database")
 	}
@@ -155,6 +155,25 @@ func createTable() {
 	)
 	`
 	_, err = DB.Exec(ImageQuery)
+	if err != nil {
+		panic(err)
+	}
+
+	revenuesQuery := `
+	CREATE TABLE IF NOT EXISTS revenues(
+	id INTEGER PRIMARY KEY AUTO_INCREMENT,
+	weekly_revenues FLOAT NOT NULL,
+	staff_adding INTEGER NOT NULL,
+	staff_out INTEGER NOT NULL,
+	order_done INTEGER NOT NULL,
+	order_cancel INTEGER NOT NULL,
+	order_customer INTEGER NOT NULL,
+	using_customer INTEGER NOT NULL,
+	owner_id INTEGER UNIQUE NOT NULL,
+	FOREIGN KEY (owner_id) REFERENCES owners(id)
+	)
+	`
+	_, err = DB.Exec(revenuesQuery)
 	if err != nil {
 		panic(err)
 	}

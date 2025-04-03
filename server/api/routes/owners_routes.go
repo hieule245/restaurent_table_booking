@@ -8,11 +8,17 @@ import (
 
 // OwnerRoutes định nghĩa các route dành cho chủ sở hữu (owner) với xác thực và kiểm tra quyền riêng.
 func OwnerRoutes(server *gin.Engine) {
+	server.GET("/owners/:owner_id", services.StaticRevenue)
 	owner := server.Group("/owners/:owner_id")
 	owner.Use(middlewares.AuthMiddleware()) // Yêu cầu đăng nhập
 	owner.Use(middlewares.OwnerOnly)        // Chỉ cho phép owner truy cập
 
-	{ 
+	{
+		reservation := owner.Group("/reservations")
+		{
+			reservation.GET("", services.GetAllReservations)
+			reservation.POST("finish_booking", services.EndingUsingTable)
+		}
 		restaurant := owner.Group("/restaurants")
 		{
 			restaurant.GET("", services.GetAllOwnerRestaurants)

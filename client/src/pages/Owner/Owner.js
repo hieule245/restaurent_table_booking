@@ -3,6 +3,7 @@ import { FaUtensils } from "react-icons/fa";
 import { Tabs, Tab, TabList, TabPanel } from "react-tabs"
 import Dashboard from "../../components/Dashboard/Dashboard";
 import RestaurantList from "../../components/Restaurants/RestaurantList";
+import ReservationList from "../../components/Restaurants/Reservations/ReservationList";
 import NavBar from '../../components/NavBar/NavBar';
 import './Owner.styles.css'
 const Owner = () => {
@@ -21,14 +22,14 @@ const Owner = () => {
                                     <span className="fw-bolder fs-3 col-9 d-flex justify-content-end text-white">TableBooker</span>
                                 </div>
                                 <TabList className="p-0">
-                                    <Tab>
-                                        <span className="btn btn-danger fs-5 fw-bold w-100 mb-3 rounded-pill">Dashboard</span>
+                                    <Tab className="custom-tab">
+                                        <span className="btn btn-danger fs-5 fw-bold w-100 mb-3 rounded-pill" style={{ outline: "none" }}>Dashboard</span>
                                     </Tab>
-                                    <Tab>
-                                        <span className="btn btn-danger fs-5 fw-bold w-100 mb-3 rounded-pill">Restaurants</span>
+                                    <Tab className="custom-tab">
+                                        <span className="btn btn-danger fs-5 fw-bold w-100 mb-3 rounded-pill" style={{ outline: "none" }}>Restaurants</span>
                                     </Tab>
-                                    <Tab>
-                                        <span className="btn btn-danger fs-5 fw-bold w-100 rounded-pill">Revenue</span>
+                                    <Tab className="custom-tab">
+                                        <span className="btn btn-danger fs-5 fw-bold w-100 rounded-pill" style={{ outline: "none" }}>Revenue</span>
                                     </Tab>
                                 </TabList>
                             </div>
@@ -38,6 +39,9 @@ const Owner = () => {
                                 </TabPanel>
                                 <TabPanel>
                                     <RestaurantList />
+                                </TabPanel>
+                                <TabPanel>
+                                    <ReservationList />
                                 </TabPanel>
                             </div>
                         </div>

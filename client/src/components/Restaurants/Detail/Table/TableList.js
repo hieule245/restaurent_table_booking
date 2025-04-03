@@ -13,11 +13,15 @@ const TableList = ({ restaurant_id }) => {
   const [tables, setTables] = useState([]);
   const [restaurant, setRestaurant] = useState({});
   const [formData, setFormData] = useState({});
-  const [newTable, setNewTable] = useState({ name: "", type: "", seats: "", Description: "" });
+  const [newTable, setNewTable] = useState({ name: "", type: "", seats: tables.seats || 1, Description: "" });
   const modalRef = useRef(null);
   const addTableModalRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
   const tablesPerPage = 6;
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.name === "seats" ? Number(e.target.value) : e.target.value });
+  };
 
   useEffect(() => {
     fetchTables();
@@ -26,8 +30,8 @@ const TableList = ({ restaurant_id }) => {
   const fetchTables = async () => {
     try {
       const response = axios.get(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables`, { withCredentials: true })
-      .then((res) => setTables(res.data.tables || []))
-      .catch(() => toast.error("Error fetching table list!"));
+        .then((res) => setTables(res.data.tables || []))
+        .catch(() => toast.error("Error fetching table list!"));
     } catch (error) {
       console.error("Error fetching tables:", error);
     }
@@ -42,10 +46,6 @@ const TableList = ({ restaurant_id }) => {
       .catch(() => toast.error("Error fetching restaurant!"));
   }, [restaurant_id]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     axios.put(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}`, formData, { withCredentials: true })
@@ -58,7 +58,7 @@ const TableList = ({ restaurant_id }) => {
   };
 
   const handleNewTableChange = (e) => {
-    setNewTable({ ...newTable, [e.target.name]: e.target.value });
+    setNewTable({ ...newTable, [e.target.name]: e.target.name === "seats" ? Number(e.target.value) : e.target.value });
   };
 
   const handleAddTable = (e) => {
@@ -68,12 +68,11 @@ const TableList = ({ restaurant_id }) => {
         setTables([...tables, newTable]);
         toast.success("Table added successfully!");
         addTableModalRef.current.querySelector(".btn-close").click();
+        setNewTable = ({ name: "", type: "", seats: 1, Description: "" });
       })
       .catch((error) => {
         if (error.response && error.response.data && error.response.data.error) {
           toast.error(error.response.data.error);
-        } else {
-          toast.error("Error adding table!");
         }
       });
   };
@@ -112,7 +111,7 @@ const TableList = ({ restaurant_id }) => {
       <ToastContainer />
       <div className="col-9">
         <div className="">
-          <div className="restaurant-details mt-1">
+          <div className="restaurant-details mt-1 pt-1 pb-0">
             <h1 className="restaurant-name text-dark mb-2">{restaurant.Name}</h1>
             <p className="restaurant-description text-muted">{restaurant.Description}</p>
             <p className="restaurant-address-text">
@@ -140,22 +139,24 @@ const TableList = ({ restaurant_id }) => {
 
 
       </div>
-      <div className="table-container">
-        <div className="row mt-1">
-          {currentTables.length > 0 ? (
-            currentTables.map((table) => (
-              <div className="col-md-4 mb-3" key={table.id}>
-                <TableCard restaurant_id={restaurant_id} table={table} onUpdate={fetchTables}/>
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-muted fs-1">No tables available.</p>
-          )}
+      <div className="">
+        <div className="table-container">
+          <div className="row mt-1">
+            {currentTables.length > 0 ? (
+              currentTables.map((table) => (
+                <div className="col-md-4 mb-3" key={table.id}>
+                  <TableCard restaurant_id={restaurant_id} table={table} onUpdate={fetchTables} />
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-muted fs-1">No tables available.</p>
+            )}
+          </div>
         </div>
 
         {/* Pagination */}
         {tables.length > tablesPerPage && (
-          <div className="pagination-container">
+          <div className="pagination-container m-0">
             <button className="btn btn-outline-dark me-2" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
               &laquo;
             </button>
@@ -177,7 +178,7 @@ const TableList = ({ restaurant_id }) => {
       </div>
 
       {/* Modal chỉnh sửa nhà hàng */}
-      <div ref={modalRef} className="modal fade" id="editRestaurantModal" tabIndex="-1" aria-labelledby="editRestaurantModalLabel" aria-hidden="true">
+      <div ref={modalRef} className="modal fade" id="editRestaurantModal" tabIndex="-1" aria-labelledby="editRestaurantModalLabel">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content rounded-4 shadow-lg border-0">
             <div className="modal-header bg-dark text-white rounded-top-4">
@@ -186,23 +187,23 @@ const TableList = ({ restaurant_id }) => {
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body p-4 bg-white">
-                <div className="form-group mb-3">
+                <div className="form-group mb-2">
                   <label className="form-label fw-bold text-dark">Name</label>
                   <input type="text" name="Name" className="form-control border-secondary rounded-3" value={formData.Name} onChange={handleChange} />
                 </div>
-                <div className="form-group mb-3">
+                <div className="form-group mb-2">
                   <label className="form-label fw-bold text-dark">Description</label>
                   <input type="text" name="Description" className="form-control border-secondary rounded-3" value={formData.Description} onChange={handleChange} />
                 </div>
-                <div className="form-group mb-3">
+                <div className="form-group mb-2">
                   <label className="form-label fw-bold text-dark">Location</label>
                   <input type="text" name="Location" className="form-control border-secondary rounded-3" value={formData.Location} onChange={handleChange} />
                 </div>
-                <div className="form-group mb-3">
+                <div className="form-group mb-2">
                   <label className="form-label fw-bold text-dark">Opening Time</label>
                   <input type="time" name="Started" className="form-control border-secondary rounded-3" value={formData.Started} onChange={handleChange} />
                 </div>
-                <div className="form-group mb-3">
+                <div className="form-group mb-2">
                   <label className="form-label fw-bold text-dark">Closing Time</label>
                   <input type="time" name="Ended" className="form-control border-secondary rounded-3" value={formData.Ended} onChange={handleChange} />
                 </div>
@@ -253,7 +254,7 @@ const TableList = ({ restaurant_id }) => {
                 </div>
                 <div className="form-group mb-3">
                   <label className="form-label fw-bold text-dark">Seats</label>
-                  <input type="number" name="seats" className="form-control border-secondary rounded-3" value={newTable.seats} onChange={handleNewTableChange} />
+                  <input type="number" name="seats" className="form-control border-secondary rounded-3" value={newTable.seats} min={1} max={30} onChange={handleNewTableChange} />
                 </div>
                 <div className="form-group mb-3">
                   <label className="form-label fw-bold text-dark">Description</label>

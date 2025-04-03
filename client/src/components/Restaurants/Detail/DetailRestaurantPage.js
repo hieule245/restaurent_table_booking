@@ -25,8 +25,6 @@ const RestaurantPage = () => {
         return <TableList restaurant_id={restaurant_id} />;
       case "StaffList":
         return <StaffList restaurant_id={restaurant_id} />;
-      case "StaffDetail":
-        return <div>Staff Detail Content</div>;
       case "Reservation":
         return <div>History Reservation Content</div>;
       default:

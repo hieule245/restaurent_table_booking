@@ -35,13 +35,11 @@ const Main = () => {
       {/* Restaurant */}
       <Route path="/restaurants" element={<Restaurants />} />
       <Route path="/restaurants/:restaurant_id/tables/:table_id/detail" element={<TableDetailPage />} />
-
+      <Route path="/restaurants/:restaurant_id/detail" element={<RestaurantDetailPage />} />
+      
       {/* Owner */}
       <Route path="/owner" element={<OwnerControll />} />
-      <Route path="/owner/restaurants/:restaurant_id/detail" element={<RestaurantDetailPage />} />
-      <Route path="/restaurants/:restaurant_id/detail" element={<RestaurantDetailPage />} />
-      <Route path="/restaurants/:restaurant_id/tables/:table_id/detail" element={ <TableDetailPage />} />
-
+      <Route path="/owner/restaurants/:restaurant_id/detail" element={<RestaurantOwnerDetailPage />} />
 
       {/* Customer */}
       <Route path="/booking-history" element={<BookingHistory />} />

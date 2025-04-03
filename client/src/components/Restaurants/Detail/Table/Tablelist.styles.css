@@ -1,6 +1,7 @@
 /* SIDEBAR */
 .sidebar {
-    background-color: #1C1C1C; /* Đen sang trọng */
+    background-color: #1C1C1C;
+    /* Đen sang trọng */
     color: white;
     border-radius: 10px;
     padding: 20px;
@@ -8,7 +9,8 @@
 }
 
 .sidebar h4 {
-    color: #DC3545; /* Đỏ danger nổi bật */
+    color: #DC3545;
+    /* Đỏ danger nổi bật */
     font-weight: bold;
     text-transform: uppercase;
 }
@@ -55,7 +57,8 @@
 
 .restaurant-description {
     font-size: 1.1rem;
-    color: #CCCCCC; /* Màu chữ nhẹ hơn */
+    color: #CCCCCC;
+    /* Màu chữ nhẹ hơn */
 }
 
 .restaurant-address-text {
@@ -97,13 +100,13 @@
 .table-container {
     display: flex;
     flex-direction: column;
-    min-height: 78vh; /* Đảm bảo chiều cao tối thiểu */
-  }
-  
-  .pagination-container {
+    min-height: 72vh;
+    /* Đảm bảo chiều cao tối thiểu */
+}
+
+.pagination-container {
     margin-top: auto;
     padding: 10px 0;
     display: flex;
     justify-content: center;
-  }
-  
+}

@@ -7,6 +7,7 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
     const [formData, setFormData] = useState({
         name: table.name || "",
         seats: table.seats || "",
+        type: table.type || "",
         Description: table.Description || ""
     });
 
@@ -64,8 +65,11 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
                 </div>
                 <div className="card-body table-card-body">
                     <h5>{table.name || "Table Name"}</h5>
-                    <p className="text-muted">🪑 Seats: <span className="fw-semibold">{table.seats || "N/A"}</span></p>
-                    <p className="small">✨ {table.description || "No description available"}</p>
+                    <div className="d-flex justify-content-around align-items-center">
+                        <p className="text-muted">🪑 Seats: <span className="fw-semibold">{table.seats || "N/A"}</span></p>
+                        <p className="text-muted">Type: <span className="fw-semibold">{table.type}</span></p>
+                    </div>
+                    <p className="small">✨ {table.Description || "No description available"}</p>
                 </div>
             </div>
             {showModal && (
@@ -97,6 +101,17 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
                                             className="form-control border-secondary rounded-3"
                                             placeholder="Number of Seats"
                                             value={formData.seats}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                    <div className="form-group mb-3">
+                                        <label className="form-label fw-bold text-dark">Type</label>
+                                        <input
+                                            type="text"
+                                            name="type"
+                                            className="form-control border-secondary rounded-3"
+                                            placeholder="Table Name"
+                                            value={formData.type}
                                             onChange={handleChange}
                                         />
                                     </div>
@@ -138,7 +153,8 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
                                 <ul>
                                     <li><strong>Table Name:</strong> {formData.name}</li>
                                     <li><strong>Seats:</strong> {formData.seats}</li>
-                                    <li><strong>Description:</strong> {formData.description}</li>
+                                    <li><strong>Type:</strong> {formData.type}</li>
+                                    <li><strong>Description:</strong> {formData.Description}</li>
                                 </ul>
                             </div>
                             <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
