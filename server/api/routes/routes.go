@@ -7,6 +7,7 @@ import (
 
 // Routes định nghĩa tất cả các route của ứng dụng.
 func Routes(server *gin.Engine) {
+	server.GET("/", sayHi)
 	// Các route liên quan đến owner: Tìm kiếm bàn trống & thời gian đã đặt
 	server.GET("/restaurants/:restaurant_id/tables/available", services.SearchAvailableTablesHandler)
 
@@ -15,7 +16,6 @@ func Routes(server *gin.Engine) {
 	// Các route công khai cho restaurant và table
 	server.GET("/restaurants", services.GetAllRestaurants)
 
-	
 	// filter table with time start, time end, date
 	server.GET("/restaurant/:restaurant_id/available-tables", services.GetAvailableTables)
 
@@ -40,4 +40,10 @@ func Routes(server *gin.Engine) {
 	AdminRoutes(server)    // Các route Admin
 	OwnerRoutes(server)    // Các route Owner
 	CustomerRoutes(server) // Các route Customer
+}
+
+func sayHi(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"message": "Hello World",
+	})
 }

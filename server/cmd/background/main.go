@@ -14,7 +14,8 @@ func main() {
 	server := gin.Default()
 
 	server.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"}, // Chỉ cho phép frontend của bạn truy cập
+		// http://localhost:3000
+		AllowOrigins:     []string{"https://gmo-h110m-h.tail04954f.ts.net"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		AllowCredentials: true, // Cho phép gửi cookie qua CORS

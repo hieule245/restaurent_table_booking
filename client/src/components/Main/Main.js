@@ -9,12 +9,13 @@ import CheckPin from "../authentication/ForgotPassword/CheckPin";
 import ResetPassword from "../authentication/ForgotPassword/ResetPassword";
 import Admin from "../Admin/Admin";
 import PersonalPage from "../Personal/Personal";
-import Restaurants from "../../pages/Restaurant/RestaurantPage"
+import Restaurants from "../../pages/Restaurant/RestaurantPage";
 import RestaurantDetailPage from "../../pages/Restaurant/Detail/DetailRestaurantPage";
 import TableDetailPage from "../../pages/Table/DetailPage";
-import OwnerControll from "../../pages/Owner/Owner"
-import RestaurantOwnerDetailPage from "../../components/Restaurants/Detail/DetailRestaurantPage"
+import OwnerControll from "../../pages/Owner/Owner";
+import RestaurantOwnerDetailPage from "../../components/Restaurants/Detail/DetailRestaurantPage";
 import BookingHistory from "../BookingHistory/BookingHistory";
+import Chat from "../Chat/Chat";
 const Main = () => {
   return (
     <Routes future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -34,15 +35,27 @@ const Main = () => {
 
       {/* Restaurant */}
       <Route path="/restaurants" element={<Restaurants />} />
-      <Route path="/restaurants/:restaurant_id/tables/:table_id/detail" element={<TableDetailPage />} />
-      <Route path="/restaurants/:restaurant_id/detail" element={<RestaurantDetailPage />} />
-      
+      <Route
+        path="/restaurants/:restaurant_id/tables/:table_id/detail"
+        element={<TableDetailPage />}
+      />
+      <Route
+        path="/restaurants/:restaurant_id/detail"
+        element={<RestaurantDetailPage />}
+      />
+
       {/* Owner */}
       <Route path="/owner" element={<OwnerControll />} />
-      <Route path="/owner/restaurants/:restaurant_id/detail" element={<RestaurantOwnerDetailPage />} />
+      <Route
+        path="/owner/restaurants/:restaurant_id/detail"
+        element={<RestaurantOwnerDetailPage />}
+      />
 
       {/* Customer */}
       <Route path="/booking-history" element={<BookingHistory />} />
+
+      {/* websocket Chat */}
+      <Route path="/chat" element={<Chat />} />
     </Routes>
   );
 };
