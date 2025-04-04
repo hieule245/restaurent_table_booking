@@ -17,7 +17,7 @@ func main() {
 
 	server.Use(cors.New(cors.Config{
 		// Chỉ cho phép frontend truy cập
-		AllowOrigins: []string{"http://localhost:3000"},
+		AllowOrigins: []string{"https://desktop-b0d0j2q.tail04954f.ts.net"},
 		// AllowOriginFunc: func(origin string) bool {
 		// 	fmt.Println("Incoming Origin:", origin)
 		// 	return strings.Contains(origin, "ngrok-free.app")

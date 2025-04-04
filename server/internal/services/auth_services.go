@@ -44,7 +44,16 @@ func Login(context *gin.Context) {
 		}
 
 		// save token into cookie
-		context.SetCookie("token", token, 7200, "/", "localhost", false, true)
+		// context.SetCookie("token", token, 7200, "/", "localhost", false, true)
+
+		context.SetCookie("token", token, 7200, "/", "gmo-h110m-h.tail04954f.ts.net", false, true)
+		token, err = context.Cookie("token")
+		if err != nil {
+			context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+			// context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			context.Abort()
+			return
+		}
 
 		context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!", "tokens": token, "role": u.Role})
 		// context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!"})
