@@ -1,8 +1,8 @@
 import React from "react";
 import restaurant from "../../assets/restaurant.jpg";
 import "./Footer.styles.css";
-import { links, contacts, socials } from "../../data";
-import { Link as LinkS } from "react-scroll";
+import { contacts, socials } from "../../data";
+// import { Link as LinkS } from "react-scroll";
 
 const Footer = () => {
   //CONTACTS

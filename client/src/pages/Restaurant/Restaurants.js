@@ -10,8 +10,8 @@ const RestaurantList = () => {
   const navigate = useNavigate();
   const [restaurants, setRestaurants] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [Started, setStarted] = useState("");
-  const [Ended, setEnded] = useState("");
+  const [Started] = useState("");
+  const [Ended] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 

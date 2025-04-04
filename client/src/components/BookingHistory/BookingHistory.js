@@ -38,6 +38,7 @@ const BookingHistory = () => {
       });
   }, [user]);
 
+  console.log("Booking history:", bookings);
   // Mở modal chỉnh sửa
   const handleEdit = (booking) => {
     setSelectedBooking(booking);
@@ -127,7 +128,9 @@ const BookingHistory = () => {
         ) : (
           <p className="booking-history-loading">Loading user info...</p>
         )}
-        {bookings.length === 0 ? (
+        {(Array.isArray(bookings) && bookings.length === 0) ? (
+          <p className="booking-history-no">No bookings found.</p>
+        ) : (bookings === null || bookings === undefined || (Array.isArray(bookings) && bookings.length === 0)) ? (
           <p className="booking-history-no">No bookings found.</p>
         ) : (
           <motion.div
@@ -151,7 +154,7 @@ const BookingHistory = () => {
                 </tr>
               </thead>
               <tbody>
-                {bookings.map((booking, index) => (
+                {bookings?.map((booking, index) => (
                   <BookingRow
                     key={booking.id}
                     booking={booking}
@@ -164,6 +167,8 @@ const BookingHistory = () => {
             </table>
           </motion.div>
         )}
+
+
         {/* Modal chỉnh sửa booking */}
         <div
           className="modal fade"

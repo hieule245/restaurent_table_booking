@@ -23,6 +23,7 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
 
     const confirmSave = async () => {
         try {
+            console.log(table.id);
             const response = await axios.put(
                 `http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables/${table.id}`,
                 formData, { withCredentials: true }
@@ -40,7 +41,7 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
 
     const confirmDelete = async () => {
         try {
-            const response = await axios.delete(
+            await axios.delete(
                 `http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables/${table.id}`,
                 { withCredentials: true }
             );

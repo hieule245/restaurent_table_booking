@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/restaurent_table_booking/internal/db"
 )
@@ -108,14 +109,14 @@ func (t *Table) CreateTable() error {
 	// 🏷️ Kiểm tra nhà hàng có tồn tại không
 	exists, err := IsRestaurantExist(t.RestaurantID)
 	if err != nil {
-		panic(err)
+		fmt.Println("table 1-", err)
 		return err
 	}
 	if !exists {
 		return errors.New("Restaurant does not exist")
 	}
 	if err != nil {
-		panic(err)
+		fmt.Println("table 2-", err)
 		return err
 	}
 	if t.Seats <= 0 {
@@ -125,20 +126,20 @@ func (t *Table) CreateTable() error {
 	query := `INSERT INTO tables (name, type, seats, restaurant_id, description) VALUES (?, ?, ?, ?, ?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		panic(err)
+		fmt.Println("table 3-", err)
 		return err
 	}
 	defer stmt.Close()
 
 	result, err := stmt.Exec(t.Name, t.Type, t.Seats, t.RestaurantID, t.Description)
 	if err != nil {
-		panic(err)
+		fmt.Println("table 4-", err)
 		return err
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
-		panic(err)
+		fmt.Println("table 5-", err)
 		return err
 	}
 

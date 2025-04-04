@@ -436,16 +436,16 @@ func (acc *Account) GetAvatar() error {
 	var query string
 	switch acc.Role {
 	case "customer":
-		query = `SELECT file_data FROM customers c LEFT JOIN images i ON c.image_id = i.id WHERE o.id = ?`
+		query = `SELECT file_data FROM customers c LEFT JOIN images i ON c.image_id = i.id WHERE c.id = ?`
 	case "staff":
-		query = `SELECT file_data FROM staffs s LEFT JOIN images i ON s.image_id = i.id WHERE o.id = ?`
+		query = `SELECT file_data FROM staffs s LEFT JOIN images i ON s.image_id = i.id WHERE s.id = ?`
 	case "owner":
-		query = `SELECT file_data FROM owners o LEFT JOIN images i ON o.image_id = i.id WHERE o.id = 1`
+		query = `SELECT file_data FROM owners o LEFT JOIN images i ON o.image_id = i.id WHERE o.id = ?`
 	default:
 		return errors.New("invalid role provided")
 	}
 
-	row := db.DB.QueryRow(query)
+	row := db.DB.QueryRow(query, acc.Id)
 
 	err := row.Scan(&acc.ImageFile)
 	if err != nil {

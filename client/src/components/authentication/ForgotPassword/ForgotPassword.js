@@ -6,7 +6,7 @@ import { toast, ToastContainer } from "react-toastify";
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [message] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 

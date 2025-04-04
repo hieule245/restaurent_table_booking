@@ -31,12 +31,14 @@ func CreateBooking(c *gin.Context) {
 	restaurantID, err := strconv.Atoi(c.Param("restaurant_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid restaurant ID"})
+		fmt.Println("1-", err)
 		return
 	}
 
 	var req BookingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		fmt.Println("2-", err)
 		return
 	}
 
@@ -44,10 +46,12 @@ func CreateBooking(c *gin.Context) {
 	exists, err := models.RestaurantExists(restaurantID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println("3-", err)
 		return
 	}
 	if !exists {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Restaurant not found"})
+		fmt.Println("4-", err)
 		return
 	}
 
@@ -55,10 +59,12 @@ func CreateBooking(c *gin.Context) {
 	exists, err = models.TableExistsInRestaurant(req.TableID, restaurantID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println("5-", err)
 		return
 	}
 	if !exists {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Table not found in this restaurant"})
+		fmt.Println("6-", err)
 		return
 	}
 
@@ -79,6 +85,7 @@ func CreateBooking(c *gin.Context) {
 	// Kiểm tra duplicate booking
 	if err := booking.Check(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		fmt.Println("7-", err)
 		return
 	}
 
@@ -86,6 +93,7 @@ func CreateBooking(c *gin.Context) {
 	bookingID, err := booking.Create()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println("8-", err)
 		return
 	}
 
@@ -103,6 +111,7 @@ func CreateBooking(c *gin.Context) {
 	user, err := models.GetUserInformationById(int64(booking.CustomerID), "customer")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println("9-", err)
 		return
 	}
 	// Gửi email xác nhận booking cho người dùng

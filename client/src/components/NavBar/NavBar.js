@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { links } from "../../data";
 import { HiOutlineMenuAlt1 } from "react-icons/hi";
 import { FaTimes } from "react-icons/fa";
 import { FaUtensils } from "react-icons/fa";
@@ -15,7 +14,7 @@ const NavBar = () => {
   const [user, setUser] = useState(false);
   const navigate = useNavigate();
   const navRef = useRef(null);
-  
+
   // Lưu thông tin từ cookie
   useEffect(() => {
     axios
@@ -83,20 +82,26 @@ const NavBar = () => {
             <div className="col-3 row">
               <FaUtensils className="nav-icon text-white fs-1 col-2" />
               <span className="fw-bolder text-white  fs-3 col-10 ">
-                <a
+                <button
                   onClick={() => navigate("/")}
-                  className="text-white text-decoration-none cursor-pointer"
+                  className="text-white text-decoration-none cursor-pointer border-0 bg-transparent"
                 >
                   TableBooker
-                </a>
+                </button>
+
               </span>
             </div>
             <div className="col-8 row">
-              {user && (user.Role === "customer" || user.Role === "admin") && (
-                <div className="d-flex justify-content-start align-items-center">
-                  <a className="mt-1 fw-bold text-white fs-5 text-decoration-none" onClick={() => navigate("/restaurants")}>Restaurants</a>
-                </div>
-              )}
+              <div className="d-flex justify-content-start align-items-center">
+                <button
+                  className="mt-1 fw-bold text-white fs-5 text-decoration-none p-0 m-0 border-0"
+                  onClick={() => navigate("/restaurants")}
+                  role="link"  // Indicate this button should behave like a link
+                  style={{ background: 'transparent', border: 'none' }} // Make the button look like a link
+                >
+                  Restaurants
+                </button>
+              </div>
             </div>
             <div className="pt-3 col-1">
               <ul className="d-flex align-items-center">
@@ -116,17 +121,18 @@ const NavBar = () => {
                             </a>
                           </li>
                           <li>
-                            <a
-                              className="dropdown-item"
-                              href="/booking-history"
+                            <button
+                              className="dropdown-item bg-transparent border-0 text-decoration-none"
+                              onClick={() => navigate("/booking-history")}
                             >
                               Booking History
-                            </a>
+                            </button>
+
                           </li>
                           <li>
-                            <a className="dropdown-item" onClick={handleLogout}>
+                            <button className="dropdown-item" onClick={handleLogout}>
                               Logout
-                            </a>
+                            </button>
                           </li>
                         </ul>
                       </div>
