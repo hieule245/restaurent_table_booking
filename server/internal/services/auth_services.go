@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"sync"
 	"time"
@@ -95,6 +96,14 @@ func GetUserProfile(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error (get User Profile)": err.Error()})
 	}
 
+	if user.Role != "admin" {
+		err := user.GetAvatar()
+		if err != nil {
+			// "Can not find user"
+			c.JSON(http.StatusUnauthorized, gin.H{"error (get User Profile)": err.Error()})
+			return
+		}
+	}
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
@@ -163,7 +172,7 @@ func Register(context *gin.Context) {
 			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-	} 
+	}
 	context.JSON(http.StatusCreated, gin.H{"Message": "Register successfully !!"})
 }
 
@@ -304,4 +313,50 @@ func UpdateProfile(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 	}
 	context.JSON(http.StatusOK, gin.H{"messge": "Update successfully!!"})
+}
+
+func UploadImage(context *gin.Context) {
+	file, _, err := context.Request.FormFile("file")
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't take any image"})
+		return
+	}
+
+	fileBytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Can't take any image"})
+		return
+	}
+
+	// id của người lưu
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return
+	}
+
+	var acc models.Account
+	acc.Email = claims.Gmail
+	imageId, err := models.SaveImage(fileBytes)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	fmt.Println("imageId ", imageId)
+
+	err = models.SaveImageAvatar(imageId, &acc)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Upload image successfull!!!"})
 }

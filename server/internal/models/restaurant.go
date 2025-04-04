@@ -15,11 +15,12 @@ type Restaurant struct {
 	Ended       string
 	Owner_id    int64
 	Location    string
+	imageFile   []byte
 }
 
 func SearchRestaurants(id int64, name, location string, ownerID int) ([]Restaurant, error) {
 	var restaurants []Restaurant
-	query := "SELECT * FROM restaurants WHERE 1=1" // 1=1 để dễ dàng thêm điều kiện
+	query := "SELECT id, name, description, time_start, time_end, location, owner_id FROM restaurants WHERE 1=1" // 1=1 để dễ dàng thêm điều kiện
 
 	var args []interface{}
 
@@ -61,7 +62,7 @@ func SearchRestaurants(id int64, name, location string, ownerID int) ([]Restaura
 
 func GetAllRestaurants() ([]Restaurant, error) {
 	var res []Restaurant
-	query := `SELECT * FROM restaurants`
+	query := `SELECT id, name, description, time_start, time_end, location, owner_id FROM restaurants`
 	rows, err := db.DB.Query(query)
 	if err != nil {
 		return res, errors.New("can't catch any information")
@@ -103,7 +104,7 @@ func (r *Restaurant) CreateRestaurant() error {
 
 func GetRestaurantByID(id string) (Restaurant, error) {
 	var r Restaurant
-	query := `SELECT * FROM restaurants WHERE id = ?`
+	query := `SELECT id, name, description, time_start, time_end, location, owner_id FROM restaurants WHERE id = ?`
 	err := db.DB.QueryRow(query, id).Scan(&r.Id, &r.Name, &r.Description, &r.Started, &r.Ended, &r.Location, &r.Owner_id)
 
 	if err != nil {
@@ -155,13 +156,14 @@ func DeleteRestaurantByID(id int64) error {
 
 func GetRestaurantByOwnerID(id int64) (error, []Restaurant) {
 	var res []Restaurant
+	// var image_id int64
 	query := `
-	SELECT * FROM restaurants
+	SELECT id, name, description, time_start, time_end, location, owner_id FROM restaurants
 	WHERE owner_id = ?
 	`
 	rows, err := db.DB.Query(query, id)
 	if err != nil {
-		panic(err)
+		fmt.Println("Error scanning row 1:", err)
 		return err, nil
 	}
 
@@ -171,9 +173,15 @@ func GetRestaurantByOwnerID(id int64) (error, []Restaurant) {
 		var e Restaurant
 		err := rows.Scan(&e.Id, &e.Name, &e.Description, &e.Started, &e.Ended, &e.Location, &e.Owner_id)
 		if err != nil {
-			panic(err)
+			fmt.Println("Error scanning row 2:", err)
 			return err, nil
 		}
+		query = ` SELECT image FROM images WHERE id = ?`
+		// err = db.DB.QueryRow(query, image_id).Scan(&e.imageFile)
+		// if err != nil {
+		// 	fmt.Println("Error scanning row 3:", err)
+		// 	return err, nil
+		// }
 		res = append(res, e)
 	}
 	return nil, res

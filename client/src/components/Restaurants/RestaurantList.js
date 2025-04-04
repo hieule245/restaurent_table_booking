@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faChevronRight, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import { FaSortAlphaDown, FaSortAlphaUp, FaSortAmountDown } from "react-icons/fa";
 import "./RestaurantList.styles.css"
+
 
 const RestaurantList = () => {
     const navigate = useNavigate();
@@ -27,7 +28,7 @@ const RestaurantList = () => {
         });
     };
     const modalRef = useRef(null);
-    const [sortType, setSortType] = useState(null);
+    const [setSortType] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -54,17 +55,12 @@ const RestaurantList = () => {
     };
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [Started] = useState("");
-    const [Ended] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8;
     const { ownerId } = useParams();
-    useEffect(() => {
-        fetchRestaurant();
-    }, []);
 
-    const fetchRestaurant = async () => {
-        const response = axios
+    const fetchRestaurant = useCallback(async () => {
+        axios
             .get(`http://localhost:8080/owners/${ownerId}/restaurants`, { withCredentials: true })
             .then((response) => {
                 console.log("API Response:", response.data);
@@ -79,7 +75,11 @@ const RestaurantList = () => {
                 console.error("Error fetching restaurants:", error);
                 setRestaurants([]); // Đảm bảo `restaurants` luôn là mảng
             });
-    }
+    }, [ownerId])
+
+    useEffect(() => {
+        fetchRestaurant();
+    }, [fetchRestaurant]);
 
     const handleSort = (type) => {
         setSortType(type);
@@ -100,7 +100,7 @@ const RestaurantList = () => {
     const paginatedRestaurants = filteredRestaurants.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
-        <div className="container mt-3">
+        <div className="container mt-4">
             <ToastContainer />
             <div className="row mb-0">
                 {/* Thanh công cụ */}

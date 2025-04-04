@@ -41,7 +41,7 @@ const ReservationList = () => {
 
   const handleUpdate = (e) => {
     e.preventDefault();
-    const response = axios
+    axios
       .post(`http://localhost:8080/owners/:owner_id/reservations/finish_booking`, finish, { withCredentials: true })
       .then(() => {
         toast.success("Update successfully!!");

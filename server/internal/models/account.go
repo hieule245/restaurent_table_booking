@@ -18,6 +18,7 @@ type Account struct {
 	Role      string
 	Status    string
 	Orther_id int64
+	ImageFile []byte
 }
 
 type NewPassword struct {
@@ -371,6 +372,84 @@ func (acc *Account) ChangePassword(pass NewPassword) error {
 	_, err = stmt.Exec(hashPassword, acc.Email)
 	if err != nil {
 		panic(err)
+		return err
+	}
+	return nil
+}
+
+func SaveImage(fileBytes []byte) (int64, error) {
+	// Lưu ảnh dưới dạng BLOB
+	query := `
+	INSERT INTO images (file_data) VALUES (?)
+	`
+
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		fmt.Print("save image 1- ", err)
+		return 0, nil
+	}
+
+	defer stmt.Close()
+
+	result, err := stmt.Exec(fileBytes)
+	if err != nil {
+		fmt.Print("save image 2- ", err)
+		return 0, nil
+	}
+	var imageId int64
+
+	imageId, err = result.LastInsertId()
+	if err != nil {
+		fmt.Print("save image 3- ", err)
+		return 0, nil
+	}
+	return imageId, nil
+}
+
+func SaveImageAvatar(imageId int64, acc *Account) error {
+	var query string
+	CheckAccount(acc)
+	switch acc.Role {
+	case "customer":
+		query = `UPDATE customers SET image_id = ? WHERE id = ?`
+	case "staff":
+		query = `UPDATE staffs SET image_id = ? WHERE id = ?`
+	case "admin":
+		query = `UPDATE admin SET image_id = ? WHERE id = ?`
+	case "owner":
+		query = `UPDATE owners SET image_id = ? WHERE id = ?`
+	default:
+		return errors.New("invalid role provided")
+	}
+
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		fmt.Print("save image 4- ", err)
+		return nil
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(imageId, acc.Id)
+	return err
+}
+
+func (acc *Account) GetAvatar() error {
+	var query string
+	switch acc.Role {
+	case "customer":
+		query = `SELECT file_data FROM customers c LEFT JOIN images i ON c.image_id = i.id WHERE c.id = ?`
+	case "staff":
+		query = `SELECT file_data FROM staffs s LEFT JOIN images i ON s.image_id = i.id WHERE s.id = ?`
+	case "owner":
+		query = `SELECT file_data FROM owners o LEFT JOIN images i ON o.image_id = i.id WHERE o.id = ?`
+	default:
+		return errors.New("invalid role provided")
+	}
+
+	row := db.DB.QueryRow(query, acc.Id)
+
+	err := row.Scan(&acc.ImageFile)
+	if err != nil {
+		fmt.Println("get avatar 1- ", err)
 		return err
 	}
 	return nil

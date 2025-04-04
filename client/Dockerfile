@@ -11,7 +11,7 @@ RUN npm install
 # Copy toàn bộ mã nguồn frontend
 COPY . .
 
-# Mở cổng ứng dụng React
+# Mở cổng ứng dụng React 
 EXPOSE 3000
 
 # Chạy ứng dụng React ở development mode

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { FaPlusCircle } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 import avatar from '../../assets/image/avatar.jpeg'
@@ -7,8 +7,8 @@ import { useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 
 const Information = () => {
+  const fileInputRef = useRef(null);
   const [originalUser, setOriginalUser] = useState(null);
-  
   const [user, setUser] = useState({
     Id: "",
     Name: "",
@@ -16,8 +16,10 @@ const Information = () => {
     Phone: "",
     Role: "",
     Status: "",
-    Orther_id: 0
+    Orther_id: 0,
+    ImageFile: null,
   });
+
   const [isEditing, setIsEditing] = useState(false)
   const [errors, setErrors] = useState({});
 
@@ -67,6 +69,9 @@ const Information = () => {
       });
   }, []);
 
+  const imageUrl = user.ImageFile ? `data:image/png;base64,${user.ImageFile}` : avatar;
+  console.log(imageUrl)
+
   // Kiểm tra định dạng họ tên (chỉ chứa chữ và khoảng trắng)
   const isValidName = (name) => /^[A-Za-zÀ-ỹ\s]+$/.test(name);
 
@@ -79,21 +84,59 @@ const Information = () => {
     setErrors({});
   };
 
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = async (e) => {
+    e.preventDefault();
+
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const response = await axios.post("http://localhost:8080/me/image-upload", formData, {
+        withCredentials: true
+      });
+      console.log("File uploaded successfully", response.data);
+      setUser({ ...user, ImageFile: response.data.imageUrl }); // Optionally update the user image URL
+      toast.success("Avatar updated successfully");
+    } catch (error) {
+      // Nếu backend trả về lỗi, hiển thị thông báo từ backend lên giao diện
+      if (error.response && error.response.data.error) {
+        toast.error(error.response.data.error);
+      } else if (error.response && error.response.data.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Failed to change password.");
+      }
+    }
+  };
+
+
   return (
     <div className="container mt-4 text-center">
       <ToastContainer />
       <h3><strong>Profile</strong></h3>
       <div className="d-flex justify-content-center mt-4">
         <div className="position-relative d-inline-block">
-          <img
-            src={avatar}
-            alt="Avatar"
+          <img src={imageUrl} alt="User Avatar"
             className="rounded-circle border border-3 border-white"
             style={{ width: "200px", height: "200px", objectFit: "cover" }}
           />
           <FaPlusCircle
-            className="position-absolute bottom-0 end-0 text-dark bg-light rounded-circle"
+            className="position-absolute bottom-0 end-0 text-dark bg-light rounded-circle" onClick={handleButtonClick}
             style={{ fontSize: "24px", cursor: "pointer" }}
+          />
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            style={{ display: "none" }}
           />
         </div>
       </div>

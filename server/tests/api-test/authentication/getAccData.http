@@ -1,4 +1,4 @@
 ### Kiểm tra thông tin user đã đăng nhập
 GET http://localhost:8080/me
 Content-Type: application/json
-Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImdtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6Im93bmVyIiwiZXhwIjoxNzQyOTY0OTM5fQ.LOgLO5Dw7pX0Hi7Cl9GEJtlnI9QPr4sbZoXDvNDFAUA
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImdtYWlsIjoiaGlldWxuMjQ1QGdtYWlsLmNvbSIsInJvbGUiOiJvd25lciIsImV4cCI6MTc0MzY4NDA1MX0.0aCaYKwS2U1obaKRLtFGw-BP7qTiFjeiWUAfzbBYwNs

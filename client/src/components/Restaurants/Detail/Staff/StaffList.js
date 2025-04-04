@@ -14,11 +14,19 @@ export default function StaffList({ restaurant_id }) {
     const [selectedStaff, setSelectedStaff] = useState(null);
     const [modalInstance, setModalInstance] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [sortType, setSortType] = useState(null);
+    const [setSortType] = useState(null);
     const itemsPerPage = 12;
+
     useEffect(() => {
         if (!restaurant_id) return;
-        fetchStaff();
+        axios.get(`http://localhost:8080/owners/:owner_id/${restaurant_id}/staffs`, { withCredentials: true })
+            .then((res) => {
+                setStaff(res.data.staff || []);
+            })
+            .catch((err) => {
+                toast.error("Error fetching staff list!");
+                console.error("Error:", err);
+            });
 
         // Đợi DOM sẵn sàng trước khi khởi tạo modal
         setTimeout(() => {
@@ -29,16 +37,6 @@ export default function StaffList({ restaurant_id }) {
         }, 500);
     }, [restaurant_id]);
 
-    const fetchStaff = () => {
-        axios.get(`http://localhost:8080/owners/:owner_id/${restaurant_id}/staffs`, { withCredentials: true })
-            .then((res) => {
-                setStaff(res.data.staff || []);
-            })
-            .catch((err) => {
-                toast.error("Error fetching staff list!");
-                console.error("Error:", err);
-            });
-    };
 
     const handleSort = (type) => {
         setSortType(type);

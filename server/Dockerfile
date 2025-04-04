@@ -4,20 +4,16 @@ FROM golang:1.24 AS builder
 # Đặt thư mục làm việc trong container
 WORKDIR /app
 
+COPY go.mod go.mod
 # Copy toàn bộ mã nguồn vào container
-COPY . .
 
 # Tải về tất cả các dependencies
-RUN go mod download
+RUN go mod tidy
 
+COPY . .
 # Build ứng dụng backend
-RUN go build -o server cmd/web/*.go
+RUN go build -o server ./cmd/web/main.go
 
-# Tạo container chạy ứng dụng Golang
-FROM alpine:latest
-
-WORKDIR /root/
-COPY --from=builder /app/server .
 EXPOSE 8080
 
 # Chạy server

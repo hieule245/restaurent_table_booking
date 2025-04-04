@@ -51,11 +51,11 @@ const Dashboard = () => {
     }, []);
 
     return (
-        <div className="container-fluid min-vh-100 p-4" style={{ background: "#F1F8FF" }}>
+        <div className="container-fluid p-4" style={{ background: "#F1F8FF" }}>
             {/* Statistics Cards */}
             <div className="row">
                 {[
-                    { title: "Revenue for this week", amount: revenues?.WeeklyRevenue ? revenues.WeeklyRevenue.toLocaleString() + " VND" : "0 VND", change: "+3.5%", up: true }, ,
+                    { title: "Revenue for this week", amount: revenues?.WeeklyRevenue ? revenues.WeeklyRevenue.toLocaleString() + " VND" : "0 VND", change: "+3.5%", up: true },
                     { title: "Booked and used tables", amount: revenues.BookNumber , change: "+11%", up: true },
                     { title: "Cancelled tables", amount: revenues.CanceledBook, change: "-2.4%", up: false }
                 ].map((stat, index) => (

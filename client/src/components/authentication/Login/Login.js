@@ -88,7 +88,6 @@ const LoginPage = () => {
         axios
           .get("http://localhost:8080/me", { withCredentials: true })
           .then((res) => {
-            const userData = res.data.user
             setTimeout(() => {
               const userRole = res.data.user.Role;
               console.log(userRole);

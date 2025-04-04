@@ -12,7 +12,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
 
   const isValidGmail = (gmail) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(gmail);
   const isValidPassword = (password) =>
-    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
+    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/.test(password);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -38,7 +38,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
     }
 
     try {
-      const response = await axios.post(
+      await axios.post(
         `http://localhost:8080/owners/:owner_id/${restaurant_id}/staffs`,
         { ...formData, restaurant_id: restaurant_id},
         { withCredentials: true }
@@ -128,7 +128,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
               <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal">
                 Close
               </button>
-              <button type="submit" className="btn btn-danger fw-bold px-4" data-bs-dismiss="modal">
+              <button type="submit" className="btn btn-danger fw-bold px-4" {...(Object.keys(errors).length === 0 ? { "data-bs-dismiss": "modal" } : "")}>
                 Create
               </button>
             </div>

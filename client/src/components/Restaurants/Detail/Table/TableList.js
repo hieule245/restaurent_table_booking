@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback} from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapMarkerAlt, faClock, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FaPen, FaStoreSlash } from "react-icons/fa";
@@ -23,19 +23,19 @@ const TableList = ({ restaurant_id }) => {
     setFormData({ ...formData, [e.target.name]: e.target.name === "seats" ? Number(e.target.value) : e.target.value });
   };
 
-  useEffect(() => {
-    fetchTables();
-  }, [restaurant_id]);
-
-  const fetchTables = async () => {
+  const fetchTables = useCallback(async () => {
     try {
-      const response = axios.get(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables`, { withCredentials: true })
+      axios.get(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables`, { withCredentials: true })
         .then((res) => setTables(res.data.tables || []))
         .catch(() => toast.error("Error fetching table list!"));
     } catch (error) {
       console.error("Error fetching tables:", error);
     }
-  };
+  }, [restaurant_id]);
+
+  useEffect(() => {
+    fetchTables();
+  }, [restaurant_id, fetchTables]);
 
   useEffect(() => {
     axios.get(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}`, { withCredentials: true })
@@ -68,7 +68,7 @@ const TableList = ({ restaurant_id }) => {
         setTables([...tables, newTable]);
         toast.success("Table added successfully!");
         addTableModalRef.current.querySelector(".btn-close").click();
-        setNewTable = ({ name: "", type: "", seats: 1, Description: "" });
+        setNewTable({ name: "", type: "", seats: 1, Description: "" });
       })
       .catch((error) => {
         if (error.response && error.response.data && error.response.data.error) {
