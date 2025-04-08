@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/restaurent_table_booking/internal/db"
@@ -186,6 +187,7 @@ func (res *Booking) Checkout() error {
 	UPDATE reservations SET price = ?, status = 4, actual_end = ?
 	WHERE id = ?
 	`
+	fmt.Println(res.ActualEnd)
 	_, err := db.DB.Exec(query, res.Price, res.ActualEnd, res.ID)
 	if err != nil {
 		return err
@@ -204,4 +206,3 @@ func (res *Booking) EditCheckout() error {
 	}
 	return nil
 }
-

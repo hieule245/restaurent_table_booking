@@ -65,3 +65,21 @@ func OwnerOnly(c *gin.Context) {
 
 	c.Next() // Tiếp tục request nếu là owner
 }
+
+func StaffOnly(c *gin.Context) {
+	role, exists := c.Get("role")
+	if !exists {
+		c.JSON(http.StatusForbidden, gin.H{"error": "No role found"})
+		c.Abort()
+		return
+	}
+
+	roleStr, ok := role.(string)
+	if !ok || roleStr != "staff" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Staff Access denied"})
+		c.Abort()
+		return
+	}
+
+	c.Next() // Tiếp tục request nếu là staff
+}

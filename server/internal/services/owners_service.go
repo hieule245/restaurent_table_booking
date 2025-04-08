@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/restaurent_table_booking/internal/models"
@@ -256,6 +257,11 @@ func EndingUsingTable(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
+
+	res.ActualEnd = time.Now().Format("15:04")
+
+	fmt.Println("res.ActualEnd", res.ActualEnd)
+
 	if res.Status == 4 {
 		err = res.EditCheckout()
 		if err != nil {

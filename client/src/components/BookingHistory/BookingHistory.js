@@ -114,7 +114,7 @@ const BookingHistory = () => {
 
   return (
     <RestaurantLayout>
-      <div className="booking-history-container">
+      <div className="booking-history-container mt-5 pt-5">
         <ToastContainer position="top-right" autoClose={3000} />
         <h2 className="booking-history-title text-danger fs-1">
           Booking History

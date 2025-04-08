@@ -100,7 +100,7 @@ const RestaurantList = () => {
     const paginatedRestaurants = filteredRestaurants.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
-        <div className="container mt-4">
+        <div className="container mt-5">
             <ToastContainer />
             <div className="row mb-0">
                 {/* Thanh công cụ */}
@@ -149,6 +149,17 @@ const RestaurantList = () => {
                             </div>
                             <form onSubmit={handleSubmit}>
                                 <div className="modal-body">
+                                    <div className="form-group my-2">
+                                        <label className="form-label">Image</label>
+                                        <input
+                                            name="image"
+                                            type="file"
+                                            className="form-control"
+                                            placeholder="Image URL"
+                                            onChange={handleChange}
+                                            value={restaurantData.image}
+                                        />
+                                    </div>
                                     <div className="form-group my-2">
                                         <label className="form-label">Name</label>
                                         <input

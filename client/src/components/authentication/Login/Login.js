@@ -21,6 +21,8 @@ const LoginPage = () => {
         navigate("/admin");
       } else if (Role === "owner") {
         navigate("/owner");
+      } else if (Role === "staff") {
+        navigate("/staff");
       } else if (Role === "customer")  {
         navigate("/");
       }
@@ -34,7 +36,6 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    
     axios
       .get("http://localhost:8080/me", { withCredentials: true })
       .then((res) => {
@@ -83,7 +84,7 @@ const LoginPage = () => {
       );
 
       if (res.status === 200) {
-        await toast.success("Login successful!");
+        toast.success("Login successful!");
 
         axios
           .get("http://localhost:8080/me", { withCredentials: true })
@@ -96,7 +97,7 @@ const LoginPage = () => {
               } else if (userRole === "owner") {
                 navigate("/owner");
               } else if (userRole === "staff") {
-                navigate("/");
+                navigate("/staff");
               } else if (userRole === "customer") {
                 navigate("/");
               } else {
@@ -109,8 +110,12 @@ const LoginPage = () => {
           });
       }
     } catch (error) {
-      toast.error(error.response.data.message);
-      // toast.error("Error during login. Please try again.");
+      console.log(error);
+      if (error.response && error.response.data && error.response.data.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Registration failed. Please try again.");
+      }
     }
   };
 

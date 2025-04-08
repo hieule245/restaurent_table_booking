@@ -10,23 +10,19 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 const Owner = () => {
     const navigate = useNavigate();
-    const [setUser] = useState(null);
     useEffect(() => {
         axios
             .get("http://localhost:8080/me", { withCredentials: true })
             .then((res) => {
                 if (res.data.user) {
-                    setUser(res.data.user); // lưu thông tin user
-                    console.log(res.data.user)
                 } else {
                     navigate("/login");
                 }
             })
             .catch(() => {
-                setUser(null);
                 navigate("/login");
             });
-    }, [navigate, setUser]);
+    }, [navigate]);
 
     
     return (

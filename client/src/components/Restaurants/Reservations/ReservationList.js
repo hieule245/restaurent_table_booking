@@ -20,8 +20,7 @@ const ReservationList = () => {
 
   const [finish, setFinish] = useState({
     Id: 0,
-    Price: 1,
-    ActualEnd: ""
+    Price: 1
   });
 
   useEffect(() => {
@@ -32,7 +31,14 @@ const ReservationList = () => {
     try {
       axios
         .get(`http://localhost:8080/owners/:owner_id/reservations`, { withCredentials: true })
-        .then((res) => setReservations(res.data.booking))
+        .then((res) => {
+          if (res.data && Array.isArray(res.data.booking)) {
+            setReservations(res.data.booking);
+          } else {
+            setReservations([]); // fallback an toàn
+            toast.info("No reservations found.");
+          }
+        })        
         .catch((err) => toast.error(err));
     } catch (err) {
       console.error(err);
@@ -64,13 +70,13 @@ const ReservationList = () => {
 
     setFinish({
       Id: reservation.Id,
-      Price: parseFloat(reservation.Price) || 5,
+      Price: parseFloat(reservation.Price) || 0,
       ActualEnd: currentTime
     });
   };
 
   return (
-    <div className="container mt-3">
+    <div className="container mt-5">
       <ToastContainer />
       <h2 className="text-center mb-2" style={{ color: "#dc3545" }}>Danh Sách Đặt Chỗ</h2>
       <div style={{ minHeight: "76vh" }}>
@@ -113,7 +119,7 @@ const ReservationList = () => {
                   <button
                     type="button"
                     data-bs-toggle="modal"
-                    data-bs-target="#myModal"
+                    data-bs-target={res.Status === 4 ? "#myUpdateModal" : res.Status === 0 ? "":"#myCompleteModal"}
                     onClick={() => handleOpen(res)}
                     className={
                       res.Status === 4
@@ -161,7 +167,37 @@ const ReservationList = () => {
         </div>
       )}
 
-      <div className="modal fade" id="myModal">
+      <div className="modal fade" id="myCompleteModal">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title">Reservation Completed</h4>
+              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form onSubmit={handleUpdate}>
+              <div className="modal-body">
+                <div className="form-group mb-3">
+                  <label className="form-label fw-bold text-dark">Price of reservation</label>
+                  <input
+                    placeholder="Input price"
+                    value={finish.Price}
+                    onChange={(e) => setFinish({ ...finish, Price: Number(e.target.value) })}
+                    type="number"
+                    min={0}
+                    name="price"
+                    className="form-control border-secondary rounded-3"
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+                <button type="submit" className="btn btn-danger" data-bs-dismiss="modal">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div className="modal fade" id="myUpdateModal">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
@@ -176,19 +212,10 @@ const ReservationList = () => {
                     placeholder="Input price"
                     value={finish.Price}
                     onChange={(e) => setFinish({ ...finish, Price: Number(e.target.value) })}
-                    type="text"
+                    type="number"
+                    min={0}
                     name="price"
                     className="form-control border-secondary rounded-3"
-                  />
-                </div>
-                <div className="form-group mb-3">
-                  <label className="form-label fw-bold text-dark">Actual End Time</label>
-                  <input
-                    type="text"
-                    name="actualEnd"
-                    value={finish.ActualEnd}
-                    className="form-control border-secondary rounded-3"
-                    readOnly
                   />
                 </div>
               </div>

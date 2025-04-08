@@ -15,7 +15,6 @@ func Routes(server *gin.Engine) {
 	// Các route công khai cho restaurant và table
 	server.GET("/restaurants", services.GetAllRestaurants)
 
-	
 	// filter table with time start, time end, date
 	server.GET("/restaurant/:restaurant_id/available-tables", services.GetAvailableTables)
 
@@ -40,4 +39,5 @@ func Routes(server *gin.Engine) {
 	AdminRoutes(server)    // Các route Admin
 	OwnerRoutes(server)    // Các route Owner
 	CustomerRoutes(server) // Các route Customer
+	StaffRoutes(server)    // Các route Staff
 }

@@ -70,7 +70,6 @@ const Information = () => {
   }, []);
 
   const imageUrl = user.ImageFile ? `data:image/png;base64,${user.ImageFile}` : avatar;
-  console.log(imageUrl)
 
   // Kiểm tra định dạng họ tên (chỉ chứa chữ và khoảng trắng)
   const isValidName = (name) => /^[A-Za-zÀ-ỹ\s]+$/.test(name);

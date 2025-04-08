@@ -11,9 +11,20 @@ import avatar from "../../assets/image/avatar.jpeg";
 const NavBar = () => {
   // STATE FOR HAMBURGER MENU
   const [nav, setNav] = useState(false);
-  const [user, setUser] = useState(false);
+  const [user, setUser] = useState({
+    Id: "",
+    Name: "",
+    Email: "",
+    Phone: "",
+    Role: "",
+    Status: "",
+    Orther_id: 0,
+    ImageFile: null,
+  });
   const navigate = useNavigate();
   const navRef = useRef(null);
+
+
 
   // Lưu thông tin từ cookie
   useEffect(() => {
@@ -50,6 +61,8 @@ const NavBar = () => {
       return setNav(!nav);
     }
   };
+
+  const imageUrl = user && user.ImageFile ? `data:image/png;base64,${user.ImageFile}` : avatar;
 
   // NAVBAR HIDE/ SHOW ON SCROLL
   useEffect(() => {
@@ -95,12 +108,25 @@ const NavBar = () => {
               <div className="d-flex justify-content-start align-items-center">
                 <button
                   className="mt-1 fw-bold text-white fs-5 text-decoration-none p-0 m-0 border-0"
-                  onClick={() => navigate("/restaurants")}
+                  onClick={() => navigate(user && user.Role === "staff" ? "/staff" : "/restaurants")}
                   role="link"  // Indicate this button should behave like a link
                   style={{ background: 'transparent', border: 'none' }} // Make the button look like a link
                 >
-                  Restaurants
+                  {user && user.Role === "staff" ? "Serving restaurant" : "Restaurants"}
                 </button>
+                {user && user.Role === "staff" ? (
+                  <button
+                  className="mt-1 ms-5 fw-bold text-white fs-5 text-decoration-none p-0 m-0 border-0"
+                  role="link"  // Indicate this button should behave like a link
+                  onClick={() => navigate("/staff/booking-history")}
+                  style={{ background: 'transparent', border: 'none' }} // Make the button look like a link
+                >
+                  History reservations
+                </button>
+                ) : (
+                  <></>
+                )
+                }
               </div>
             </div>
             <div className="pt-3 col-1">
@@ -110,9 +136,14 @@ const NavBar = () => {
                   <>
                     <li className="d-flex justify-content-end align-items-center">
                       <div class="dropdown d-flex justify-content-end">
-                        <button type="button" class="rounded-circle border-2 border-danger" data-bs-toggle="dropdown">
-                          <img src={avatar || "/default-avatar.png"} alt="User Avatar" className="user-avatar w-100 h-100 rounded-circle" />
+                        <button type="button" className="rounded-circle p-0 m-0 border-0" data-bs-toggle="dropdown" style={{ width: "40px", height: "40px", overflow: "hidden" }}>
+                          <img
+                            src={imageUrl || avatar}
+                            alt="User Avatar"
+                            className="w-100 h-100 rounded-circle object-fit-cover"
+                          />
                         </button>
+
 
                         <ul className="dropdown-menu">
                           <li>
