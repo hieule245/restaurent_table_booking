@@ -11,12 +11,12 @@ import "./BookingHistory.css";
 import RestaurantLayout from "../../pages/Restaurant/restaurantLayout";
 
 const BookingHistory = () => {
-  const [user, setUser] = useState({});
   const [bookings, setBookings] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const navigate = useNavigate();
-
+  
   // Fetch user info
+  const [user, setUser] = useState({});
   useEffect(() => {
     axios
       .get("http://localhost:8080/me", { withCredentials: true })

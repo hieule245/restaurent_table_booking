@@ -42,7 +42,7 @@ func ResendPin(context *gin.Context) {
 	newPin := pkg.RandomPin()
 	fmt.Println("Mã PIN mới được gửi cho:", input.Email)
 	pkg.SendMailSimple(input.Email, newPin)
-
+	
 	// Cập nhật bộ nhớ tạm
 	newPinData := PinData{
 		Pin:      newPin,
