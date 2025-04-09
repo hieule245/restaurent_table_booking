@@ -16,42 +16,76 @@ function Chat() {
     "ws://100.84.223.32:8080/ws",
   ]);
   const [isConnected, setIsConnected] = useState(false);
+  const [receiverId, setReceiverId] = useState(null); // người nhận
 
   const navigate = useNavigate();
 
+  const people = [
+    { ID: 1, Name: "Tran Vu Thanh Lam" },
+    { ID: 2, Name: "Alice" },
+    { ID: 3, Name: "Bob" },
+    { ID: 4, Name: "Nguyen Thuy Chi" },
+  ];
+
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/me", { withCredentials: true })
-      .then((res) => {
-        setUser(res.data.user);
-        localStorage.setItem("user_name", res.data.user.Name);
-      });
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/me", {
+          withCredentials: true,
+        });
+        const currentUser = res.data.user;
+        setUser(currentUser);
+        console.log("Bắt đầu kết nối WebSocket với user ID:", res.data.user);
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  // ✅ Khi user.Id đã có → kết nối WebSocket
+  useEffect(() => {
+    if (!user.Id) return;
+
+    let socket;
 
     const connectWebSocket = async () => {
-      const validSocketUrl = await getValidSocket();
+      const validSocketUrl = await getValidSocket(user.Id);
       if (validSocketUrl) {
-        const socket = new WebSocket(validSocketUrl);
+        socket = new WebSocket(validSocketUrl);
         setIsConnected(true);
+        setWs(socket);
 
         socket.onmessage = (event) => {
+          console.log("📩 Received WebSocket message:", event.data); // ← log để kiểm tra
           const newMessage = JSON.parse(event.data);
-          setMessages((prev) => [...prev, newMessage]);
+          if (
+            newMessage.sender_id === user.Id ||
+            newMessage.receiver_id === user.Id
+          ) {
+            setMessages((prev) => [...prev, newMessage]);
+          }
         };
-
-        setWs(socket);
       } else {
         console.error("Không tìm được WebSocket hợp lệ.");
       }
     };
 
     connectWebSocket();
-    return () => ws && ws.close();
-  }, []);
 
-  const getValidSocket = async () => {
+    return () => {
+      if (socket) {
+        socket.close();
+      }
+    };
+  }, [user.Id]); // 🔁 Theo dõi user.Id
+
+  const getValidSocket = async (userID) => {
     for (let i = 0; i < sockets.length; i++) {
-      const isAvailable = await testWebSocket(sockets[i]);
-      if (isAvailable) return sockets[i];
+      const urlWithUserID = `${sockets[i]}?user_id=${userID}`;
+      const isAvailable = await testWebSocket(urlWithUserID);
+      if (isAvailable) return urlWithUserID;
     }
     return null;
   };
@@ -68,12 +102,21 @@ function Chat() {
   };
 
   const handleSendMessage = () => {
-    if (input.trim() !== "" && ws && user?.Name) {
+    console.log("Sending message with:", {
+      input,
+      ws,
+      userID: user.Id,
+      receiverId,
+    });
+
+    if (input.trim() !== "" && ws && user?.Id && receiverId) {
       const message = {
-        username: user.Name,
+        sender_id: user.Id,
+        receiver_id: receiverId,
         content: input,
       };
       ws.send(JSON.stringify(message));
+      setMessages((prev) => [...prev, message]);
       setInput("");
     }
   };
@@ -105,22 +148,74 @@ function Chat() {
           <>
             <h5 className="fw-bold text-center mt-5">People</h5>
             <hr />
-            <div className="bg-secondary rounded">
+            <div className="bg-secondary rounded py-1 px-1">
               <ul>
-                <li className="active-user p-1 rounded bg-white text-dark">
-                  {user.Name || "Me"}
-                </li>
+                {people.map((person) => (
+                  <li
+                    key={person.ID}
+                    className={`active-user p-1 rounded  d-flex justify-content-start align-items-center mt-1 ${
+                      receiverId === person.ID
+                        ? "bg-primary text-white"
+                        : "bg-white text-dark"
+                    }  `}
+                    onClick={() => setReceiverId(person.ID)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div
+                      className="bg-success rounded-circle mx-3 shadow-sm"
+                      style={{ height: "12px", width: "12px" }}
+                    ></div>
+                    {person.Name || "Me"}
+                  </li>
+                ))}
               </ul>
             </div>
           </>
         )}
       </div>
       <div className="chat-main d-flex flex-column flex-grow-1">
-        <div className="chat-header bg-black text-white text-center py-2 fw-bold">
-          <h2>Chat - table booker</h2>
-          <div className="bg-light text-dark rounded p-2 mt-2">
-            <p className="mb-0">Chatting as: {user.Name}</p>
-            <p className="mb-0">Email: {user.Email}</p>
+        <div className="chat-header bg-black text-white text-start py-2 fw-bold">
+          <h2 className="d-flex align-items-center justify-content-center">
+            <p className="text-primary fs-2 fw-bold">CHAT</p>
+            <p className="fw-bold"> |</p>
+            <p className="text-danger">Table booker</p>
+          </h2>
+
+          <div className="bg-light text-dark rounded">
+            <div className="bg-light text-dark rounded p-2 m-2">
+              <div className="row">
+                <div className="col-1">
+                  <p className="mb-0">Chatting as</p>
+                </div>
+                <div className="col">
+                  <p className="mb-0 text-danger">{": " + user.Name}</p>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-1">
+                  <p className="mb-0">Email </p>
+                </div>
+                <div className="col">
+                  <p className="mb-0 text-primary">{": " + user.Email}</p>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-1">
+                  <p className="mb-0">Role </p>
+                </div>
+                <div className="col">
+                  <p className="mb-0 text-success">{": " + user.Role}</p>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-1">
+                  <p className="mb-0">ID </p>
+                </div>
+                <div className="col">
+                  <p className="mb-0 text-danger">{": " + user.Id}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div className="chat-messages flex-grow-1 p-2 overflow-auto d-flex flex-column">
@@ -128,12 +223,12 @@ function Chat() {
             <div
               key={index}
               className={`chat-message rounded-pill px-3 py-1 mb-1 fs-6 ${
-                msg.username === user.Name
+                msg.sender_id === user.Id
                   ? "bg-primary text-white align-self-end"
                   : "bg-danger text-white align-self-start"
               }`}
             >
-              {msg.username} | {msg.content}
+              {msg.content}
             </div>
           ))}
         </div>

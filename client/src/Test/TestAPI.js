@@ -303,68 +303,72 @@ const TestAPI = () => {
       </div>
       <div
         name="container"
-        class="
+        className="
        my-4"
       >
         <h2>👤 Test REST API cho Owner - STAFF</h2>
 
         {/* <!-- POST: Tạo nhân viên mới --> */}
         <button
-          class="btn btn-success mx-2 my-2"
-          onclick='callAPI("POST", "/owners/1/staffs", {
-        "owner_id": 1,
-        "gmail": "staff1@example.com",
-        "name": "Staff One",
-        "phone": "0123456789",
-        "status": "active",
-        "password": "hashed_password"
-      })'
+          className="btn btn-success mx-2 my-2"
+          onClick={() =>
+            callAPI("POST", "/owners/1/staffs", {
+              owner_id: 1,
+              gmail: "staff1@example.com",
+              name: "Staff One",
+              phone: "0123456789",
+              status: "active",
+              password: "hashed_password",
+            })
+          }
         >
           POST / Create Staff
         </button>
 
         {/* <!-- PUT: Sửa thông tin nhân viên --> */}
         <button
-          class="btn btn-primary mx-2 my-2"
-          onclick='callAPI("PUT", "/owners/1/staffs/2", {
-        "gmail": "staff2_updated@example.com",
-        "name": "Staff Two UPDATED",
-        "phone": "0987654321",
-        "status": "active",
-        "owner_id": 1
-      })'
+          className="btn btn-primary mx-2 my-2"
+          onClick={() =>
+            callAPI("PUT", "/owners/1/staffs/2", {
+              gmail: "staff2_updated@example.com",
+              name: "Staff Two UPDATED",
+              phone: "0987654321",
+              status: "active",
+              owner_id: 1,
+            })
+          }
         >
           PUT / Edit Staff
         </button>
 
         {/* <!-- GET: Lấy tất cả nhân viên --> */}
         <button
-          class="btn btn-primary mx-2 my-2"
-          onclick='callAPI("GET", "/owners/1/staffs")'
+          className="btn btn-primary mx-2 my-2"
+          onClick={() => callAPI("GET", "/owners/1/staffs")}
         >
           GET / All Staffs
         </button>
 
         {/* <!-- GET: Lấy nhân viên theo ID --> */}
         <button
-          class="btn btn-primary mx-2 my-2"
-          onclick='callAPI("GET", "/owners/1/staffs/2")'
+          className="btn btn-primary mx-2 my-2"
+          onClick={() => callAPI("GET", "/owners/1/staffs/2")}
         >
           GET / Staff ID 2
         </button>
 
         {/* <!-- DELETE: Xóa nhân viên --> */}
         <button
-          class="btn btn-danger mx-2 my-2"
-          onclick='callAPI("DELETE", "/owners/1/staffs/2")'
+          className="btn btn-danger mx-2 my-2"
+          onClick={() => callAPI("DELETE", "/owners/1/staffs/2")}
         >
           DELETE / Staff ID 2
         </button>
 
         {/* <!-- GET: Tìm kiếm nhân viên theo tên hoặc email --> */}
         <button
-          class="btn btn-primary mx-2 my-2"
-          onclick='callAPI("GET", `/owners/1/staffs/search?q=Staff`)'
+          className="btn btn-primary mx-2 my-2"
+          onClick={() => callAPI("GET", `/owners/1/staffs/search?q=Staff`)}
         >
           GET / Search Staffs
         </button>

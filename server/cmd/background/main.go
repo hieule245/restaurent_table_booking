@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"sync"
 
 	"github.com/gin-contrib/cors"
@@ -19,92 +21,93 @@ func main() {
 	server := gin.Default()
 
 	server.Use(cors.New(cors.Config{
-		// http://localhost:3000
-		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowOrigins: []string{
+			"http://localhost:3000",
+			"http://100.102.105.126:3000",
+		}, AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
-		AllowCredentials: true, // Cho phép gửi cookie qua CORS
+		AllowCredentials: true,
 	}))
 
-	// Đăng ký các routes
-	routes.Routes(server) // Các route chung
+	routes.Routes(server)
 
 	server.GET("/ws", handlerConnections)
 
-	// Các route yêu cầu quyền Admin
 	go cronjobs.CronCalculation()
-
-	// Goroutine xử lý tin nhắn WebSocket
-	go handleMessages()
-
 	server.Run(":8080")
 }
-func handleMessages() {
-	for {
-		message := <-broadcast
-		mutex.Lock()
-		for client := range clients {
-			err := client.Conn.WriteJSON(message)
-			if err != nil {
-				fmt.Println("error when send message", err)
-				client.Conn.Close()
-				delete(clients, client)
-			}
-		}
-		mutex.Unlock()
-	}
-}
 
-// config update HTTP to websocket
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(request *http.Request) bool {
-		return true
-	},
-}
+// WebSocket
 
 type Client struct {
-	Conn *websocket.Conn
+	UserID int
+	Conn   *websocket.Conn
+}
+
+type Message struct {
+	SenderID   int    `json:"sender_id"`
+	ReceiverID int    `json:"receiver_id"`
+	Content    string `json:"content"`
+	SenderName string `json:"sender_name"`
 }
 
 var (
-	clients   = make(map[*Client]bool)
-	broadcast = make(chan Message)
-	mutex     sync.Mutex
+	clients     = make(map[int]*Client) // userID → client
+	clientsLock sync.Mutex
+	upgrader    = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool { return true },
+	}
 )
 
-// define message structure
-type Message struct {
-	Username string `json:"username"`
-	Content  string `json:"content"`
-}
-
-func handlerConnections(context *gin.Context) {
-	// Upgrade HTTP connection to websocket
-	websocket, err := upgrader.Upgrade(context.Writer, context.Request, nil)
-	if err != nil {
-		fmt.Println("error while upgrading to Websocket", err)
+func handlerConnections(c *gin.Context) {
+	userIDStr := c.Query("user_id") // Lấy từ query, bạn có thể dùng cookie/session
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil || userID <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user_id"})
+		return
 	}
-	defer websocket.Close()
 
-	client := &Client{Conn: websocket}
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		fmt.Println("WebSocket upgrade failed:", err)
+		return
+	}
+	defer conn.Close()
 
-	mutex.Lock()
-	clients[client] = true
-	mutex.Unlock()
+	client := &Client{
+		UserID: userID,
+		Conn:   conn,
+	}
 
-	// listen message from client
+	clientsLock.Lock()
+	clients[userID] = client
+	clientsLock.Unlock()
+
+	fmt.Println("User connected:", userID)
+
 	for {
-		var message Message
-		err := websocket.ReadJSON(&message)
+		var msg Message
+		err := conn.ReadJSON(&msg)
 		if err != nil {
-			mutex.Lock()
-			delete(clients, client)
-			mutex.Unlock()
-			fmt.Println("Client disconnect: ", err)
+			fmt.Println("Error reading json:", err)
 			break
 		}
-		// send message to all client
-		broadcast <- message
+
+		fmt.Printf("Received from %d to %d: %s\n", msg.SenderID, msg.ReceiverID, msg.Content)
+
+		// Gửi cho người nhận
+		clientsLock.Lock()
+		if receiver, ok := clients[msg.ReceiverID]; ok {
+			data, _ := json.Marshal(msg)
+			receiver.Conn.WriteMessage(websocket.TextMessage, data)
+		}
+		clientsLock.Unlock()
 	}
 
+	// Cleanup
+	clientsLock.Lock()
+	delete(clients, userID)
+	clientsLock.Unlock()
+
+	fmt.Println("User disconnected:", userID)
 }

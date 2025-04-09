@@ -107,10 +107,10 @@ const NavBar = () => {
                 {user ? (
                   <>
                     <li className="d-flex justify-content-end align-items-center">
-                      <div class="dropdown d-flex justify-content-end">
+                      <div className="dropdown d-flex justify-content-end">
                         <button
                           type="button"
-                          class="rounded-circle border-2 border-danger"
+                          className="rounded-circle border-2 border-danger"
                           data-bs-toggle="dropdown"
                         >
                           <img
