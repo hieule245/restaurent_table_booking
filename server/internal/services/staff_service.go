@@ -178,7 +178,7 @@ func CurrentUser(context *gin.Context) int64 {
 		context.Abort()
 		return 0
 	}
-	userId := claims.UserID 
+	userId := claims.UserID
 	return userId
 }
 
@@ -201,7 +201,7 @@ func GetTablesByRestaurantID(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't parse restaurant id"})
 		return
 	}
-	tables, err = models.GetTablesByRestaurantID(resId)
+	tables, err = models.GetTablesByRestaurantID(int(resId))
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Can't get information in database"})
 		return

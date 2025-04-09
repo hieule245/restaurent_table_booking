@@ -11,7 +11,7 @@ import Footer from "../../../components/Footer/Footer";
 const StaffPage = () => {
     return (
         <>
-            <NavBar />
+            <NavBar /> 
             <Restaurant />
             <Footer />
         </>

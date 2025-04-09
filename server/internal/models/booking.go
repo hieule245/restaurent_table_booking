@@ -20,6 +20,7 @@ type Booking struct {
 	Price            float64 `json:"price"`
 	CustomerEmail    string  `json:"customer_email"`
 	TableID          int     `json:"table_id"`
+	StaffID          int     `json:"staff_id"`
 	CustomerID       int     `json:"customer_id"`
 	Status           int     `json:"status"`
 }
@@ -41,6 +42,30 @@ func (b *Booking) Create() (int64, error) {
 		b.CustomerEmail,
 		b.TableID,
 		b.CustomerID,
+		b.Status,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.LastInsertId()
+}
+
+func (b *Booking) CreateByStaff() (int64, error) {
+	query := `
+		INSERT INTO reservations (
+			numberOfCustomer, book_date, time_start, time_end, actual_end, price, customer_email, table_id, staff_id, status
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`
+	result, err := db.DB.Exec(query,
+		b.NumberOfCustomer,
+		b.BookDate,
+		b.TimeStart,
+		b.TimeEnd,
+		b.ActualEnd,
+		b.Price,
+		b.CustomerEmail,
+		b.TableID,
+		b.StaffID,
 		b.Status,
 	)
 	if err != nil {
@@ -103,14 +128,26 @@ func TableExistsInRestaurant(tableID, restaurantID int) (bool, error) {
 }
 
 // GetBookingsByCustomer lấy danh sách booking của một customer dưới dạng []Booking
-func GetBookingsByCustomer(customerID int) ([]Booking, error) {
-	query := `
+func GetBookingsByUser(userGmail string) ([]Booking, error) {
+	acc := &Account{} // Khởi tạo Account mới và lấy địa chỉ
+	acc.Email = userGmail
+	CheckAccount(acc)
+	var query string
+	if acc.Role == "customer" {
+		query = `
 		SELECT 
-			id, numberOfCustomer, book_date, time_start, time_end, actual_end, price, customer_email, table_id, customer_id, status 
+			id, numberOfCustomer, book_date, time_start, time_end, actual_end, price, customer_email, table_id, status 
 		FROM reservations 
 		WHERE customer_id = ?
 	`
-	rows, err := db.DB.Query(query, customerID)
+	} else if acc.Role == "staff" {
+		query = `SELECT 
+			id, numberOfCustomer, book_date, time_start, time_end, actual_end, price, customer_email, table_id, status 
+		FROM reservations 
+		WHERE staff_id = ?`
+	}
+
+	rows, err := db.DB.Query(query, acc.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +156,7 @@ func GetBookingsByCustomer(customerID int) ([]Booking, error) {
 	var bookings []Booking
 	for rows.Next() {
 		var b Booking
-		if err := rows.Scan(&b.ID, &b.NumberOfCustomer, &b.BookDate, &b.TimeStart, &b.TimeEnd, &b.ActualEnd, &b.Price, &b.CustomerEmail, &b.TableID, &b.CustomerID, &b.Status); err != nil {
+		if err := rows.Scan(&b.ID, &b.NumberOfCustomer, &b.BookDate, &b.TimeStart, &b.TimeEnd, &b.ActualEnd, &b.Price, &b.CustomerEmail, &b.TableID, &b.Status); err != nil {
 			return nil, err
 		}
 		bookings = append(bookings, b)

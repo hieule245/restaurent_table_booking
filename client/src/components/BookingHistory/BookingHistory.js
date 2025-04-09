@@ -16,7 +16,7 @@ const BookingHistory = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch user info
+  // Fetch user info 
   useEffect(() => {
     axios
       .get("http://localhost:8080/me", { withCredentials: true })
@@ -28,7 +28,7 @@ const BookingHistory = () => {
   useEffect(() => {
     if (!user?.Id) return;
     axios
-      .get(`http://localhost:8080/booking-history?user_id=${user.Id}`, {
+      .get(`http://localhost:8080/booking-history?user_gmail=${user.Email}`, {
         withCredentials: true,
       })
       .then((res) => setBookings(res.data.bookings))
@@ -114,7 +114,7 @@ const BookingHistory = () => {
 
   return (
     <RestaurantLayout>
-      <div className="booking-history-container mt-5 pt-5">
+      <div className="booking-history-container mt-2 pt-5">
         <ToastContainer position="top-right" autoClose={3000} />
         <h2 className="booking-history-title text-danger fs-1">
           Booking History
@@ -194,7 +194,7 @@ const BookingHistory = () => {
                     <input
                       type="date"
                       className="form-control"
-                      value={selectedBooking.book_date}
+                      value={selectedBooking.book_date?.split('T')[0] || ''}
                       onChange={(e) =>
                         setSelectedBooking({
                           ...selectedBooking,
@@ -216,7 +216,7 @@ const BookingHistory = () => {
                       }
                     />
 
-                    <label>Time End:</label>
+                    <label className="mt-1">Time End:</label>
                     <input
                       type="time"
                       className="form-control"
@@ -228,11 +228,14 @@ const BookingHistory = () => {
                         })
                       }
                     />
+                    <small className="text-secondary p-0">* Please update the end time first if you want to reschedule.</small>
+                    <br/>
 
-                    <label>Seats:</label>
+                    <label className="mt-1">Seats:</label>
                     <input
+                      disabled
                       type="number"
-                      className="form-control"
+                      className="form-control bg-secondary"
                       value={selectedBooking.numberOfCustomer}
                       onChange={(e) =>
                         setSelectedBooking({

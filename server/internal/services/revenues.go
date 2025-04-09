@@ -31,7 +31,7 @@ func WeeklyRevenue() {
 		// Kiểm tra xem trong tuần vừa qua owner có hoạt động trên web ko, nếu ko có bất kì nhà hàng nào thì sẽ ko gửi mail về
 		isActive, err := models.CheckActive(ownerId)
 		if err != nil {
-			fmt.Println("9-", err)
+			fmt.Println("9 user-", err)
 		}
 
 		if isActive == false {

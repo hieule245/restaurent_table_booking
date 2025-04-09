@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import "./NavBar.styles.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import avatar from "../../assets/image/avatar.jpeg";
+import avatar from "../../assets/image/avatar.png";
 
 const NavBar = () => {
   // STATE FOR HAMBURGER MENU
@@ -138,7 +138,7 @@ const NavBar = () => {
                       <div class="dropdown d-flex justify-content-end">
                         <button type="button" className="rounded-circle p-0 m-0 border-0" data-bs-toggle="dropdown" style={{ width: "40px", height: "40px", overflow: "hidden" }}>
                           <img
-                            src={imageUrl || avatar}
+                            src={user && imageUrl ? imageUrl : avatar}
                             alt="User Avatar"
                             className="w-100 h-100 rounded-circle object-fit-cover"
                           />

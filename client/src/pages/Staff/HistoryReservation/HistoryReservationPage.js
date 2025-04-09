@@ -6,7 +6,9 @@ const HistoryPage = () => {
     return (
         <>
             <NavBar />
-            <Reservation />
+            <div className="" style={{ marginTop: "7rem" }}>
+                <Reservation />
+            </div>
             <Footer />
         </>
 
