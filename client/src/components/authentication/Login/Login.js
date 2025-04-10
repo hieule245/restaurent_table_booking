@@ -9,10 +9,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-<<<<<<< HEAD
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import './Login.style.css'
-=======
 import {
   faEye,
   faEyeSlash,
@@ -20,12 +16,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "./Login.style.css";
 import { REST_API_URL } from "../../../data";
->>>>>>> staff
 const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleNavigation = useCallback(
-<<<<<<< HEAD
     (Role) => {
       console.log(Role)
       if (Role === "admin") {
@@ -33,12 +27,7 @@ const LoginPage = () => {
       } else if (Role === "owner") {
         navigate("/owner");
       } else if (Role === "customer")  {
-=======
-    (role) => {
-      if (role === "admin") {
-        navigate("/admin");
-      } else {
->>>>>>> staff
+
         navigate("/");
       }
     },
@@ -135,8 +124,6 @@ const LoginPage = () => {
   return (
     <div>
       <ToastContainer />
-<<<<<<< HEAD
-=======
 
       {/* Nút Quay Lại Trang Chủ */}
       <button
@@ -146,7 +133,6 @@ const LoginPage = () => {
         <FontAwesomeIcon icon={faArrowLeft} /> Back to Home
       </button>
 
->>>>>>> staff
       <motion.div
         className="d-flex"
         initial={{ opacity: 0, x: 100 }} // Bắt đầu từ bên phải

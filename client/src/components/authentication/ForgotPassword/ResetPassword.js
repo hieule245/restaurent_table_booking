@@ -3,12 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-<<<<<<< HEAD
 import { useEffect } from "react";
 
-=======
 import { REST_API_URL } from "../../../data";
->>>>>>> staff
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -19,12 +16,7 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   const isValidPassword = (password) => {
-<<<<<<< HEAD
     const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
-=======
-    const passwordRegex =
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
->>>>>>> staff
     return passwordRegex.test(password);
   };
 
@@ -36,23 +28,14 @@ const ResetPassword = () => {
     if (!confirmPassword) {
       validationErrors.confirmpassword = "Confirm password is required.";
     } else if (password !== confirmPassword) {
-<<<<<<< HEAD
       validationErrors.confirmpassword = "Confirm password is not same at password.";
-=======
-      validationErrors.confirmpassword =
-        "Confirm password is not same at password.";
->>>>>>> staff
+
     }
 
     if (!password) {
       validationErrors.password = "Password is required.";
     } else if (!isValidPassword(password)) {
-<<<<<<< HEAD
       validationErrors.password = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
-=======
-      validationErrors.password =
-        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&).";
->>>>>>> staff
     }
     if (Object.keys(validationErrors).length > 0) {
       setError(validationErrors);

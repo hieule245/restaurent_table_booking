@@ -21,94 +21,6 @@ type PinData struct {
 // Bộ nhớ tạm lưu PIN (dùng sync.Map để thread-safe)
 var pinStorage = sync.Map{}
 
-func ResendPin(context *gin.Context) {
-	var input struct {
-		Email string `json:"email"`
-	}
-
-	if err := context.ShouldBindJSON(&input); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid input"})
-		return
-	}
-
-	// Kiểm tra xem email có tồn tại không
-	_, exists := pinStorage.Load(input.Email)
-	if !exists {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Email không hợp lệ hoặc PIN đã hết hạn"})
-		return
-	}
-
-	// Tạo mã PIN mới
-	newPin := pkg.RandomPin()
-	fmt.Println("Mã PIN mới được gửi cho:", input.Email)
-	pkg.SendMailSimple(input.Email, newPin)
-	
-	// Cập nhật bộ nhớ tạm
-	newPinData := PinData{
-		Pin:      newPin,
-		ExpireAt: time.Now().Add(2 * time.Minute),
-		Attempt:  0,
-	}
-	pinStorage.Store(input.Email, newPinData)
-
-	context.JSON(http.StatusOK, gin.H{"message": "Mã PIN mới đã được gửi!"})
-}
-
-func ResetPassword(context *gin.Context) {
-	var u models.Account
-	err := context.ShouldBindBodyWithJSON(&u)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
-		return
-	}
-	err = u.ResetPassword()
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't reset password"})
-		return
-	}
-	context.JSON(http.StatusOK, gin.H{"Message": "Reset password successfully !!"})
-}
-
-func GetAllAccounts(context *gin.Context) {
-	u, _ := models.GetAllAccounts()
-	context.JSON(http.StatusOK, gin.H{"users": u})
-}
-
-func GetUserProfile(c *gin.Context) {
-	c.GetString("role")
-	role := c.GetString("role")
-	if role == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get role"})
-		return
-	}
-	c.GetInt64("userID")
-	userID := c.GetInt64("userID")
-	if userID == 0 {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get user id"})
-		return
-	}
-
-	var user models.Account
-	user, err := models.GetUserInformationById(userID, role)
-	if err != nil {
-		// "Can not find user"
-		c.JSON(http.StatusUnauthorized, gin.H{"error (get User Profile)": err.Error()})
-	}
-
-	c.JSON(http.StatusOK, gin.H{"user": user})
-}
-
-// LogoutHandler xử lý đăng xuất
-func Logout(c *gin.Context) {
-	// Xóa cookie bằng cách đặt giá trị rỗng và thời gian hết hạn đã qua
-	c.SetCookie("token", "", -1, "/", "localhost", false, true)
-
-	// Trả về phản hồi JSON
-	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
-}
-
-=======
->>>>>>> staff
 func Login(context *gin.Context) {
 	_, err := context.Cookie("token")
 	if err != nil {
@@ -149,6 +61,63 @@ func Login(context *gin.Context) {
 
 	}
 
+}
+
+func ResendPin(context *gin.Context) {
+	var input struct {
+		Email string `json:"email"`
+	}
+
+	if err := context.ShouldBindJSON(&input); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid input"})
+		return
+	}
+
+	// Kiểm tra xem email có tồn tại không
+	_, exists := pinStorage.Load(input.Email)
+	if !exists {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Email không hợp lệ hoặc PIN đã hết hạn"})
+		return
+	}
+
+	// Tạo mã PIN mới
+	newPin := pkg.RandomPin()
+	fmt.Println("Mã PIN mới được gửi cho:", input.Email)
+	pkg.SendMailSimple(input.Email, newPin)
+
+	// Cập nhật bộ nhớ tạm
+	newPinData := PinData{
+		Pin:      newPin,
+		ExpireAt: time.Now().Add(2 * time.Minute),
+		Attempt:  0,
+	}
+	pinStorage.Store(input.Email, newPinData)
+
+	context.JSON(http.StatusOK, gin.H{"message": "Mã PIN mới đã được gửi!"})
+}
+
+func GetUserProfile(c *gin.Context) {
+	c.GetString("role")
+	role := c.GetString("role")
+	if role == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get role"})
+		return
+	}
+	c.GetInt64("userID")
+	userID := c.GetInt64("userID")
+	if userID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get user id"})
+		return
+	}
+
+	var user models.Account
+	user, err := models.GetUserInformationById(userID, role)
+	if err != nil {
+		// "Can not find user"
+		c.JSON(http.StatusUnauthorized, gin.H{"error (get User Profile)": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
 // LogoutHandler xử lý đăng xuất
@@ -338,39 +307,6 @@ func UpdateProfile(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"messge": "Update successfully!!"})
 }
 
-func ResendPin(context *gin.Context) {
-	var input struct {
-		Email string `json:"email"`
-	}
-
-	if err := context.ShouldBindJSON(&input); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid input"})
-		return
-	}
-
-	// Kiểm tra xem email có tồn tại không
-	_, exists := pinStorage.Load(input.Email)
-	if !exists {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Email không hợp lệ hoặc PIN đã hết hạn"})
-		return
-	}
-
-	// Tạo mã PIN mới
-	newPin := pkg.RandomPin()
-	fmt.Println("Mã PIN mới được gửi cho:", input.Email)
-	pkg.SendMailSimple(input.Email, newPin)
-
-	// Cập nhật bộ nhớ tạm
-	newPinData := PinData{
-		Pin:      newPin,
-		ExpireAt: time.Now().Add(2 * time.Minute),
-		Attempt:  0,
-	}
-	pinStorage.Store(input.Email, newPinData)
-
-	context.JSON(http.StatusOK, gin.H{"message": "Mã PIN mới đã được gửi!"})
-}
-
 func ResetPassword(context *gin.Context) {
 	var u models.Account
 	err := context.ShouldBindBodyWithJSON(&u)
@@ -389,28 +325,4 @@ func ResetPassword(context *gin.Context) {
 func GetAllAccounts(context *gin.Context) {
 	u, _ := models.GetAllAccounts()
 	context.JSON(http.StatusOK, gin.H{"users": u})
-}
-
-func GetUserProfile(c *gin.Context) {
-	c.GetString("role")
-	role := c.GetString("role")
-	if role == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get role"})
-		return
-	}
-	c.GetInt64("userID")
-	userID := c.GetInt64("userID")
-	if userID == 0 {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get user id"})
-		return
-	}
-
-	var user models.Account
-	user, err := models.GetUserInformationById(userID, role)
-	if err != nil {
-		// "Can not find user"
-		c.JSON(http.StatusUnauthorized, gin.H{"error (get User Profile)": err.Error()})
-	}
-
-	c.JSON(http.StatusOK, gin.H{"user": user})
 }

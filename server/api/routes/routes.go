@@ -56,8 +56,6 @@ func welcome(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"message": "Hello"})
 }
 
-
-}
 func sayHi(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "Hello World",

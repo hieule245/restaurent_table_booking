@@ -182,8 +182,13 @@ const ProfileUpdate = () => {
               </button>
             </>
           ) : (
-            <button className="btn btn-danger rounded-pill px-4 py-3" onClick={() => setIsEditing(true)}>
-              <h5 className="mb-0"><strong>Update Profile</strong></h5>
+            <button
+              className="btn btn-danger rounded-pill px-4 py-3"
+              onClick={() => setIsEditing(true)}
+            >
+              <h5 className="mb-0">
+                <strong>Update Profile</strong>
+              </h5>
             </button>
           )}
         </div>
@@ -192,4 +197,4 @@ const ProfileUpdate = () => {
   );
 };
 
-export default Information;
+export default ProfileUpdate;
