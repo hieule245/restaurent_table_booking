@@ -1,17 +1,18 @@
 import React, { useState } from "react";
+import axios from "axios";
 import TestUser from "./TestUsers/TestUsers";
 import TestAdmin from "./TestAdmin/TestAdmin";
 import TestOwner from "./TestOwner/TestOwner";
 import TestCustomer from "./TestCustomer/TestCustomer";
 import TestStaff from "./TestStaff/TestStaff";
-import { REST_API_URL } from "../data";
-import axios from "axios";
 
-const TestAPI = () => {
+import { REST_API_URL } from "../data";
+function TestAPI() {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const baseURL = "http://localhost:8080"; // Thay đổi thành URL backend của bạn
+
+  const baseURL = REST_API_URL; // Thay đổi thành URL backend của bạn
 
   // Hàm gọi API với Axios
   const callAPI = async (method, endpoint, data = null) => {
@@ -37,8 +38,57 @@ const TestAPI = () => {
       setLoading(false);
     }
   };
+  return (
+    <div
+      style={{
+        padding: "20px",
+        fontFamily: "Arial, sans-serif",
+        height: "100vh",
+      }}
+      className="bg-dark text-white"
+    >
+      {/* Header */}
+      <div className="text-center">
+        <h1>API Tester</h1>
 
-  return <></>;
-};
+        <h2>🔍 Test REST API bằng Axios</h2>
+      </div>
+      <p>{REST_API_URL}</p>
+      {/* Users */}
+      <TestUser callAPI={callAPI} />
+      <hr />
+
+      <TestAdmin callAPI={callAPI} />
+      <hr />
+
+      <TestOwner callAPI={callAPI} />
+      <hr />
+
+      <TestCustomer callAPI={callAPI} />
+      <hr />
+
+      <TestStaff callAPI={callAPI} />
+      <hr />
+
+      {/* Hiển thị trạng thái */}
+      {loading && <p>⏳ Đang tải...</p>}
+      {error && <p style={{ color: "red" }}>❌ Lỗi: {JSON.stringify(error)}</p>}
+      {response && (
+        <pre
+          style={{
+            background: "#f4f4f4",
+            padding: "10px",
+            borderRadius: "5px",
+            marginTop: "10px",
+            fontSize: "1.2em",
+            color: "black",
+          }}
+        >
+          {JSON.stringify(response, null, 2)}
+        </pre>
+      )}
+    </div>
+  );
+}
 
 export default TestAPI;
