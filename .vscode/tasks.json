@@ -2,14 +2,29 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "go",
-      "label": "go: build package",
-      "command": "build",
-      "args": ["${fileDirname}"],
-      "problemMatcher": ["$go"],
-      "group": "build",
-      "detail": "cd /home/gmo/Tran_Vu_Thanh_Lam/GOLANG_Practicing/GMO-restaurent_table_booking; go build ${fileDirname}"
+      "label": "Server",
+      "type": "shell",
+      "command": "go run ./cmd/background/main.go",
+      "options": {
+        "cwd": "${workspaceFolder}/server"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "ZClient",
+      "type": "shell",
+      "command": "npm start",
+      "options": {
+        "cwd": "${workspaceFolder}/client"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Run All",
+      "dependsOn": ["Server", "ZClient"],
+      "dependsOrder": "parallel"
     }
   ]
 }
-
