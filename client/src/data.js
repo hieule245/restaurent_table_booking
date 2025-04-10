@@ -12,7 +12,6 @@ import jane from "./assets/testimonials/jane.jpg";
 import john from "./assets/testimonials/john.jpg";
 import mark from "./assets/testimonials/mark.jpg";
 
-
 export const specials = [
   {
     id: 1,
