@@ -38,6 +38,19 @@ const BookingHistory = () => {
       });
   }, [user]);
 
+  const timeSlots = Array.from({ length: 9 }, (_, i) => {
+    const hour = 7 + i * 2;
+    return `${hour.toString().padStart(2, "0")}:00:00`;
+  });
+
+  const formatTo12Hour = (time24) => {
+    const [hourStr, minuteStr] = time24.split(":");
+    let hour = parseInt(hourStr, 10);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+    return `${hour.toString().padStart(2, "0")}:${minuteStr} ${ampm}`;
+  };
+
   console.log("Booking history:", bookings);
   // Mở modal chỉnh sửa
   const handleEdit = (booking) => {
@@ -192,8 +205,9 @@ const BookingHistory = () => {
                   <>
                     <label>Book Date:</label>
                     <input
+                      disabled
                       type="date"
-                      className="form-control"
+                      className="form-control bg-secondary"
                       value={selectedBooking.book_date?.split('T')[0] || ''}
                       onChange={(e) =>
                         setSelectedBooking({
@@ -202,10 +216,14 @@ const BookingHistory = () => {
                         })
                       }
                     />
+                    <small className="text-secondary p-0 mb-3">
+                      * Can't change another day.
+                    </small>
+                    <br />
 
+                    {/* Time slots select */}
                     <label>Time Start:</label>
-                    <input
-                      type="time"
+                    <select
                       className="form-control"
                       value={selectedBooking.time_start}
                       onChange={(e) =>
@@ -214,11 +232,16 @@ const BookingHistory = () => {
                           time_start: e.target.value,
                         })
                       }
-                    />
+                    >
+                      {timeSlots.map((slot) => (
+                        <option key={slot} value={slot}>
+                          {formatTo12Hour(slot)}
+                        </option>
+                      ))}
+                    </select>
 
                     <label className="mt-1">Time End:</label>
-                    <input
-                      type="time"
+                    <select
                       className="form-control"
                       value={selectedBooking.time_end}
                       onChange={(e) =>
@@ -227,9 +250,18 @@ const BookingHistory = () => {
                           time_end: e.target.value,
                         })
                       }
-                    />
-                    <small className="text-secondary p-0">* Please update the end time first if you want to reschedule.</small>
-                    <br/>
+                    >
+                      {timeSlots.map((slot) => (
+                        <option key={slot} value={slot}>
+                          {formatTo12Hour(slot)}
+                        </option>
+                      ))}
+                    </select>
+
+                    <small className="text-secondary p-0">
+                      * Please update the end time first if you want to reschedule.
+                    </small>
+                    <br />
 
                     <label className="mt-1">Seats:</label>
                     <input
@@ -237,12 +269,6 @@ const BookingHistory = () => {
                       type="number"
                       className="form-control bg-secondary"
                       value={selectedBooking.numberOfCustomer}
-                      onChange={(e) =>
-                        setSelectedBooking({
-                          ...selectedBooking,
-                          numberOfCustomer: e.target.value,
-                        })
-                      }
                     />
                   </>
                 )}

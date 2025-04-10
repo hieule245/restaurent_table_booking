@@ -2,19 +2,23 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/restaurent_table_booking/internal/db"
 )
 
 type Revenues struct {
-	WeeklyRevenue float32
-	ActiveStaff   int // Số lượng nhân viên còn làm trong tuần
-	OutStaff      int // Số lượng nhân viên nghỉ việc trong tuần
-	CanceledBook  int // Số lượng đơn bị hủy trong tuần
-	BookNumber    int // Số lượng đơn đặt bàn đã sử dụng trong tuần
-	OrderCustomer int // Số lượng khách đặt trong tuần ( không trùng )
-	UsingCustomer int // Số lượng khách tới quán trong tuần
+	WeeklyRevenue    float32
+	ActiveStaff      int     // Số lượng nhân viên còn làm trong tuần
+	OutStaff         int     // Số lượng nhân viên nghỉ việc trong tuần
+	CanceledBook     int     // Số lượng đơn bị hủy trong tuần
+	BookNumber       int     // Số lượng đơn đặt bàn đã sử dụng trong tuần
+	OrderCustomer    int     // Số lượng khách đặt trong tuần ( không trùng )
+	UsingCustomer    int     // Số lượng khách tới quán trong tuần
+	DiffTotal        float32 // Doanh thu tuần này - tuần trước
+	DiffBookNumber   int     // Số lượng đơn đặt bàn đã sử dụng trong tuần này - tuần trước
+	DiffCanceledBook int     // Số lượng đơn bị hủy trong tuần này - tuần trước
 }
 
 // Lấy doanh thu tuần hiện tại
@@ -61,8 +65,16 @@ func (rev *Revenues) GetLastRevenue(ownerId int64) error {
 	err := row.Scan(&rev.WeeklyRevenue, &rev.ActiveStaff, &rev.OutStaff, &rev.CanceledBook, &rev.BookNumber, &rev.OrderCustomer, &rev.UsingCustomer)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-			fmt.Println("This is first week")
+		if errors.Is(err, sql.ErrNoRows) {
+			fmt.Println("This is first week, no previous revenue record.")
+			rev.WeeklyRevenue = 0
+			rev.ActiveStaff = 0
+			rev.OutStaff = 0
+			rev.CanceledBook = 0
+			rev.BookNumber = 0
+			rev.OrderCustomer = 0
+			rev.UsingCustomer = 0
+			return nil
 		}
 		return err
 	}

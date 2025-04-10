@@ -168,14 +168,16 @@ func GetBookingsByUser(userGmail string) ([]Booking, error) {
 }
 
 type Reservations struct {
-	Id           int64
-	CustomerName string
-	BookingDate  time.Time
-	BookingTime  string
-	ActualTime   string
-	TableName    string
-	Price        float64
-	Status       int
+	Id             int64
+	CustomerName   string
+	BookingDate    time.Time
+	BookingTime    string
+	ActualTime     string
+	TableName      string
+	Price          float64
+	Status         int
+	Owner_id       int64
+	RestaurantName string
 }
 
 func GetBookingByOwner(ownerId int64) ([]Reservations, error) {
@@ -183,6 +185,7 @@ func GetBookingByOwner(ownerId int64) ([]Reservations, error) {
 	query := `
 	SELECT
 	b.id,
+	r.name,
     t.name,
     c.name,
     b.book_date,
@@ -208,11 +211,54 @@ func GetBookingByOwner(ownerId int64) ([]Reservations, error) {
 
 	for rows.Next() {
 		var book Reservations
-		err = rows.Scan(&book.Id, &book.TableName, &book.CustomerName, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status)
+		err = rows.Scan(&book.Id, &book.RestaurantName, &book.TableName, &book.CustomerName, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status)
 		if err != nil {
 			panic(err)
 			return nil, err
 		}
+		reservation = append(reservation, book)
+	}
+	return reservation, nil
+}
+
+func GetBookingByRestaurantId(ownerId int64, restaurant_id int) ([]Reservations, error) {
+	var reservation []Reservations
+	query := `
+	SELECT
+	b.id,
+	r.name,
+    t.name,
+    c.name,
+    b.book_date,
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.time_end, b.time_start)))),
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.actual_end, b.time_start)))),
+    b.price,
+	b.status,
+	o.id
+	FROM reservations b
+	JOIN tables t ON b.table_id = t.id
+	JOIN restaurants r ON t.restaurant_id = r.id
+	JOIN owners o ON r.owner_id = o.id
+	JOIN customers c On c.gmail = b.customer_email
+	WHERE r.id = ?;
+	`
+
+	rows, err := db.DB.Query(query, restaurant_id)
+	if err != nil {
+		panic(err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var book Reservations
+		err = rows.Scan(&book.Id, &book.RestaurantName, &book.TableName, &book.CustomerName, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status, &book.Owner_id)
+		if err != nil {
+			panic(err)
+			return nil, err
+		}
+		fmt.Println(book.Owner_id == ownerId)
 		reservation = append(reservation, book)
 	}
 	return reservation, nil
@@ -242,4 +288,59 @@ func (res *Booking) EditCheckout() error {
 		return err
 	}
 	return nil
+}
+
+func GetNumberBookingEachRole(ownerId int64) (int, int, error) {
+	query := `
+	SELECT COUNT(customer_id), COUNT(staff_id) FROM reservations r
+	INNER JOIN tables t ON r.table_id = t.id
+	INNER JOIN restaurants re ON re.id = t.id
+	WHERE re.owner_id = ? AND r.status = 4
+	`
+	row := db.DB.QueryRow(query, ownerId)
+	var numberCustomer, numberStaff int
+	err := row.Scan(&numberCustomer, &numberStaff)
+	if err != nil {
+		fmt.Println("number 1- ", err)
+		return 0, 0, err
+	}
+	return numberCustomer, numberStaff, nil
+}
+
+type TopRestaurant struct {
+	Name             string
+	TotalRevenue     float64
+	TotalCustomer    int
+	TotalReservation int
+}
+
+func GetTopRestaurantRevenues(ownerId int64) ([]TopRestaurant, error) {
+	query := `
+	SELECT 
+    re.name AS restaurant_name,
+    SUM(r.price) AS total_revenue,
+    SUM(r.numberOfCustomer) AS total_customers,
+    COUNT(r.id) AS total_reservations
+	FROM reservations r
+	INNER JOIN tables t ON r.table_id = t.id
+	INNER JOIN restaurants re ON re.id = t.restaurant_id
+	WHERE re.owner_id = ?
+	GROUP BY re.name
+	ORDER BY total_revenue DESC
+	LIMIT 5;
+	`
+
+	var top []TopRestaurant
+	rows, err := db.DB.Query(query, ownerId)
+	if err != nil {
+		fmt.Println("number 1- ", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var topRestaurant TopRestaurant
+		rows.Scan(&topRestaurant.Name, &topRestaurant.TotalRevenue, &topRestaurant.TotalCustomer, &topRestaurant.TotalReservation)
+		top = append(top, topRestaurant)
+	}
+
+	return top, nil
 }

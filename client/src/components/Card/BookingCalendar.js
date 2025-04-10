@@ -41,6 +41,14 @@ const BookingCalendar = ({ table }) => {
     return `${formattedHour}:00 ${period}`;
   };
 
+  const getStartHourIn24Format = (timeSlot) => {
+    const [start, meridiem] = timeSlot.split(" - ")[0].split(" ");
+    let hour = parseInt(start);
+    if (meridiem === "PM" && hour !== 12) hour += 12;
+    if (meridiem === "AM" && hour === 12) hour = 0;
+    return hour;
+  };
+
   // Tạo danh sách khung giờ từ 7:00 đến 21:00 theo định dạng 12 giờ
   const timeSlots = Array.from({ length: 7 }, (_, i) => {
     const startHour = 7 + i * 2;
@@ -378,7 +386,7 @@ const BookingCalendar = ({ table }) => {
                 </h5>
                 <div className="d-flex flex-wrap gap-2 justify-content-center mt-2 p-5 rounded">
                   {timeSlots.map((timeSlot) => {
-                    const startHour = parseInt(timeSlot.split(":")[0]);
+                    const startHour = getStartHourIn24Format(timeSlot);
                     const isPastTime =
                       selectedMonth === currentMonth &&
                       selectedDay === currentDay &&

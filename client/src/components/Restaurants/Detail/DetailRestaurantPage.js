@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 
 import TableList from "./Table/TableList";
 import StaffList from "./Staff/StaffList";
-
+import HistoryReservation from "./History/HistoryReservation"
 const RestaurantPage = () => {
   const navigate = useNavigate();
   const { restaurant_id } = useParams();
@@ -26,7 +26,7 @@ const RestaurantPage = () => {
       case "StaffList":
         return <StaffList restaurant_id={restaurant_id} />;
       case "Reservation":
-        return <div>History Reservation Content</div>;
+        return <HistoryReservation restaurant_id={restaurant_id} />;
       default:
         return <TableList restaurant_id={restaurant_id} />
     }

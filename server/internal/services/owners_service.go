@@ -249,6 +249,31 @@ func GetAllReservations(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"booking": reservation})
 }
 
+func GetReservationsByRestaurants(context *gin.Context) {
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.Abort()
+		return
+	}
+	user_id := claims.UserID
+	var restaurant_id int
+	restaurant_id, err = strconv.Atoi(context.Param("restaurant_id"))
+	reservation, err := models.GetBookingByRestaurantId(user_id, restaurant_id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		context.Abort()
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"booking": reservation})
+}
+
 func EndingUsingTable(context *gin.Context) {
 	var res *models.Booking
 	err := context.ShouldBindBodyWithJSON(&res)
@@ -280,6 +305,40 @@ func EndingUsingTable(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"message": "Update successfully !!!"})
 }
 
+func percentChange(current, last interface{}) interface{} {
+	switch cur := current.(type) {
+	case float32:
+		las := last.(float32)
+		if las == 0 {
+			if cur == 0 {
+				return float32(0)
+			}
+			return float32(100)
+		} else {
+			if cur == 0 {
+				return float32(-100)
+			}
+		}
+		return ((cur - las) / las) * 100
+
+	case int:
+		las := last.(int)
+		if las == 0 {
+			if cur == 0 {
+				return 0
+			}
+			return 100
+		}
+		if cur == 0 {
+			return -100
+		}
+		return ((cur - las) * 100) / las
+
+	default:
+		return nil // unsupported type
+	}
+}
+
 func StaticRevenue(context *gin.Context) {
 	token, err := context.Cookie("token")
 	if err != nil {
@@ -289,17 +348,77 @@ func StaticRevenue(context *gin.Context) {
 	}
 	claims, err := utils.ParseJWT(token)
 	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		context.Abort()
 		return
 	}
-	rev := &models.Revenues{}
-	err = rev.GetCurrentWeekRevenue(claims.UserID)
 
+	curRev := &models.Revenues{}
+	err = curRev.GetCurrentWeekRevenue(claims.UserID)
 	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("1- %s", err.Error())})
 		context.Abort()
 		return
 	}
-	context.JSON(http.StatusOK, gin.H{"message": rev})
+
+	LastRev := &models.Revenues{}
+	err = LastRev.GetLastRevenue(claims.UserID)
+	fmt.Println("curRev", LastRev)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("2- %s", err.Error())})
+		context.Abort()
+		return
+	}
+
+	curRev.DiffTotal = percentChange(curRev.WeeklyRevenue, LastRev.WeeklyRevenue).(float32)
+	curRev.DiffBookNumber = percentChange(curRev.BookNumber, LastRev.BookNumber).(int)
+	curRev.DiffCanceledBook = percentChange(curRev.CanceledBook, LastRev.CanceledBook).(int)
+
+	fmt.Println("diff", curRev.DiffTotal, curRev.DiffBookNumber, curRev.DiffCanceledBook)
+	context.JSON(http.StatusOK, gin.H{"message": curRev})
+}
+
+func GetNumberBookingEachRole(context *gin.Context) {
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		context.Abort()
+		return
+	}
+	numCustomer, numStaff, err := models.GetNumberBookingEachRole(claims.UserID)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		context.Abort()
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"numCustomer": numCustomer, "numStaff": numStaff})
+}
+
+func GetTopRestaurantRevenues(context *gin.Context) {
+	token, err := context.Cookie("token")
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.Abort()
+		return
+	}
+	claims, err := utils.ParseJWT(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		context.Abort()
+		return
+	}
+	var top []models.TopRestaurant
+	top, err = models.GetTopRestaurantRevenues(claims.UserID)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		context.Abort()
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"top": top})
 }
