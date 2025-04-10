@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import { REST_API_URL } from "../../data";
 const BookingCalendar = ({ table }) => {
   // Lấy thông tin thời gian hiện tại
   const today = new Date();
@@ -41,7 +42,7 @@ console.log("restaurant id", restaurant_id)
   // Fetch thông tin user
   useEffect(() => {
     axios
-      .get("http://localhost:8080/me", { withCredentials: true })
+      .get(`${REST_API_URL}/me`, { withCredentials: true })
       .then((res) => {
         if (res.data && res.data.user) {
           setUser(res.data.user);
@@ -124,7 +125,7 @@ console.log("restaurant id", restaurant_id)
 
     try {
       // Cập nhật thông tin user
-      const res = await axios.get("http://localhost:8080/me", {
+      const res = await axios.get(`${REST_API_URL}/me`, {
         withCredentials: true,
       });
       if (res.data && res.data.user) {
@@ -207,7 +208,8 @@ console.log("restaurant id", restaurant_id)
           // Gửi request đặt bàn
           await axios.post(
             `http://localhost:8080/restaurants/${restaurant_id}/bookings`,
-            bookingData[0]
+            bookingData[0],
+            { withCredentials: true }
           );
 
           // Hiển thị thông báo thành công
@@ -235,7 +237,7 @@ console.log("restaurant id", restaurant_id)
 
   return (
     <div>
-      <div className="row">
+      <div className="row bg-white m-2 rounded text-dark">
         {/* Danh sách tháng */}
         <div className="col-md-1 border-end" style={{ height: "100vh" }}>
           <div className="mt-4">

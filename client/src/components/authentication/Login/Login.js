@@ -9,12 +9,23 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+<<<<<<< HEAD
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import './Login.style.css'
+=======
+import {
+  faEye,
+  faEyeSlash,
+  faArrowLeft,
+} from "@fortawesome/free-solid-svg-icons";
+import "./Login.style.css";
+import { REST_API_URL } from "../../../data";
+>>>>>>> staff
 const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleNavigation = useCallback(
+<<<<<<< HEAD
     (Role) => {
       console.log(Role)
       if (Role === "admin") {
@@ -22,6 +33,12 @@ const LoginPage = () => {
       } else if (Role === "owner") {
         navigate("/owner");
       } else if (Role === "customer")  {
+=======
+    (role) => {
+      if (role === "admin") {
+        navigate("/admin");
+      } else {
+>>>>>>> staff
         navigate("/");
       }
     },
@@ -36,7 +53,7 @@ const LoginPage = () => {
   useEffect(() => {
     
     axios
-      .get("http://localhost:8080/me", { withCredentials: true })
+      .get(`${REST_API_URL}/me`, { withCredentials: true })
       .then((res) => {
         // console.log(res.data.user.Role)
         handleNavigation(res.data.user.Role);
@@ -77,7 +94,7 @@ const LoginPage = () => {
     }
     try {
       let res = await axios.post(
-        "http://localhost:8080/login",
+        `${REST_API_URL}/login`,
         { Email: email, Password: password },
         { withCredentials: true }
       );
@@ -86,7 +103,7 @@ const LoginPage = () => {
         await toast.success("Login successful!");
 
         axios
-          .get("http://localhost:8080/me", { withCredentials: true })
+          .get(`${REST_API_URL}/me`, { withCredentials: true })
           .then((res) => {
             const userData = res.data.user
             setTimeout(() => {
@@ -118,6 +135,18 @@ const LoginPage = () => {
   return (
     <div>
       <ToastContainer />
+<<<<<<< HEAD
+=======
+
+      {/* Nút Quay Lại Trang Chủ */}
+      <button
+        className="btn btn-outline-light back-home-btn"
+        onClick={() => navigate("/")}
+      >
+        <FontAwesomeIcon icon={faArrowLeft} /> Back to Home
+      </button>
+
+>>>>>>> staff
       <motion.div
         className="d-flex"
         initial={{ opacity: 0, x: 100 }} // Bắt đầu từ bên phải

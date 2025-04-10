@@ -1,10 +1,12 @@
-import NavBar from '../components/NavBar/NavBar';
-import Hero from '../components/Hero/Hero';
-import KeyFeatures from '../components/KeyFeatures/KeyFeatures';
-import Specials from '../components/Specials/Specials';
-import About from '../components/About/About';
-import Footer from '../components/Footer/Footer';
-import Carousel from '../components/CarouselCard/CarouselCard';
+import NavBar from "../components/NavBar/NavBar";
+import Hero from "../components/Hero/Hero";
+import KeyFeatures from "../components/KeyFeatures/KeyFeatures";
+import Specials from "../components/Specials/Specials";
+import About from "../components/About/About";
+import Footer from "../components/Footer/Footer";
+import Carousel from "../components/CarouselCard/CarouselCard";
+import axios from "axios";
+import { REST_API_URL } from "../data";
 const HomePage = () => {
   return (
     <>

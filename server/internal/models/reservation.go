@@ -11,6 +11,27 @@ type Reservation struct {
 	Status    string `json:"status"`
 }
 
+type ReservationDetail struct {
+	ID               int     `json:"id"`
+	NumberOfCustomer string  `json:"number_of_customer"`
+	BookDate         string  `json:"book_date"`  // YYYY-MM-DD
+	TimeStart        string  `json:"time_start"` // HH:MM:SS hoặc HH:MM
+	TimeEnd          string  `json:"time_end"`
+	ActualEnd        *string `json:"actual_end,omitempty"` // có thể null
+	Price            float64 `json:"price"`
+	TableID          int     `json:"table_id"`
+	StaffID          *int    `json:"staff_id,omitempty"`
+	CustomerID       *int    `json:"customer_id,omitempty"`
+	Status           int     `json:"status"`
+	// Thông tin khách hàng
+	CustomerName  *string `json:"customer_name,omitempty"`
+	CustomerPhone *string `json:"customer_phone,omitempty"`
+	CustomerGmail *string `json:"customer_gmail,omitempty"`
+	// Thông tin staff
+	StaffName  *string `json:"staff_name,omitempty"`
+	StaffGmail *string `json:"staff_gmail,omitempty"`
+}
+
 // GetReservationsByTableDate lấy tất cả các reservation của bàn (tableID) vào ngày bookDate
 func GetReservationsByTableDate(tableID int, bookDate string) ([]Reservation, error) {
 	query := `

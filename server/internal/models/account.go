@@ -115,6 +115,49 @@ func (u *Account) RegisterAdmin() error {
 	return nil
 }
 
+func (u *Account) RegisterStaff() error {
+	// Check if the account already exists
+	fmt.Println(u.Orther_id)
+	_, check := CheckAccount(u)
+	if !check {
+		return errors.New("this email is already associated with an existing account")
+	}
+
+	// Prepare the SQL query
+	query := `INSERT INTO staffs(gmail, name, phone, status, password, restaurant_id) 
+        VALUES (?,?,?,?,?,?)`
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		return errors.New("failed to prepare the SQL statement for registering staff")
+	}
+	defer stmt.Close()
+
+	// Hash the password
+	hashPassword, err := utils.HashPassword(u.Password)
+	if err != nil {
+		return errors.New("failed to hash the password")
+	}
+
+	// Set the account status to active
+	u.Status = "active"
+
+	// Execute the SQL query
+	result, err := stmt.Exec(u.Email, u.Name, u.Phone, u.Status, hashPassword, u.Orther_id)
+	if err != nil {
+		// return errors.New("failed to execute the SQL statement for registering staff")
+		return errors.New(err.Error())
+	}
+
+	// Retrieve the last inserted ID
+	id, err := result.LastInsertId()
+	if err != nil {
+		return errors.New("failed to retrieve the last inserted ID for the new staff account")
+	}
+
+	// Set the ID of the newly created account
+	u.Id = id
+	return nil
+}
 func (u *Account) Login() error {
 	retrievedPassword, ok := CheckAccount(u)
 	if ok {
@@ -249,7 +292,7 @@ func GetUserInformationById(userId int64, role string) (Account, error) {
 	case "customer":
 		query = `SELECT id, name, gmail, phone FROM customers WHERE id = ?`
 	case "staff":
-		query = `SELECT id, name, gmail, phone FROM staffs WHERE id = ?`
+		query = `SELECT id, name, gmail, phone, restaurant_id FROM staffs WHERE id = ?`
 	case "admin":
 		query = `SELECT id, name, gmail, phone FROM admin WHERE id = ?`
 	case "owner":
@@ -259,7 +302,13 @@ func GetUserInformationById(userId int64, role string) (Account, error) {
 	}
 
 	row := db.DB.QueryRow(query, userId)
-	err := row.Scan(&user.Id, &user.Name, &user.Email, &user.Phone)
+	var err error
+	if role == "staff" {
+		err = row.Scan(&user.Id, &user.Name, &user.Email, &user.Phone, &user.Orther_id)
+	} else {
+		err = row.Scan(&user.Id, &user.Name, &user.Email, &user.Phone)
+	}
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return user, errors.New("user not found with the provided ID")

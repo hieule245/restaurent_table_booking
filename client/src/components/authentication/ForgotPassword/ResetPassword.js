@@ -3,8 +3,12 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+<<<<<<< HEAD
 import { useEffect } from "react";
 
+=======
+import { REST_API_URL } from "../../../data";
+>>>>>>> staff
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -15,7 +19,12 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   const isValidPassword = (password) => {
+<<<<<<< HEAD
     const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
+=======
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+>>>>>>> staff
     return passwordRegex.test(password);
   };
 
@@ -27,13 +36,23 @@ const ResetPassword = () => {
     if (!confirmPassword) {
       validationErrors.confirmpassword = "Confirm password is required.";
     } else if (password !== confirmPassword) {
+<<<<<<< HEAD
       validationErrors.confirmpassword = "Confirm password is not same at password.";
+=======
+      validationErrors.confirmpassword =
+        "Confirm password is not same at password.";
+>>>>>>> staff
     }
 
     if (!password) {
       validationErrors.password = "Password is required.";
     } else if (!isValidPassword(password)) {
+<<<<<<< HEAD
       validationErrors.password = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
+=======
+      validationErrors.password =
+        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&).";
+>>>>>>> staff
     }
     if (Object.keys(validationErrors).length > 0) {
       setError(validationErrors);
@@ -41,9 +60,9 @@ const ResetPassword = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:8080/reset-password", {
+      const response = await axios.post(`${REST_API_URL}/reset-password`, {
         email: email, // Gửi email kèm theo
-        password: password // Gửi mật khẩu mới
+        password: password, // Gửi mật khẩu mới
       });
 
       if (response.status === 200) {
@@ -67,7 +86,9 @@ const ResetPassword = () => {
           <h3 className="text-center mb-4">Reset your password</h3>
           <form onSubmit={handleSubmit}>
             <div className="input-group mb-3">
-              <label htmlFor="password" className="form-label">New password</label>
+              <label htmlFor="password" className="form-label">
+                New password
+              </label>
               <div className="input-group">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -92,7 +113,9 @@ const ResetPassword = () => {
               )}
             </div>
             <div className="input-group mb-3">
-              <label htmlFor="confirmPassword" className="form-label">Confim new password</label>
+              <label htmlFor="confirmPassword" className="form-label">
+                Confim new password
+              </label>
               <div className="input-group">
                 <input
                   type={showConfirmPassword ? "text" : "password"}
@@ -109,12 +132,18 @@ const ResetPassword = () => {
                   style={{ cursor: "pointer", borderLeft: 0 }}
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
+                  <FontAwesomeIcon
+                    icon={showConfirmPassword ? faEye : faEyeSlash}
+                  />
                 </span>
               </div>
-              {error.confirmpassword && <small className="text-danger">{error.confirmpassword}</small>}
+              {error.confirmpassword && (
+                <small className="text-danger">{error.confirmpassword}</small>
+              )}
             </div>
-            <button type="submit" className="btn btn-success w-100">Reset Password</button>
+            <button type="submit" className="btn btn-success w-100">
+              Reset Password
+            </button>
           </form>
         </div>
       </div>

@@ -9,7 +9,7 @@ import BookingRow from "../BookingRow/BookingRow";
 import "react-toastify/dist/ReactToastify.css";
 import "./BookingHistory.css";
 import RestaurantLayout from "../../pages/Restaurant/restaurantLayout";
-
+import { REST_API_URL } from "../../data";
 const BookingHistory = () => {
   const [bookings, setBookings] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
@@ -19,7 +19,7 @@ const BookingHistory = () => {
   const [user, setUser] = useState({});
   useEffect(() => {
     axios
-      .get("http://localhost:8080/me", { withCredentials: true })
+      .get(`${REST_API_URL}/me`, { withCredentials: true })
       .then((res) => setUser(res.data.user))
       .catch(() => navigate("/login"));
   }, [navigate]);

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-
+import { REST_API_URL } from "../../../data";
 const EnterPin = () => {
   const [pin, setPin] = useState(["", "", "", "", "", ""]);
   const [error] = useState("");
@@ -46,9 +46,9 @@ const EnterPin = () => {
     const enteredPin = pin.join("");
 
     try {
-      const response = await axios.post("http://localhost:8080/verify-pin", {
+      const response = await axios.post(`${REST_API_URL}/verify-pin`, {
         email: email, // Gửi email kèm theo
-        pin: parseInt(enteredPin) // Chuyển pin từ string sang int
+        pin: parseInt(enteredPin), // Chuyển pin từ string sang int
       });
 
       if (response.status === 200) {
@@ -67,7 +67,7 @@ const EnterPin = () => {
 
   const handleResendPin = async () => {
     try {
-      await axios.post("http://localhost:8080/resend-pin", { email });
+      await axios.post(`${REST_API_URL}/resend-pin`, { email });
       toast.success("Mã PIN mới đã được gửi!");
       setTimer(120); // Đặt lại bộ đếm 2 phút
       setCanResend(false);

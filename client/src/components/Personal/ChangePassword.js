@@ -3,7 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
-
+import { REST_API_URL } from "../../data";
 const ChangePassword = () => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -15,7 +15,8 @@ const ChangePassword = () => {
 
   // Kiểm tra mật khẩu có ít nhất 8 ký tự, 1 chữ hoa, 1 chữ thường, 1 số, 1 ký tự đặc biệt
   const isValidPassword = (password) => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
     return passwordRegex.test(password);
   };
 
@@ -50,10 +51,10 @@ const ChangePassword = () => {
         ?.split("=")[1];
 
       const res = await axios.post(
-        "http://localhost:8080/change-password",
+        `${REST_API_URL}/change-password`,
         {
           OldPassword: oldPassword,
-          NewPassword: newPassword
+          NewPassword: newPassword,
         },
         {
           headers: {
@@ -87,7 +88,9 @@ const ChangePassword = () => {
   return (
     <div className="container mt-4 text-center">
       <ToastContainer />
-      <h3><strong>Change Password</strong></h3>
+      <h3>
+        <strong>Change Password</strong>
+      </h3>
       <div className="container px-5 my-4">
         <form onSubmit={handleChangePassword}>
           <div className="mb-3 input-group">
@@ -98,11 +101,16 @@ const ChangePassword = () => {
               value={oldPassword}
               onChange={(e) => setOldPassword(e.target.value)}
             />
-            <span className="input-group-text bg-white" onClick={() => setShowOldPassword(!showOldPassword)}>
+            <span
+              className="input-group-text bg-white"
+              onClick={() => setShowOldPassword(!showOldPassword)}
+            >
               <FontAwesomeIcon icon={showOldPassword ? faEye : faEyeSlash} />
             </span>
           </div>
-          {errors.oldPassword && <small className="text-danger">{errors.oldPassword}</small>}
+          {errors.oldPassword && (
+            <small className="text-danger">{errors.oldPassword}</small>
+          )}
 
           <div className="mb-3 input-group">
             <input
@@ -112,11 +120,16 @@ const ChangePassword = () => {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
-            <span className="input-group-text bg-white" onClick={() => setShowNewPassword(!showNewPassword)}>
+            <span
+              className="input-group-text bg-white"
+              onClick={() => setShowNewPassword(!showNewPassword)}
+            >
               <FontAwesomeIcon icon={showNewPassword ? faEye : faEyeSlash} />
             </span>
           </div>
-          {errors.newPassword && <small className="text-danger">{errors.newPassword}</small>}
+          {errors.newPassword && (
+            <small className="text-danger">{errors.newPassword}</small>
+          )}
 
           <div className="mb-3 input-group">
             <input
@@ -126,15 +139,27 @@ const ChangePassword = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
-            <span className="input-group-text bg-white" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-              <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
+            <span
+              className="input-group-text bg-white"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              <FontAwesomeIcon
+                icon={showConfirmPassword ? faEye : faEyeSlash}
+              />
             </span>
           </div>
-          {errors.confirmPassword && <small className="text-danger">{errors.confirmPassword}</small>}
+          {errors.confirmPassword && (
+            <small className="text-danger">{errors.confirmPassword}</small>
+          )}
 
           <div className="d-flex justify-content-center gap-3 mt-3">
-            <button type="submit" className="btn btn-danger rounded-pill px-4 py-3">
-              <h5 className="mb-0"><strong>Save</strong></h5>
+            <button
+              type="submit"
+              className="btn btn-danger rounded-pill px-4 py-3"
+            >
+              <h5 className="mb-0">
+                <strong>Save</strong>
+              </h5>
             </button>
           </div>
         </form>
