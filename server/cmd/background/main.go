@@ -115,7 +115,7 @@ func handlerConnections(c *gin.Context) {
 
 	// Cleanup
 	clientsLock.Lock()
-	delete(clients, string(userID)+userRole)
+	delete(clients, clientKey)
 	clientsLock.Unlock()
 
 	fmt.Println("User disconnected:", userID)
