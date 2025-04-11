@@ -88,7 +88,7 @@ function Chat() {
 
   const getValidSocket = async (userID, userRole) => {
     for (let i = 0; i < sockets.length; i++) {
-      const urlWithUserID = `${sockets[i]}?user_id=${userID}?user_role=${userRole}`;
+      const urlWithUserID = `${sockets[i]}?user_id=${userID}&user_role=${userRole}`;
       const isAvailable = await testWebSocket(urlWithUserID);
       if (isAvailable) return urlWithUserID;
     }
@@ -127,7 +127,9 @@ function Chat() {
       ws.send(JSON.stringify(message));
       setMessages((prev) => [...prev, message]);
       setInput("");
+      console.log("Message sented", message);
     }
+    console.log("Message not sent");
   };
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);

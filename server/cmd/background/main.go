@@ -49,9 +49,9 @@ type Client struct {
 
 type Message struct {
 	SenderID     int    `json:"sender_id"`
-	SenderRole   string `json:"receiver_role"`
+	SenderRole   string `json:"sender_role"`
 	ReceiverID   int    `json:"receiver_id"`
-	ReceiverRole string `json:"sender_role"`
+	ReceiverRole string `json:"receiver_role"`
 	Content      string `json:"content"`
 }
 
@@ -87,7 +87,8 @@ func handlerConnections(c *gin.Context) {
 	}
 
 	clientsLock.Lock()
-	clients[userID] = client
+	clientKey := fmt.Sprintf("%d:%s", userID, userRole)
+	clients[clientKey] = client
 	clientsLock.Unlock()
 
 	fmt.Println("User connected:", userID)
@@ -104,7 +105,8 @@ func handlerConnections(c *gin.Context) {
 
 		// Gửi cho người nhận
 		clientsLock.Lock()
-		if receiver, ok := clients[string(msg.ReceiverID)+msg.ReceiverRole]; ok {
+		receiverKey := fmt.Sprintf("%d:%s", msg.ReceiverID, msg.ReceiverRole)
+		if receiver, ok := clients[receiverKey]; ok {
 			data, _ := json.Marshal(msg)
 			receiver.Conn.WriteMessage(websocket.TextMessage, data)
 		}
