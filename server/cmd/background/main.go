@@ -24,6 +24,8 @@ func main() {
 		AllowOrigins: []string{
 			"http://localhost:3000",
 			"http://100.102.105.126:3000",
+			"http://192.168.16.55:3000",
+			"http://127.0.0.1:3000",
 		}, AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
@@ -40,19 +42,21 @@ func main() {
 // WebSocket
 
 type Client struct {
-	UserID int
-	Conn   *websocket.Conn
+	UserID   int
+	UserRole string
+	Conn     *websocket.Conn
 }
 
 type Message struct {
-	SenderID   int    `json:"sender_id"`
-	ReceiverID int    `json:"receiver_id"`
-	Content    string `json:"content"`
-	SenderName string `json:"sender_name"`
+	SenderID     int    `json:"sender_id"`
+	SenderRole   string `json:"receiver_role"`
+	ReceiverID   int    `json:"receiver_id"`
+	ReceiverRole string `json:"sender_role"`
+	Content      string `json:"content"`
 }
 
 var (
-	clients     = make(map[int]*Client) // userID → client
+	clients     = make(map[string]*Client) // userID → client
 	clientsLock sync.Mutex
 	upgrader    = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool { return true },
@@ -67,6 +71,8 @@ func handlerConnections(c *gin.Context) {
 		return
 	}
 
+	userRole := c.Query("user_role") // Lấy từ query, bạn có thể dùng cookie/session
+
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		fmt.Println("WebSocket upgrade failed:", err)
@@ -75,8 +81,9 @@ func handlerConnections(c *gin.Context) {
 	defer conn.Close()
 
 	client := &Client{
-		UserID: userID,
-		Conn:   conn,
+		UserID:   userID,
+		UserRole: userRole,
+		Conn:     conn,
 	}
 
 	clientsLock.Lock()
@@ -93,11 +100,11 @@ func handlerConnections(c *gin.Context) {
 			break
 		}
 
-		fmt.Printf("Received from %d to %d: %s\n", msg.SenderID, msg.ReceiverID, msg.Content)
+		fmt.Printf("Received from %d (%s) to %d (%s): %s\n", msg.SenderID, msg.SenderRole, msg.ReceiverID, msg.ReceiverRole, msg.Content)
 
 		// Gửi cho người nhận
 		clientsLock.Lock()
-		if receiver, ok := clients[msg.ReceiverID]; ok {
+		if receiver, ok := clients[string(msg.ReceiverID)+msg.ReceiverRole]; ok {
 			data, _ := json.Marshal(msg)
 			receiver.Conn.WriteMessage(websocket.TextMessage, data)
 		}
@@ -106,7 +113,7 @@ func handlerConnections(c *gin.Context) {
 
 	// Cleanup
 	clientsLock.Lock()
-	delete(clients, userID)
+	delete(clients, string(userID)+userRole)
 	clientsLock.Unlock()
 
 	fmt.Println("User disconnected:", userID)

@@ -4,7 +4,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { useNavigate } from "react-router-dom";
 import "./Chat.css";
 import axios from "axios";
-
+import { REST_API_URL } from "../../data";
 function Chat() {
   const [input, setInput] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -17,23 +17,26 @@ function Chat() {
   ]);
   const [isConnected, setIsConnected] = useState(false);
   const [receiverId, setReceiverId] = useState(null); // người nhận
+  const [receiverRole, setReceiverRole] = useState(null); // người nhận
 
   const navigate = useNavigate();
 
   const people = [
-    { ID: 1, Name: "Tran Vu Thanh Lam" },
-    { ID: 2, Name: "Alice" },
-    { ID: 3, Name: "Bob" },
-    { ID: 4, Name: "Nguyen Thuy Chi" },
+    { ID: 1, Name: "Tran Vu Thanh Lam", Role: "customer" },
+    { ID: 2, Name: "Alice", Role: "customer" },
+    { ID: 3, Name: "Bob", Role: "owner" },
+    { ID: 4, Name: "Nguyen Thuy Chi", Role: "customer" },
+    { ID: 1, Name: "Tran Vu Thanh Lam", Role: "owner" },
   ];
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/me", {
+        const res = await axios.get(`${REST_API_URL}/me`, {
           withCredentials: true,
         });
         const currentUser = res.data.user;
+        console.log("Thông tin user:", res.data.user);
         setUser(currentUser);
         console.log("Bắt đầu kết nối WebSocket với user ID:", res.data.user);
       } catch (error) {
@@ -51,7 +54,7 @@ function Chat() {
     let socket;
 
     const connectWebSocket = async () => {
-      const validSocketUrl = await getValidSocket(user.Id);
+      const validSocketUrl = await getValidSocket(user.Id, user.Role);
       if (validSocketUrl) {
         socket = new WebSocket(validSocketUrl);
         setIsConnected(true);
@@ -61,8 +64,10 @@ function Chat() {
           console.log("📩 Received WebSocket message:", event.data); // ← log để kiểm tra
           const newMessage = JSON.parse(event.data);
           if (
-            newMessage.sender_id === user.Id ||
-            newMessage.receiver_id === user.Id
+            (newMessage.sender_id === user.Id &&
+              newMessage.sender_role === user.Role) ||
+            (newMessage.receiver_id === user.Id &&
+              newMessage.receiver_role === user.Role)
           ) {
             setMessages((prev) => [...prev, newMessage]);
           }
@@ -81,9 +86,9 @@ function Chat() {
     };
   }, [user.Id]); // 🔁 Theo dõi user.Id
 
-  const getValidSocket = async (userID) => {
+  const getValidSocket = async (userID, userRole) => {
     for (let i = 0; i < sockets.length; i++) {
-      const urlWithUserID = `${sockets[i]}?user_id=${userID}`;
+      const urlWithUserID = `${sockets[i]}?user_id=${userID}?user_role=${userRole}`;
       const isAvailable = await testWebSocket(urlWithUserID);
       if (isAvailable) return urlWithUserID;
     }
@@ -106,13 +111,17 @@ function Chat() {
       input,
       ws,
       userID: user.Id,
+      userRole: user.Role,
       receiverId,
+      receiverRole,
     });
 
     if (input.trim() !== "" && ws && user?.Id && receiverId) {
       const message = {
         sender_id: user.Id,
+        sender_role: user.Role,
         receiver_id: receiverId,
+        receiver_role: receiverRole,
         content: input,
       };
       ws.send(JSON.stringify(message));
@@ -152,20 +161,23 @@ function Chat() {
               <ul>
                 {people.map((person) => (
                   <li
-                    key={person.ID}
+                    key={`${person.ID}-${person.Role}`}
                     className={`active-user p-1 rounded  d-flex justify-content-start align-items-center mt-1 ${
-                      receiverId === person.ID
+                      receiverId === person.ID && receiverRole === person.Role
                         ? "bg-primary text-white"
                         : "bg-white text-dark"
                     }  `}
-                    onClick={() => setReceiverId(person.ID)}
+                    onClick={() => {
+                      setReceiverId(person.ID);
+                      setReceiverRole(person.Role);
+                    }}
                     style={{ cursor: "pointer" }}
                   >
                     <div
                       className="bg-success rounded-circle mx-3 shadow-sm"
                       style={{ height: "12px", width: "12px" }}
                     ></div>
-                    {person.Name || "Me"}
+                    {person.Name + " (" + person.Role + ") "}
                   </li>
                 ))}
               </ul>
@@ -223,7 +235,7 @@ function Chat() {
             <div
               key={index}
               className={`chat-message rounded-pill px-3 py-1 mb-1 fs-6 ${
-                msg.sender_id === user.Id
+                msg.sender_id === user.Id && msg.sender_role === user.Role
                   ? "bg-primary text-white align-self-end"
                   : "bg-danger text-white align-self-start"
               }`}

@@ -22,45 +22,36 @@ type PinData struct {
 var pinStorage = sync.Map{}
 
 func Login(context *gin.Context) {
-	_, err := context.Cookie("token")
-	if err != nil {
-		var u models.Account
-		err = context.ShouldBindBodyWithJSON(&u)
-		if err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
-			return
-		}
-		err = u.Login()
-		if err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-		// create token
-		token, err := utils.GenerateToken(u.Id, u.Email, u.Role)
-		if err != nil {
-			context.JSON(http.StatusUnauthorized, gin.H{"message": "Can't generate token"})
-			return
-		}
-
-		// save token into cookie
-		// context.SetCookie("token", token, 7200, "/", "localhost", false, true)
-
-		context.SetCookie("token", token, 7200, "/", "gmo-h110m-h.tail04954f.ts.net", false, true)
-		token, err = context.Cookie("token")
-		if err != nil {
-			context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
-			// context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			context.Abort()
-			return
-		}
-
-		context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!", "tokens": token, "role": u.Role})
-		// context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!"})
-	} else {
+	if _, err := context.Cookie("token"); err == nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "You have already logged in"})
-
+		return
 	}
 
+	var u models.Account
+	if err := context.ShouldBindJSON(&u); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
+		return
+	}
+
+	if err := u.Login(); err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		return
+	}
+
+	token, err := utils.GenerateToken(u.Id, u.Email, u.Role)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Can't generate token"})
+		return
+	}
+
+	// Chỉ set 1 cookie
+	context.SetCookie("token", token, 7200, "/", "", false, true)
+
+	context.JSON(http.StatusOK, gin.H{
+		"message": "Login successfully !!",
+		"token":   token,
+		"role":    u.Role,
+	})
 }
 
 func ResendPin(context *gin.Context) {
@@ -124,7 +115,7 @@ func GetUserProfile(c *gin.Context) {
 func Logout(c *gin.Context) {
 	// Xóa cookie bằng cách đặt giá trị rỗng và thời gian hết hạn đã qua
 	c.SetCookie("token", "", -1, "/", "localhost", false, true)
-
+	c.SetCookie("token", "", -1, "/", "192.168.16.55", false, true)
 	// Trả về phản hồi JSON
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }
