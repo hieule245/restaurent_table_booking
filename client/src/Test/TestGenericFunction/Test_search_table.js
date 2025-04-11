@@ -13,7 +13,7 @@ function TestSearchTable() {
     const resId = restaurantId.trim() === "" ? 2 : restaurantId;
 
     // Xây dựng URL endpoint dựa trên restaurantId
-    const url = `http://localhost:8080/owners/1/restaurants/${resId}/tables/available`;
+    const url = `${REST_API_URL}/owners/1/restaurants/${resId}/tables/available`;
 
     // Tạo object chứa các tham số query (các trường có thể để trống)
     const params = {

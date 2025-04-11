@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import avatar from "../../assets/image/avatar.jpeg";
 import { REST_API_URL } from "../../data";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 const NavBar = () => {
   // STATE FOR HAMBURGER MENU
   const [nav, setNav] = useState(false);
@@ -73,9 +75,19 @@ const NavBar = () => {
 
   return (
     <>
-      <header className="shadow-sm" ref={navRef}>
-        <nav className="container">
+      <header className="shadow-sm p-0" ref={navRef}>
+        <nav className="container-fluid px-4">
           <div className="row justify-content-between align-items-center">
+            <div className="col-1 back-icon">
+              <div className="border p-2 bg-light rounded-circle d-flex justify-content-center align-items-center">
+                <FontAwesomeIcon
+                  onClick={() => navigate(-1)}
+                  icon={faArrowLeft}
+                  className="arrow-icon"
+                />
+              </div>
+            </div>
+            <div className="col-1"></div>
             <div className="col-3 row">
               <FaUtensils className="nav-icon text-white fs-1 col-2" />
               <span className="fw-bolder text-white  fs-3 col-10 ">
@@ -87,7 +99,7 @@ const NavBar = () => {
                 </a>
               </span>
             </div>
-            <div className="col-8 row">
+            <div className="col-6 row">
               <div className="d-flex justify-content-start align-items-center">
                 <a
                   className="mt-1 fw-bold text-white fs-5 text-decoration-none"
@@ -97,7 +109,7 @@ const NavBar = () => {
                 </a>
               </div>
             </div>
-            <div className="pt-3 col-1">
+            <div className="col-1 pt-3 ">
               <ul className="d-flex align-items-center">
                 {/* Authorize */}
                 {user ? (
@@ -108,6 +120,7 @@ const NavBar = () => {
                           type="button"
                           className="rounded-circle border-2 border-danger"
                           data-bs-toggle="dropdown"
+                          style={{ height: "60px", width: "60px" }}
                         >
                           <img
                             src={avatar || "/default-avatar.png"}
@@ -173,6 +186,7 @@ const NavBar = () => {
                 />
               </div>
             </div>
+            <div className="col"></div>
           </div>
         </nav>
       </header>

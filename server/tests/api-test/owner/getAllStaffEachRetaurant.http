@@ -1,3 +1,3 @@
-GET http://localhost:8080/owners/:owner_id/1/staffs
+GET ${REST_API_URL}/owners/:owner_id/1/staffs
 Content-Type: application/json
 Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImdtYWlsIjoiaGlldWxlMjQ1MjAwM0BnbWFpbC5jb20iLCJyb2xlIjoib3duZXIiLCJleHAiOjE3NDMwNjY4NDF9.f42UnXk6CzEQ-Dm2EE1Y7Cv26JJm1o66Vm1zEE3Zn24

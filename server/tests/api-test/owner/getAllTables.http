@@ -1,4 +1,4 @@
-PUT http://localhost:8080/owners/:owner_id/restaurants/58/tables/1
+PUT ${REST_API_URL}/owners/:owner_id/restaurants/58/tables/1
 Content-Type: application/json
 Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImdtYWlsIjoiaGlldWxlMjQ1MjAwM0BnbWFpbC5jb20iLCJyb2xlIjoib3duZXIiLCJleHAiOjE3NDMzOTczNTR9.1jIltGu-n9JSfJjQmH_yUos_4PD2-rz6qv4Qb422-K4
 

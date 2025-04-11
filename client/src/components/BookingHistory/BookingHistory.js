@@ -14,7 +14,7 @@ const BookingHistory = () => {
   const [bookings, setBookings] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const navigate = useNavigate();
-  
+
   // Fetch user info
   const [user, setUser] = useState({});
   useEffect(() => {
@@ -28,7 +28,7 @@ const BookingHistory = () => {
   useEffect(() => {
     if (!user?.Id) return;
     axios
-      .get(`http://localhost:8080/booking-history?user_id=${user.Id}`, {
+      .get(`${REST_API_URL}/booking-history?user_id=${user.Id}`, {
         withCredentials: true,
       })
       .then((res) => setBookings(res.data.bookings))
@@ -60,7 +60,7 @@ const BookingHistory = () => {
 
     axios
       .put(
-        `http://localhost:8080/reservation/${selectedBooking.id}`,
+        `${REST_API_URL}/reservation/${selectedBooking.id}`,
         updatedBooking,
         { withCredentials: true }
       )
@@ -89,7 +89,7 @@ const BookingHistory = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`http://localhost:8080/reservation/${booking.id}`, {
+          .delete(`${REST_API_URL}/reservation/${booking.id}`, {
             withCredentials: true,
           })
           .then(() => {
@@ -111,6 +111,14 @@ const BookingHistory = () => {
     });
   };
 
+  const [selectedMonth, setSelectedMonth] = useState("All");
+  const filteredBookings =
+    selectedMonth === "All"
+      ? bookings
+      : bookings.filter((booking) => {
+          const month = new Date(booking.book_date).getMonth() + 1;
+          return String(month).padStart(2, "0") === selectedMonth;
+        });
   return (
     <RestaurantLayout>
       <div className="booking-history-container">
@@ -118,6 +126,21 @@ const BookingHistory = () => {
         <h2 className="booking-history-title text-danger fs-1">
           Booking History
         </h2>
+        <div className="d-flex align-items-center mb-3 gap-2">
+          <label className="fw-bold">Filter theo tháng:</label>
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="form-select w-auto"
+          >
+            <option value="All">Tất cả</option>
+            {[...Array(12)].map((_, i) => (
+              <option key={i} value={String(i + 1).padStart(2, "0")}>
+                Tháng {i + 1}
+              </option>
+            ))}
+          </select>
+        </div>
 
         {user ? (
           <p className="booking-history-welcome">
@@ -140,10 +163,12 @@ const BookingHistory = () => {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Book Date</th>
+                  <th>Day</th>
+                  <th>Month</th>
+                  <th>Year</th>
                   <th>Time Start</th>
                   <th>Time End</th>
-                  <th>Seats</th>
+                  <th style={{ width: "10%" }}>Number of customer</th>
                   <th>Table ID</th>
                   <th>Price ($)</th>
                   <th>Status</th>
@@ -151,7 +176,7 @@ const BookingHistory = () => {
                 </tr>
               </thead>
               <tbody>
-                {bookings.map((booking, index) => (
+                {filteredBookings.map((booking, index) => (
                   <BookingRow
                     key={booking.id}
                     booking={booking}

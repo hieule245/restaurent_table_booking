@@ -1,4 +1,4 @@
-POST http://localhost:8080/owners/2/58/staffs/:staff_id
+POST ${REST_API_URL}/owners/2/58/staffs/:staff_id
 Content-Type: application/json
 Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImdtYWlsIjoiaGlldWxlMjQ1MjAwM0BnbWFpbC5jb20iLCJyb2xlIjoib3duZXIiLCJleHAiOjE3NDMzOTczNTR9.1jIltGu-n9JSfJjQmH_yUos_4PD2-rz6qv4Qb422-K4
 

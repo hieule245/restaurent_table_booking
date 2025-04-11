@@ -1,4 +1,4 @@
-POST http://localhost:8080/verify-pin
+POST ${REST_API_URL}/verify-pin
 content-Type: application/json
 
 {

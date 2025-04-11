@@ -4,7 +4,9 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { REST_API_URL } from "../../data";
-const BookingCalendar = ({ table }) => {
+const BookingCalendar = ({ table, restaurant }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
   // Lấy thông tin thời gian hiện tại
   const today = new Date();
   const currentYear = today.getFullYear();
@@ -20,7 +22,6 @@ const BookingCalendar = ({ table }) => {
 
   // Lấy tham số từ URL
   const { table_id, restaurant_id } = useParams();
-console.log("restaurant id", restaurant_id)
   // Khởi tạo state cho tháng và ngày được chọn
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
@@ -33,11 +34,21 @@ console.log("restaurant id", restaurant_id)
     (_, i) => i + 1
   );
 
-  // Tạo danh sách các khung giờ, từ 7:00 đến 21:00 (15 khung giờ, mỗi khung 2 tiếng)
-  const timeSlots = Array.from({ length: 15 }, (_, i) => {
-    const startHour = i + 7;
-    return `${startHour}:00 - ${startHour + 2}:00`;
-  });
+  const [numberOfCustomer, setNumberOfCustomer] = useState(table.Seat);
+
+  const generateTimeSlots = () => {
+    const startHour = parseInt(restaurant?.Started?.split(":")[0]) || 8;
+    const endHour = parseInt(restaurant?.Ended?.split(":")[0]) || 22;
+
+    const slots = [];
+    for (let hour = startHour; hour + 2 <= endHour; hour += 2) {
+      const format = (h) => String(h).padStart(2, "0") + ":00";
+      slots.push(`${format(hour)} - ${format(hour + 2)}`);
+    }
+    return slots;
+  };
+
+  const timeSlots = generateTimeSlots();
 
   // Fetch thông tin user
   useEffect(() => {
@@ -64,7 +75,7 @@ console.log("restaurant id", restaurant_id)
     const fetchBookings = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8080/restaurants/${restaurant_id}/tables/${table_id}/booked-times`,
+          `${REST_API_URL}/restaurants/${restaurant_id}/tables/${table_id}/booked-times`,
           {
             params: {
               book_date: `${currentYear}-${selectedMonth}-${selectedDay}`,
@@ -74,7 +85,6 @@ console.log("restaurant id", restaurant_id)
 
         const reservations = response.data.reservations || [];
         // Lọc chỉ lấy những reservation có status khác 0
-        console.log(response.data.reservations);
         const validReservations = reservations.filter(
           (reservation) => reservation.status !== "0"
         );
@@ -84,7 +94,6 @@ console.log("restaurant id", restaurant_id)
           const endHour = reservation.time_end.slice(0, 5); // "12:00"
           return `${startHour} - ${endHour}`;
         });
-        console.log(formattedBookings);
         // Lưu kết quả cho ngày được chọn
         setPreBooked({
           [`${selectedMonth}-${selectedDay}`]: formattedBookings,
@@ -120,7 +129,7 @@ console.log("restaurant id", restaurant_id)
 
   // Hàm xác nhận đặt bàn
 
-  const confirmBooking = async () => {
+  const ConfirmBooking = async () => {
     if (!selectedDay || !hasBooking) return;
 
     try {
@@ -135,29 +144,26 @@ console.log("restaurant id", restaurant_id)
         setUser(null);
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Lỗi khi lấy thông tin user:", error);
       setUser(null);
     }
-    console.log("User", user);
 
     const formattedMonth = String(selectedMonth).padStart(2, "0");
     const formattedDay = String(selectedDay).padStart(2, "0");
     const book_date = `${currentYear}-${formattedMonth}-${formattedDay}`;
 
-    const numberOfCustomer = "4"; // Hoặc lấy từ input người dùng
     const price = 0.0;
     const status = 1;
     const formatTime = (hour) => String(hour).padStart(2, "0");
-
     // Tạo dữ liệu đặt bàn từ các khung giờ được chọn
-    const bookingData = selectedSlots.map((timeSlot) => {
+    let bookingData = selectedSlots.map((timeSlot) => {
       const [startHour] = timeSlot.split(":");
       const formattedStartHour = formatTime(startHour);
       const formattedEndHour = formatTime(parseInt(startHour) + 2);
       return {
         customer_id: user?.Id,
         table_id: parseInt(table_id),
-        numberOfCustomer,
         book_date,
         time_start: `${formattedStartHour}:00:00`,
         time_end: `${formattedEndHour}:00:00`,
@@ -165,17 +171,16 @@ console.log("restaurant id", restaurant_id)
         price,
         customer_email: user?.Email,
         status,
+        numberOfCustomer: numberOfCustomer,
       };
     });
-
-    console.log("Booking data", bookingData);
 
     // Hiển thị hộp thoại xác nhận trước khi gửi request
     Swal.fire({
       title: "Xác nhận đặt bàn",
       html: `
       <hr>
-        <div style="display: flex; justify-content: space-between; text-align: left; gap: 20px; padding: 30px">
+        <div style="display: flex; justify-content: space-between; text-align: left; gap: 10px; padding: 20px">
           <div>
             <p><strong>User Name :</strong> </p>
             <p><strong>Email Address :</strong> </p>
@@ -184,7 +189,7 @@ console.log("restaurant id", restaurant_id)
             <p><strong>Time Start :</strong> </p>
             <p><strong>Time End :</strong> </p>
             <p><strong>Number of Seats :</strong> </p>
-            
+            <p><strong>Number of Customer :</strong> </p>
           </div>
           <div>
             <p>${user.Name}</p>
@@ -193,7 +198,18 @@ console.log("restaurant id", restaurant_id)
             <p>${book_date}</p>
             <p>${bookingData[0].time_start}</p>
             <p>${bookingData[0].time_end}</p>
-            <p>${numberOfCustomer}</p>
+            <p>${table.seats}</p>
+            <p>
+              <input 
+                id="numCustomerInput"
+                type="number"
+                min="${table.seats - 1}"
+                max="${table.seats + 1}"
+                value="${numberOfCustomer}"
+                placeholder="${table.seats}"
+                style="width: 60px; padding: 3px; border: 1px solid #ccc; border-radius: 4px;"
+              />
+            </p>
           </div>
         </div>
         <hr>
@@ -205,14 +221,34 @@ console.log("restaurant id", restaurant_id)
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
+          const numInput = document.getElementById("numCustomerInput");
+
+          const newNum = parseInt(numInput?.value);
+
+          const min = table.seats - 1;
+          const max = table.seats + 1;
+
+          if (isNaN(newNum) || newNum < min || newNum > max) {
+            return Swal.fire({
+              title: "Lỗi!",
+              text: `Số lượng khách phải từ ${min} đến ${max}`,
+              icon: "error",
+            });
+          }
+
+          setNumberOfCustomer(newNum); // cập nhật state nếu bạn cần
+
+          bookingData[0].numberOfCustomer = newNum.toString();
+
           // Gửi request đặt bàn
+          setIsLoading(true);
           await axios.post(
-            `http://localhost:8080/restaurants/${restaurant_id}/bookings`,
+            `${REST_API_URL}/restaurants/${restaurant_id}/bookings`,
             bookingData[0],
             { withCredentials: true }
           );
-
           // Hiển thị thông báo thành công
+          setIsLoading(false);
           Swal.fire({
             title: "Thành công!",
             text: "Đặt bàn thành công!",
@@ -225,6 +261,7 @@ console.log("restaurant id", restaurant_id)
           setHasBooking(false);
           setSelectedDay(null);
         } catch (error) {
+          setIsLoading(false);
           Swal.fire({
             title: "Lỗi!",
             text: error.response?.data?.error || "Đặt bàn thất bại!",
@@ -238,6 +275,26 @@ console.log("restaurant id", restaurant_id)
   return (
     <div>
       <div className="row bg-white m-2 rounded text-dark">
+        {isLoading && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              zIndex: 9999,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <div className="spinner-border text-light" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        )}
         {/* Danh sách tháng */}
         <div className="col-md-1 border-end" style={{ height: "100vh" }}>
           <div className="mt-4">
@@ -246,7 +303,7 @@ console.log("restaurant id", restaurant_id)
               {months.map((month) => (
                 <button
                   key={month}
-                  className={`btn btn-sm ${
+                  className={`btn btn-sm fw-bold ${
                     selectedMonth === month
                       ? "btn-primary"
                       : "btn-outline-secondary"
@@ -266,15 +323,14 @@ console.log("restaurant id", restaurant_id)
           <div className="mt-4">
             <h5 className="text-center fw-bold">Date</h5>
             <hr />
-            <div className="d-flex flex-wrap gap-2 justify-content-center mt-2 w-100">
+            <div className="d-flex flex-wrap justify-content-center mt-2 w-100 shadow py-4 rounded">
               {days.map((day) => (
                 <button
                   key={day}
-                  className={`btn btn-sm ${
-                    selectedDay === day
-                      ? "btn-success text-white"
-                      : "btn-outline-secondary"
+                  className={`border d-flex justify-content-center align-items-center fs-6 ${
+                    selectedDay === day ? "bg-success text-white" : "bg-light"
                   }`}
+                  style={{ width: "40px", height: "40px" }}
                   onClick={() => setSelectedDay(day)}
                   disabled={selectedMonth === currentMonth && day < currentDay} // Không cho chọn ngày trước
                 >
@@ -284,11 +340,13 @@ console.log("restaurant id", restaurant_id)
             </div>
             {/* Danh sách khung giờ */}
             {selectedDay && (
-              <div className="p-4">
+              <div className="p-4 mt-5">
                 <h5 className="text-center fw-bold">
                   Chọn khung giờ cho ngày {selectedDay}/{selectedMonth}
                 </h5>
-                <div className="d-flex flex-wrap gap-2 justify-content-center mt-2 p-5 rounded">
+                <hr />
+
+                <div className="d-flex flex-wrap justify-content-center mt-2 p-5 rounded shadow">
                   {timeSlots.map((timeSlot) => {
                     const startHour = parseInt(timeSlot.split(":")[0]);
                     const isPastTime =
@@ -301,18 +359,19 @@ console.log("restaurant id", restaurant_id)
                     const isPreBooked = preBookedForDay.includes(timeSlot);
                     const isSelected = selectedSlots.includes(timeSlot);
 
-                    const buttonClass = `btn btn-sm ${
+                    const buttonClass = `border ${
                       isPreBooked
-                        ? "btn-secondary text-white" // Đã đặt từ backend
+                        ? "bg-secondary text-white" // Đã đặt từ backend
                         : isSelected
-                        ? "btn-outline-danger bg-danger text-white" // Đang được chọn
-                        : "btn-outline-secondary"
+                        ? "bg-danger text-white" // Đang được chọn
+                        : "bg-white"
                     }`;
 
                     return (
                       <button
                         key={timeSlot}
-                        className={buttonClass}
+                        className={buttonClass + " fs-6"}
+                        style={{ width: "120px", height: "40px" }}
                         onClick={() => toggleBooking(timeSlot)}
                         disabled={isPastTime || isPreBooked}
                       >
@@ -327,7 +386,7 @@ console.log("restaurant id", restaurant_id)
             {hasBooking && (
               <div className="text-center mt-4">
                 <button
-                  onClick={confirmBooking}
+                  onClick={ConfirmBooking}
                   className="btn btn-primary fw-bold"
                 >
                   Xác nhận đặt bàn

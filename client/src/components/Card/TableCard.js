@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "./TableCard.styles.css"; // Import CSS riêng
 import axios from "axios";
+import { REST_API_URL } from "../../data"; // Đường dẫn API
+
 const TableCard = ({ restaurant_id, table, onUpdate }) => {
   const [showModal, setShowModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -27,7 +29,7 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
   const confirmSave = async () => {
     try {
       const response = await axios.put(
-        `http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables/${table.id}`,
+        `${REST_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables/${table.id}`,
         formData,
         { withCredentials: true }
       );
@@ -47,8 +49,8 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
 
   const confirmDelete = async () => {
     try {
-      const response = await axios.delete(
-        `http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables/${table.id}`,
+      await axios.delete(
+        `${REST_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables/${table.id}`,
         { withCredentials: true }
       );
       setShowConfirmModal(false);
