@@ -66,7 +66,7 @@ const RegisterPage = () => {
       validationErrors.password = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
     }
     if (!confirmPassword) {
-      validationErrors.confirmpassword = "Confirm password is required.";
+      validationErrors.confirmPassword = "Confirm password is required.";
     }
     if (password !== confirmPassword) {
       validationErrors.confirmPassword = "Passwords do not match.";
@@ -129,7 +129,6 @@ const RegisterPage = () => {
                     className="form-control"
                     placeholder="Email"
                     value={email}
-                    required
                     onChange={(e) => setEmail(e.target.value)}
                   />
                   {errors.email && (

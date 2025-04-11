@@ -190,4 +190,23 @@ func createTable() {
 	if err != nil {
 		panic(err)
 	}
+
+	revenuesAdminQuery := `
+	CREATE TABLE IF NOT EXISTS revenueAdmin(
+	id INTEGER PRIMARY KEY AUTO_INCREMENT,
+	weekly_revenues FLOAT NOT NULL,
+	new_acc INTEGER NOT NULL,
+	penal_acc INTEGER NOT NULL,
+	order_done INTEGER NOT NULL,
+	order_cancel INTEGER NOT NULL,
+	order_customer INTEGER NOT NULL,
+	using_customer INTEGER NOT NULL,
+	admin_id INTEGER UNIQUE NOT NULL,
+	FOREIGN KEY (admin_id) REFERENCES admin(id)
+	)
+	`
+	_, err = DB.Exec(revenuesAdminQuery)
+	if err != nil {
+		panic(err)
+	}
 }

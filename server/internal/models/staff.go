@@ -98,6 +98,23 @@ func LockStaff(ownerId, id int64) error {
 	return nil
 }
 
+func LockStaffByAdmin(id int64) error {
+	// Khóa nhân viên
+	query := `
+	UPDATE staffs SET status = 'ban'
+	WHERE id = ?
+	`
+
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id)
+	return nil
+}
+
 func UnlockStaff(ownerId, id int64) error {
 	// Check quyền
 	err := CheckPermissionsToLock(ownerId, id)
@@ -112,6 +129,22 @@ func UnlockStaff(ownerId, id int64) error {
 		panic(err)
 		return err
 	}
+
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id)
+	return nil
+}
+func UnlockStaffByAdmin(id int64) error {
+	// Khóa nhân viên
+	query := `
+	UPDATE staffs SET status = 'active'
+	WHERE id = ?
+	`
 
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
@@ -236,18 +269,27 @@ func GetReservationByRestaurantID(resId int64) ([]Reservations, error) {
 	var res []Reservations
 	query := `
 	SELECT
-	b.id, 
-    t.name,
-    c.name,
+    b.id AS reservation_id,
+    t.name AS table_name,
+    CASE 
+        WHEN b.customer_id IS NOT NULL THEN c.name
+        ELSE s.name
+    END AS user_name,
+    CASE 
+        WHEN b.customer_id IS NOT NULL THEN 'customer'
+        ELSE 'staff'
+    END AS user_type,
     b.book_date,
-    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.time_end, b.time_start)))),
-    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.actual_end, b.time_start)))),
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.time_end, b.time_start)))) AS expected_duration,
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.actual_end, b.time_start)))) AS actual_duration,
     b.price,
-	b.status
+    b.status
 	FROM reservations b
 	JOIN tables t ON b.table_id = t.id
 	JOIN restaurants r ON t.restaurant_id = r.id
-	JOIN customers c On c.gmail = b.customer_email
+	JOIN owners o ON r.owner_id = o.id
+	LEFT JOIN customers c ON b.customer_id = c.id
+	LEFT JOIN staffs s ON b.staff_id = s.id
 	WHERE r.id = ?;
 	`
 
@@ -261,7 +303,7 @@ func GetReservationByRestaurantID(resId int64) ([]Reservations, error) {
 
 	for rows.Next() {
 		var book Reservations
-		err = rows.Scan(&book.Id, &book.TableName, &book.CustomerName, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status)
+		err = rows.Scan(&book.Id, &book.TableName, &book.UserBook, &book.RoleBook, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status)
 		if err != nil {
 			fmt.Println("bok 2- ", err)
 			return nil, err

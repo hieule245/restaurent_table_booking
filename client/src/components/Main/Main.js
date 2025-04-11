@@ -7,7 +7,7 @@ import RegisterPage from "../authentication/Register/Register";
 import ForgotPassword from "../authentication/ForgotPassword/ForgotPassword";
 import CheckPin from "../authentication/ForgotPassword/CheckPin";
 import ResetPassword from "../authentication/ForgotPassword/ResetPassword";
-import Admin from "../Admin/Admin";
+import DashboardAdmin from "../../pages/Admin/Dashboard";
 import PersonalPage from "../Personal/Personal";
 import Restaurants from "../../pages/Restaurant/RestaurantPage"
 import RestaurantDetailPage from "../../pages/Restaurant/Detail/DetailRestaurantPage";
@@ -17,6 +17,9 @@ import RestaurantOwnerDetailPage from "../../components/Restaurants/Detail/Detai
 import BookingHistory from "../BookingHistory/BookingHistory";
 import RestaurantPage from "../../pages/Staff/Restaurant/Staff";
 import Reservation from "../../pages/Staff/HistoryReservation/HistoryReservationPage";
+import AccountList from "../../pages/Admin/AccountList"
+import RestaurantList from "../../pages/Admin/Restaurants"
+import Revenues from "../../pages/Admin/Revenues"
 const Main = () => {
   return (
     <Routes future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -31,7 +34,10 @@ const Main = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Admin */}
-      <Route path="/admin" element={<Admin />} />
+      <Route path="/admin/dashboard" element={<DashboardAdmin />} />
+      <Route path="/admin/accounts" element={<AccountList />} />
+      <Route path="/admin/restaurants" element={<RestaurantList />} />
+      <Route path="/admin/revenues" element={<Revenues />} />
       <Route path="/personal" element={<PersonalPage />} />
 
       {/* Restaurant */}

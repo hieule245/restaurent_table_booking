@@ -18,7 +18,7 @@ const LoginPage = () => {
     (Role) => {
       console.log(Role)
       if (Role === "admin") {
-        navigate("/admin");
+        navigate("/admin/dashboard");
       } else if (Role === "owner") {
         navigate("/owner");
       } else if (Role === "staff") {
@@ -93,7 +93,7 @@ const LoginPage = () => {
               const userRole = res.data.user.Role;
               console.log(userRole);
               if (userRole === "admin") {
-                navigate("/admin");
+                navigate("/admin/dashboard");
               } else if (userRole === "owner") {
                 navigate("/owner");
               } else if (userRole === "staff") {

@@ -15,6 +15,14 @@ const BookingHistory = () => {
   const [bookings, setBookings] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // phân trang
+  const itemsPerPage = 10;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = bookings.slice(indexOfFirstItem, indexOfLastItem);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Fetch user info 
   useEffect(() => {
@@ -127,7 +135,7 @@ const BookingHistory = () => {
 
   return (
     <RestaurantLayout>
-      <div className="booking-history-container mt-2 pt-5">
+      <div className="booking-history-container mt-2">
         <ToastContainer position="top-right" autoClose={3000} />
         <h2 className="booking-history-title text-danger fs-1">
           Booking History
@@ -141,6 +149,7 @@ const BookingHistory = () => {
         ) : (
           <p className="booking-history-loading">Loading user info...</p>
         )}
+        
         {(Array.isArray(bookings) && bookings.length === 0) ? (
           <p className="booking-history-no">No bookings found.</p>
         ) : (bookings === null || bookings === undefined || (Array.isArray(bookings) && bookings.length === 0)) ? (
@@ -167,7 +176,7 @@ const BookingHistory = () => {
                 </tr>
               </thead>
               <tbody>
-                {bookings?.map((booking, index) => (
+                {currentItems?.map((booking, index) => (
                   <BookingRow
                     key={booking.id}
                     booking={booking}
@@ -180,7 +189,25 @@ const BookingHistory = () => {
             </table>
           </motion.div>
         )}
-
+        {bookings.length > itemsPerPage && (
+          <div className="pagination-container">
+            <button className="btn btn-outline-secondary me-2" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+              &laquo;
+            </button>
+            {[...Array(Math.ceil(bookings.length / itemsPerPage)).keys()].map(number => (
+              <button
+                key={number + 1}
+                className={`btn ${currentPage === number + 1 ? "btn-dark" : "btn-outline-dark"} mx-1`}
+                onClick={() => paginate(number + 1)}
+              >
+                {number + 1}
+              </button>
+            ))}
+            <button className="btn btn-outline-secondary ms-2" onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(bookings.length / itemsPerPage)}>
+              &raquo;
+            </button>
+          </div>
+        )}
 
         {/* Modal chỉnh sửa booking */}
         <div

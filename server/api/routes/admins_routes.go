@@ -13,18 +13,31 @@ func AdminRoutes(server *gin.Engine) {
 	admin.Use(middlewares.AdminOnly)        // Kiểm tra quyền Admin
 
 	{
+		// Dashboard
+		admin.GET("", services.StaticRevenueByAdmin)
+		admin.GET("/top", services.GetTopRestaurantRevenuesByAdmin)
+
+		// Danh sách người dùng
 		admin.GET("/users", services.AdminGetUsers)
 		admin.GET("/users/:user_id", services.AdminGetUser)
+		admin.POST("/users/:user_id/lock", services.LockAccount)
 
+		// Danh sách chủ nhà hàng
 		admin.GET("/owners", services.AdminGetOwners)
 		admin.GET("/owners/:owner_id", services.AdminGetOwner)
 
+		// Danh sách khách hàng
 		admin.GET("/customers", services.AdminGetCustomers)
 		admin.GET("/customers/:customer_id", services.AdminGetCustomer)
 
+		// Danh sách nhà hàng
 		admin.GET("/restaurants", services.AdminGetRestaurants)
 		admin.GET("/restaurants/:restaurant_id", services.AdminGetRestaurant)
 
+		// Danh sachs đặt bàn
+		admin.GET("/reservations", services.AdminGetReservation)
+
+		// Danh sách bàn
 		admin.GET("/tables", services.AdminGetTables)
 		admin.GET("/tables/:table_id", services.AdminGetTable)
 

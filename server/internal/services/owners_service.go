@@ -356,7 +356,7 @@ func StaticRevenue(context *gin.Context) {
 	curRev := &models.Revenues{}
 	err = curRev.GetCurrentWeekRevenue(claims.UserID)
 	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("1- %s", err.Error())})
+		context.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("1 revenues- %s", err.Error())})
 		context.Abort()
 		return
 	}
@@ -365,7 +365,7 @@ func StaticRevenue(context *gin.Context) {
 	err = LastRev.GetLastRevenue(claims.UserID)
 	fmt.Println("curRev", LastRev)
 	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("2- %s", err.Error())})
+		context.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("2 revenues- %s", err.Error())})
 		context.Abort()
 		return
 	}
