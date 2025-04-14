@@ -16,7 +16,7 @@ const BookingHistory = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch user info
+  // Fetch user info 
   useEffect(() => {
     axios
       .get("http://localhost:8080/me", { withCredentials: true })
@@ -28,7 +28,7 @@ const BookingHistory = () => {
   useEffect(() => {
     if (!user?.Id) return;
     axios
-      .get(`http://localhost:8080/booking-history?user_id=${user.Id}`, {
+      .get(`http://localhost:8080/booking-history?user_gmail=${user.Email}`, {
         withCredentials: true,
       })
       .then((res) => setBookings(res.data.bookings))
@@ -37,6 +37,19 @@ const BookingHistory = () => {
         toast.error("Error fetching booking history");
       });
   }, [user]);
+
+  const timeSlots = Array.from({ length: 9 }, (_, i) => {
+    const hour = 7 + i * 2;
+    return `${hour.toString().padStart(2, "0")}:00:00`;
+  });
+
+  const formatTo12Hour = (time24) => {
+    const [hourStr, minuteStr] = time24.split(":");
+    let hour = parseInt(hourStr, 10);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+    return `${hour.toString().padStart(2, "0")}:${minuteStr} ${ampm}`;
+  };
 
   console.log("Booking history:", bookings);
   // Mở modal chỉnh sửa
@@ -114,7 +127,7 @@ const BookingHistory = () => {
 
   return (
     <RestaurantLayout>
-      <div className="booking-history-container mt-5 pt-5">
+      <div className="booking-history-container mt-2 pt-5">
         <ToastContainer position="top-right" autoClose={3000} />
         <h2 className="booking-history-title text-danger fs-1">
           Booking History
@@ -192,9 +205,10 @@ const BookingHistory = () => {
                   <>
                     <label>Book Date:</label>
                     <input
+                      disabled
                       type="date"
-                      className="form-control"
-                      value={selectedBooking.book_date}
+                      className="form-control bg-secondary"
+                      value={selectedBooking.book_date?.split('T')[0] || ''}
                       onChange={(e) =>
                         setSelectedBooking({
                           ...selectedBooking,
@@ -202,10 +216,14 @@ const BookingHistory = () => {
                         })
                       }
                     />
+                    <small className="text-secondary p-0 mb-3">
+                      * Can't change another day.
+                    </small>
+                    <br />
 
+                    {/* Time slots select */}
                     <label>Time Start:</label>
-                    <input
-                      type="time"
+                    <select
                       className="form-control"
                       value={selectedBooking.time_start}
                       onChange={(e) =>
@@ -214,11 +232,16 @@ const BookingHistory = () => {
                           time_start: e.target.value,
                         })
                       }
-                    />
+                    >
+                      {timeSlots.map((slot) => (
+                        <option key={slot} value={slot}>
+                          {formatTo12Hour(slot)}
+                        </option>
+                      ))}
+                    </select>
 
-                    <label>Time End:</label>
-                    <input
-                      type="time"
+                    <label className="mt-1">Time End:</label>
+                    <select
                       className="form-control"
                       value={selectedBooking.time_end}
                       onChange={(e) =>
@@ -227,19 +250,25 @@ const BookingHistory = () => {
                           time_end: e.target.value,
                         })
                       }
-                    />
+                    >
+                      {timeSlots.map((slot) => (
+                        <option key={slot} value={slot}>
+                          {formatTo12Hour(slot)}
+                        </option>
+                      ))}
+                    </select>
 
-                    <label>Seats:</label>
+                    <small className="text-secondary p-0">
+                      * Please update the end time first if you want to reschedule.
+                    </small>
+                    <br />
+
+                    <label className="mt-1">Seats:</label>
                     <input
+                      disabled
                       type="number"
-                      className="form-control"
+                      className="form-control bg-secondary"
                       value={selectedBooking.numberOfCustomer}
-                      onChange={(e) =>
-                        setSelectedBooking({
-                          ...selectedBooking,
-                          numberOfCustomer: e.target.value,
-                        })
-                      }
                     />
                   </>
                 )}

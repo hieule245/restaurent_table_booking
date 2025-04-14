@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import "./NavBar.styles.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import avatar from "../../assets/image/avatar.jpeg";
+import avatar from "../../assets/image/avatar.png";
 
 const NavBar = () => {
   // STATE FOR HAMBURGER MENU
@@ -96,15 +96,14 @@ const NavBar = () => {
               <FaUtensils className="nav-icon text-white fs-1 col-2" />
               <span className="fw-bolder text-white  fs-3 col-10 ">
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate(user && user.Role === "owner" ? "/owner" : "/")}
                   className="text-white text-decoration-none cursor-pointer border-0 bg-transparent"
                 >
                   TableBooker
                 </button>
-
               </span>
             </div>
-            <div className="col-8 row">
+            <div className="col-7 row">
               <div className="d-flex justify-content-start align-items-center">
                 <button
                   className="mt-1 fw-bold text-white fs-5 text-decoration-none p-0 m-0 border-0"
@@ -112,33 +111,33 @@ const NavBar = () => {
                   role="link"  // Indicate this button should behave like a link
                   style={{ background: 'transparent', border: 'none' }} // Make the button look like a link
                 >
-                  {user && user.Role === "staff" ? "Serving restaurant" : "Restaurants"}
+                  {user && user.Role === "staff" ? "Serving restaurant" : user && user.Role === "owner" ? "" : "Restaurants"}
                 </button>
                 {user && user.Role === "staff" ? (
                   <button
-                  className="mt-1 ms-5 fw-bold text-white fs-5 text-decoration-none p-0 m-0 border-0"
-                  role="link"  // Indicate this button should behave like a link
-                  onClick={() => navigate("/staff/booking-history")}
-                  style={{ background: 'transparent', border: 'none' }} // Make the button look like a link
-                >
-                  History reservations
-                </button>
+                    className="mt-1 ms-5 fw-bold text-white fs-5 text-decoration-none p-0 m-0 border-0"
+                    role="link"  // Indicate this button should behave like a link
+                    onClick={() => navigate("/staff/booking-history")}
+                    style={{ background: 'transparent', border: 'none' }} // Make the button look like a link
+                  >
+                    Revenue
+                  </button>
                 ) : (
                   <></>
                 )
                 }
               </div>
             </div>
-            <div className="pt-3 col-1">
+            <div className="pt-3 col-2">
               <ul className="d-flex align-items-center">
                 {/* Authorize */}
                 {user ? (
-                  <>
+                  <div>
                     <li className="d-flex justify-content-end align-items-center">
                       <div class="dropdown d-flex justify-content-end">
                         <button type="button" className="rounded-circle p-0 m-0 border-0" data-bs-toggle="dropdown" style={{ width: "40px", height: "40px", overflow: "hidden" }}>
                           <img
-                            src={imageUrl || avatar}
+                            src={user && imageUrl ? imageUrl : avatar}
                             alt="User Avatar"
                             className="w-100 h-100 rounded-circle object-fit-cover"
                           />
@@ -168,9 +167,9 @@ const NavBar = () => {
                         </ul>
                       </div>
                     </li>
-                  </>
+                  </div>
                 ) : (
-                  <>
+                  <div className="d-flex justify-content-end align-items-center">
                     <li key="login" className="auth-link">
                       <Link
                         to="/login"
@@ -194,7 +193,7 @@ const NavBar = () => {
                         Signup
                       </Link>
                     </li>
-                  </>
+                  </div>
                 )}
               </ul>
               <div onClick={() => setNav(!nav)}>

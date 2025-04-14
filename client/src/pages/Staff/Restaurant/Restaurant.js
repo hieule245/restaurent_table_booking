@@ -15,16 +15,16 @@ const Restaurant = () => {
 
     // Lấy thông tin nhà hàng và danh sách tất cả bàn khi component mount
     useEffect(() => {
-        const fetchData = async () => { 
+        const fetchData = async () => {
             try {
                 const responseRestaurant = await axios.get(`http://localhost:8080/staff/restaurant`, { withCredentials: true });
                 setRestaurant(responseRestaurant.data.restaurant);
-                console.log(responseRestaurant.data.restaurant);
+                // console.log(responseRestaurant.data.restaurant);
 
                 const restaurantId = responseRestaurant.data.restaurant.Id;
                 const responseTables = await axios.get(`http://localhost:8080/staff/${restaurantId}/tables`);
                 setTables(responseTables.data.tables || []);
-                console.log(responseTables.data.tables);
+                console.log("id ",responseTables.data.tables);
             } catch (error) {
                 console.error("Error fetching available tables:", error);
 
@@ -54,7 +54,6 @@ const Restaurant = () => {
 
         fetchData();
     }, []);
-
 
     // Tạo danh sách khung giờ từ 07:00 đến 22:00, mỗi 2 giờ
     const generateTimeSlots = (start, end, step) => {
@@ -128,6 +127,7 @@ const Restaurant = () => {
             </div>
         );
     }
+
 
     return (
         <div className="container-fluid mt-5">

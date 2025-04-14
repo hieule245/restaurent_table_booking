@@ -16,10 +16,12 @@ const BookingCalendar = ({ table }) => {
   const [preBooked, setPreBooked] = useState({}); // { "month-day": [timeSlot, ...] }
   const [selectedSlots, setSelectedSlots] = useState([]); // Các khung giờ đang chọn cho ngày hiện tại
   const [hasBooking, setHasBooking] = useState(false);
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
 
   // Lấy tham số từ URL
   const { table_id, restaurant_id } = useParams();
-console.log("restaurant id", restaurant_id)
+  console.log("restaurant id", restaurant_id)
   // Khởi tạo state cho tháng và ngày được chọn
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
@@ -33,9 +35,25 @@ console.log("restaurant id", restaurant_id)
   );
 
   // Tạo danh sách các khung giờ, từ 7:00 đến 21:00 (15 khung giờ, mỗi khung 2 tiếng)
-  const timeSlots = Array.from({ length: 15 }, (_, i) => {
-    const startHour = i + 7;
-    return `${startHour}:00 - ${startHour + 2}:00`;
+  const convertTo12HourFormat = (hour) => {
+    const period = hour >= 12 ? "PM" : "AM";
+    const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+    return `${formattedHour}:00 ${period}`;
+  };
+
+  const getStartHourIn24Format = (timeSlot) => {
+    const [start, meridiem] = timeSlot.split(" - ")[0].split(" ");
+    let hour = parseInt(start);
+    if (meridiem === "PM" && hour !== 12) hour += 12;
+    if (meridiem === "AM" && hour === 12) hour = 0;
+    return hour;
+  };
+
+  // Tạo danh sách khung giờ từ 7:00 đến 21:00 theo định dạng 12 giờ
+  const timeSlots = Array.from({ length: 7 }, (_, i) => {
+    const startHour = 7 + i * 2;
+    const endHour = startHour + 2;
+    return `${convertTo12HourFormat(startHour)} - ${convertTo12HourFormat(endHour)}`;
   });
 
   // Fetch thông tin user
@@ -78,16 +96,26 @@ console.log("restaurant id", restaurant_id)
           (reservation) => reservation.status !== "0"
         );
         // Chuyển đổi mỗi reservation thành dạng "HH:MM - HH:MM"
+        const format24To12 = (timeStr) => {
+          const [hour, minute] = timeStr.split(":").map(Number);
+          const period = hour >= 12 ? "PM" : "AM";
+          const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+          return `${formattedHour}:00 ${period}`;
+        };
+
         const formattedBookings = validReservations.map((reservation) => {
-          const startHour = reservation.time_start.slice(0, 5); // "10:00"
-          const endHour = reservation.time_end.slice(0, 5); // "12:00"
-          return `${startHour} - ${endHour}`;
+          const startLabel = format24To12(reservation.time_start.slice(0, 5));
+          const endLabel = format24To12(reservation.time_end.slice(0, 5));
+          return `${startLabel} - ${endLabel}`;
         });
+
         console.log(formattedBookings);
         // Lưu kết quả cho ngày được chọn
-        setPreBooked({
+        setPreBooked((prev) => ({
+          ...prev,
           [`${selectedMonth}-${selectedDay}`]: formattedBookings,
-        });
+        }));
+
       } catch (error) {
         console.error("Lỗi khi lấy booking times:", error);
       }
@@ -149,25 +177,90 @@ console.log("restaurant id", restaurant_id)
     const formatTime = (hour) => String(hour).padStart(2, "0");
 
     // Tạo dữ liệu đặt bàn từ các khung giờ được chọn
+    const parse12HourTo24 = (timeLabel) => {
+      const [hourStr, meridiem] = timeLabel.split(" ");
+      let hour = parseInt(hourStr);
+      if (meridiem === "PM" && hour !== 12) hour += 12;
+      if (meridiem === "AM" && hour === 12) hour = 0;
+      return hour;
+    };
+
     const bookingData = selectedSlots.map((timeSlot) => {
-      const [startHour] = timeSlot.split(":");
-      const formattedStartHour = formatTime(startHour);
-      const formattedEndHour = formatTime(parseInt(startHour) + 2);
+      const [startLabel, endLabel] = timeSlot.split(" - ");
+      const startHour = parse12HourTo24(startLabel);
+      const endHour = parse12HourTo24(endLabel);
       return {
         customer_id: user?.Id,
         table_id: parseInt(table_id),
         numberOfCustomer,
         book_date,
-        time_start: `${formattedStartHour}:00:00`,
-        time_end: `${formattedEndHour}:00:00`,
-        actual_end: `${formattedEndHour}:00:00`,
+        time_start: `${formatTime(startHour)}:00`,
+        time_end: `${formatTime(endHour)}:00`,
+        actual_end: `${formatTime(endHour)}:00`,
         price,
         customer_email: user?.Email,
         status,
       };
     });
 
-    console.log("Booking data", bookingData);
+    const bookingStaffData = selectedSlots.map((timeSlot) => {
+      const [startLabel, endLabel] = timeSlot.split(" - ");
+      const startHour = parse12HourTo24(startLabel);
+      const endHour = parse12HourTo24(endLabel);
+      return {
+        staff_id: user?.Id,
+        table_id: parseInt(table_id),
+        numberOfCustomer,
+        book_date,
+        time_start: `${formatTime(startHour)}:00`,
+        time_end: `${formatTime(endHour)}:00`,
+        actual_end: `${formatTime(endHour)}:00`,
+        price,
+        customer_email: user?.Role === "staff" ? customerEmail : user?.Email,
+        status,
+      };
+    });
+
+    if (user?.Role === "staff") {
+      if (!customerEmail.trim()) {
+        Swal.fire({
+          title: "Thiếu email khách hàng",
+          text: "Vui lòng nhập email khách hàng để đặt bàn.",
+          icon: "warning",
+        });
+        return;
+      }
+
+      if (!customerPhone.trim()) {
+        Swal.fire({
+          title: "Thiếu số điện thoại khách hàng",
+          text: "Vui lòng nhập số điện thoại khách hàng để đặt bàn.",
+          icon: "warning",
+        });
+        return;
+      }
+
+      // Có thể check định dạng email hoặc số điện thoại nếu muốn kỹ hơn:
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(customerEmail)) {
+        Swal.fire({
+          title: "Email không hợp lệ",
+          text: "Vui lòng nhập đúng định dạng email.",
+          icon: "warning",
+        });
+        return;
+      }
+
+      const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
+      if (!phoneRegex.test(customerPhone)) {
+        Swal.fire({
+          title: "Số điện thoại không hợp lệ",
+          text: "Vui lòng nhập đúng định dạng số điện thoại Việt Nam.",
+          icon: "warning",
+        });
+        return;
+      }
+    }
 
     // Hiển thị hộp thoại xác nhận trước khi gửi request
     Swal.fire({
@@ -187,8 +280,8 @@ console.log("restaurant id", restaurant_id)
           </div>
           <div>
             <p>${user.Name}</p>
-            <p>${user.Email}</p>
-            <p>${user.Phone}</p>
+            <p>${user?.Role === "staff" ? customerEmail : user.Email}</p>
+            <p>${user?.Role === "staff" ? customerPhone : user.Phone}</p>
             <p>${book_date}</p>
             <p>${bookingData[0].time_start}</p>
             <p>${bookingData[0].time_end}</p>
@@ -205,10 +298,17 @@ console.log("restaurant id", restaurant_id)
       if (result.isConfirmed) {
         try {
           // Gửi request đặt bàn
-          await axios.post(
-            `http://localhost:8080/restaurants/${restaurant_id}/bookings`,
-            bookingData[0]
-          );
+          console.log("User object:", user);
+          console.log("User role:", user?.Role);
+          {
+            user.Role === "staff" ? (await axios.post(
+              `http://localhost:8080/staff/${restaurant_id}/bookings`,
+              bookingStaffData[0]
+            )) : (await axios.post(
+              `http://localhost:8080/restaurants/${restaurant_id}/bookings`,
+              bookingData[0]
+            ))
+          };
 
           // Hiển thị thông báo thành công
           Swal.fire({
@@ -244,11 +344,10 @@ console.log("restaurant id", restaurant_id)
               {months.map((month) => (
                 <button
                   key={month}
-                  className={`btn btn-sm ${
-                    selectedMonth === month
-                      ? "btn-primary"
-                      : "btn-outline-secondary"
-                  }`}
+                  className={`btn btn-sm ${selectedMonth === month
+                    ? "btn-primary"
+                    : "btn-outline-secondary"
+                    }`}
                   onClick={() => setSelectedMonth(month)}
                   disabled={month < currentMonth} // Không cho chọn tháng trước
                 >
@@ -268,11 +367,10 @@ console.log("restaurant id", restaurant_id)
               {days.map((day) => (
                 <button
                   key={day}
-                  className={`btn btn-sm ${
-                    selectedDay === day
-                      ? "btn-success text-white"
-                      : "btn-outline-secondary"
-                  }`}
+                  className={`btn btn-sm ${selectedDay === day
+                    ? "btn-success text-white"
+                    : "btn-outline-secondary"
+                    }`}
                   onClick={() => setSelectedDay(day)}
                   disabled={selectedMonth === currentMonth && day < currentDay} // Không cho chọn ngày trước
                 >
@@ -288,7 +386,7 @@ console.log("restaurant id", restaurant_id)
                 </h5>
                 <div className="d-flex flex-wrap gap-2 justify-content-center mt-2 p-5 rounded">
                   {timeSlots.map((timeSlot) => {
-                    const startHour = parseInt(timeSlot.split(":")[0]);
+                    const startHour = getStartHourIn24Format(timeSlot);
                     const isPastTime =
                       selectedMonth === currentMonth &&
                       selectedDay === currentDay &&
@@ -299,13 +397,12 @@ console.log("restaurant id", restaurant_id)
                     const isPreBooked = preBookedForDay.includes(timeSlot);
                     const isSelected = selectedSlots.includes(timeSlot);
 
-                    const buttonClass = `btn btn-sm ${
-                      isPreBooked
-                        ? "btn-secondary text-white" // Đã đặt từ backend
-                        : isSelected
+                    const buttonClass = `btn btn-sm ${isPreBooked
+                      ? "btn-secondary text-white" // Đã đặt từ backend
+                      : isSelected
                         ? "btn-outline-danger bg-danger text-white" // Đang được chọn
                         : "btn-outline-secondary"
-                    }`;
+                      }`;
 
                     return (
                       <button
@@ -324,6 +421,40 @@ console.log("restaurant id", restaurant_id)
             {/* Nút xác nhận đặt bàn */}
             {hasBooking && (
               <div className="text-center mt-4">
+                {user?.Role === "staff" && (
+                  <div>
+                    <div className="text-center mt-4">
+                      <label htmlFor="customerEmail" className="form-label fw-bold">
+                        Nhập email khách hàng:
+                      </label>
+                      <input
+                        type="email"
+                        id="customerEmail"
+                        className="form-control w-50 mx-auto"
+                        placeholder="customer@example.com"
+                        value={customerEmail}
+                        onChange={(e) => setCustomerEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="text-center my-4">
+                      <label htmlFor="customerPhone" className="form-label fw-bold">
+                        Nhập số điện thoại khách hàng:
+                      </label>
+                      <input
+                        type="tel"
+                        id="customerPhone"
+                        className="form-control w-50 mx-auto"
+                        placeholder="09********"
+                        value={customerPhone}
+                        onChange={(e) => setCustomerPhone(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                )}
+
                 <button
                   onClick={confirmBooking}
                   className="btn btn-primary fw-bold"

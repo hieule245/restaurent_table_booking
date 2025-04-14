@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { FaPlusCircle } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
-import avatar from '../../assets/image/avatar.jpeg'
+import avatar from '../../assets/image/avatar.png'
 import axios from "axios";
 import { useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";

@@ -9,7 +9,7 @@ const ReservationList = () => {
   const [reservations, setReservations] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const reservationsPerPage = 12;
-
+ 
   // Tính toán chỉ số trang hiện tại
   const indexOfLastReservation = currentPage * reservationsPerPage;
   const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
@@ -101,7 +101,7 @@ const ReservationList = () => {
                 <td>{res.BookingTime}</td>
                 <td>{res.ActualTime}</td>
                 <td>{res.TableName}</td>
-                <td className="text-danger font-weight-bold">{res.Price} VND</td>
+                <td className="text-danger font-weight-bold">{res.Price.toLocaleString() } VND</td>
                 <td className={
                   res.Status === 0 ? "text-danger" :
                     res.Status === 1 ? "text-secondary" :

@@ -23,6 +23,7 @@ type BookingRequest struct {
 	CustomerEmail    string  `json:"customer_email"`
 	TableID          int     `json:"table_id"`
 	CustomerID       int     `json:"customer_id"`
+	StaffID          int     `json:"staff_id"`
 	Status           int     `json:"status"`
 }
 
@@ -111,7 +112,7 @@ func CreateBooking(c *gin.Context) {
 	user, err := models.GetUserInformationById(int64(booking.CustomerID), "customer")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		fmt.Println("9-", err)
+		fmt.Println("9 u-", err)
 		return
 	}
 	// Gửi email xác nhận booking cho người dùng
@@ -120,27 +121,114 @@ func CreateBooking(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Booking created successfully", "booking": booking})
 }
 
-// GetBookingHistoryByCustomerID lấy danh sách booking của một khách hàng
-func GetBookingHistoryByCustomerID(context *gin.Context) {
-	userIDStr := context.Query("user_id")
-	if userIDStr == "" {
+func CreateBookingByStaff(c *gin.Context) {
+	restaurantID, err := strconv.Atoi(c.Param("restaurant_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid restaurant ID"})
+		fmt.Println("1-", err)
+		return
+	}
+
+	var req BookingRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		fmt.Println("2-", err)
+		return
+	}
+
+	// Kiểm tra nhà hàng tồn tại
+	exists, err := models.RestaurantExists(restaurantID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println("3-", err)
+		return
+	}
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Restaurant not found"})
+		fmt.Println("4-", err)
+		return
+	}
+
+	// Kiểm tra bàn có thuộc nhà hàng không
+	exists, err = models.TableExistsInRestaurant(req.TableID, restaurantID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println("5-", err)
+		return
+	}
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Table not found in this restaurant"})
+		fmt.Println("6-", err)
+		return
+	}
+
+	// Tạo đối tượng booking từ request
+	booking := models.Booking{
+		NumberOfCustomer: req.NumberOfCustomer,
+		BookDate:         req.BookDate,
+		TimeStart:        req.TimeStart,
+		TimeEnd:          req.TimeEnd,
+		ActualEnd:        req.ActualEnd,
+		Price:            req.Price,
+		CustomerEmail:    req.CustomerEmail,
+		TableID:          req.TableID,
+		StaffID:          req.StaffID,
+		Status:           req.Status,
+	}
+
+	// Kiểm tra duplicate booking
+	if err := booking.Check(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		fmt.Println("7-", err)
+		return
+	}
+
+	// Tạo booking mới trong database
+	bookingID, err := booking.CreateByStaff()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println("8-", err)
+		return
+	}
+
+	booking.ID = int(bookingID)
+
+	// Sau khi booking được lưu thành công...
+	bookingDetails := fmt.Sprintf(`
+	<p><strong>Date:</strong> %s</p>
+	<p><strong>Start Time:</strong> %s</p>
+	<p><strong>End Time:</strong> %s</p>
+	<p><strong>Number of Seats:</strong> %s</p>
+`, booking.BookDate, booking.TimeStart, booking.TimeEnd, booking.NumberOfCustomer)
+
+	// lay customer email
+	user, err := models.GetUserInformationById(int64(booking.StaffID), "staff")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println("9 s-", err)
+		return
+	}
+	// Gửi email xác nhận booking cho người dùng
+	pkg.SendBookingConfirmation(user.Email, bookingDetails)
+
+	c.JSON(http.StatusCreated, gin.H{"message": "Booking created successfully", "booking": booking})
+}
+
+// GetBookingHistoryByUserID lấy danh sách booking của một khách hàng
+func GetBookingHistoryByUserID(context *gin.Context) {
+	userGmail := context.Query("user_gmail")
+	if userGmail == "" {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Missing userId in query parameter"})
 		return
 	}
 
-	customerID, err := strconv.Atoi(userIDStr)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId"})
-		return
-	}
-
-	bookings, err := models.GetBookingsByCustomer(customerID)
+	bookings, err := models.GetBookingsByUser(userGmail)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"customer_id": customerID, "bookings": bookings})
+	context.JSON(http.StatusOK, gin.H{"user_id": userGmail, "bookings": bookings})
 }
 
 // EditReservation - Chỉnh sửa đặt bàn

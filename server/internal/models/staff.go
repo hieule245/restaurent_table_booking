@@ -207,7 +207,7 @@ func (res *Restaurant) GetRestaurantByStaffID(staffID int64) error {
 	return nil
 }
 
-func GetTablesByRestaurantID(restaurantId int64) ([]Table, error) {
+func GetTablesByRestaurantID(restaurantId int) ([]Table, error) {
 	var tab []Table
 	query := `
 	SELECT id, name, type, seats, description FROM tables
@@ -226,6 +226,7 @@ func GetTablesByRestaurantID(restaurantId int64) ([]Table, error) {
 			fmt.Println("table 2: ", err)
 			return nil, err
 		}
+		table.RestaurantID = restaurantId
 		tab = append(tab, table)
 	}
 	return tab, nil
