@@ -162,7 +162,6 @@ func LockStaff(context *gin.Context) {
 	} else if staff.Status == "ban" {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "This account was banned by admin"})
 	}
-
 }
 
 func CurrentUser(context *gin.Context) int64 {

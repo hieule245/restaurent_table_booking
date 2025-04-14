@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarAlt, faClock, faChair, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faCalendarAlt, faClock, faChair, faUser, faStoreAlt } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 
@@ -9,7 +9,7 @@ const ReservationList = () => {
   const [reservations, setReservations] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const reservationsPerPage = 12;
- 
+
   // Tính toán chỉ số trang hiện tại
   const indexOfLastReservation = currentPage * reservationsPerPage;
   const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
@@ -38,7 +38,7 @@ const ReservationList = () => {
             setReservations([]); // fallback an toàn
             toast.info("No reservations found.");
           }
-        })        
+        })
         .catch((err) => toast.error(err));
     } catch (err) {
       console.error(err);
@@ -76,14 +76,15 @@ const ReservationList = () => {
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-4">
       <ToastContainer />
-      <h2 className="text-center mb-2" style={{ color: "#dc3545" }}>Danh Sách Đặt Chỗ</h2>
+      <h2 className="text-center mb-1 text-danger">Booking List</h2>
       <div style={{ minHeight: "76vh" }}>
-        <table className="table table-striped border">
+        <table className="table table-striped border mb-1">
           <thead className="bg-danger text-white">
             <tr className="text-center">
               <th><FontAwesomeIcon icon={faUser} /> Guest</th>
+              <th><FontAwesomeIcon icon={faStoreAlt} /> Restaurant Name</th>
               <th><FontAwesomeIcon icon={faCalendarAlt} /> Date</th>
               <th><FontAwesomeIcon icon={faClock} /> Booking Time</th>
               <th><FontAwesomeIcon icon={faClock} /> Actual Time</th>
@@ -96,12 +97,13 @@ const ReservationList = () => {
           <tbody>
             {currentRes.map((res, index) => (
               <tr key={index} className="text-center">
-                <td>{res.CustomerName}</td>
+                <td>{res.UserBook}</td>
+                <td>{res.RestaurantName}</td>
                 <td>{new Date(res.BookingDate).toLocaleDateString()}</td>
                 <td>{res.BookingTime}</td>
                 <td>{res.ActualTime}</td>
                 <td>{res.TableName}</td>
-                <td className="text-danger font-weight-bold">{res.Price.toLocaleString() } VND</td>
+                <td className="text-danger font-weight-bold">{res.Price.toLocaleString()} VND</td>
                 <td className={
                   res.Status === 0 ? "text-danger" :
                     res.Status === 1 ? "text-secondary" :
@@ -119,7 +121,7 @@ const ReservationList = () => {
                   <button
                     type="button"
                     data-bs-toggle="modal"
-                    data-bs-target={res.Status === 4 ? "#myUpdateModal" : res.Status === 0 ? "":"#myCompleteModal"}
+                    data-bs-target={res.Status === 4 ? "#myUpdateModal" : res.Status === 0 ? "" : "#myCompleteModal"}
                     onClick={() => handleOpen(res)}
                     className={
                       res.Status === 4

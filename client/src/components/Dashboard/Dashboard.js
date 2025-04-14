@@ -198,20 +198,30 @@ const Dashboard = () => {
                 {/* Open Projects */}
                 <div className="col-md-6 mb-4 d-flex">
                     <div className="p-3 rounded shadow-sm w-100 h-100" style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "2px solid #D1E7FF" }}>
-                        <h5 className="pb-2 text-primary">Top 4 Performing Restaurants</h5>
-                        {top.map((restaurant, index) => (
-                            <div key={index} className="d-flex justify-content-between p-2 mt-2 rounded shadow-sm"
-                                style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}>
-                                <div>
-                                    <strong className="text-dark">{restaurant.Name}</strong>
-                                    <p className="mb-0 text-muted">{restaurant.TotalRevenue ? restaurant.TotalRevenue.toLocaleString() : 0} VND</p>
+                        <h5 className="pb-2 text-primary">Top {top.length} Performing Restaurants</h5>
+                        {Array.isArray(top) ? (
+                            top.map((restaurant, index) => (
+                                <div key={index} className="d-flex justify-content-between p-2 mt-2 rounded shadow-sm"
+                                    style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}>
+                                    <div>
+                                        <strong className="text-dark">{restaurant.Name}</strong>
+                                        <p className="mb-0 text-muted">
+                                            {restaurant.TotalRevenue ? restaurant.TotalRevenue.toLocaleString() : 0} VND
+                                        </p>
+                                    </div>
+                                    <div className="text-end">
+                                        <small className="text-muted">
+                                            {restaurant.TotalCustomer ? restaurant.TotalCustomer : 0} customers
+                                        </small>
+                                        <p className="mb-0 text-dark">
+                                            {restaurant.TotalReservation ? restaurant.TotalReservation : 0} reservations
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="text-end">
-                                    <small className="text-muted">{restaurant.TotalCustomer ? restaurant.TotalCustomer : 0} customers</small>
-                                    <p className="mb-0 text-dark">{restaurant.TotalReservation ? restaurant.TotalReservation : 0} reservations</p>
-                                </div>
-                            </div>
-                        ))}
+                            ))
+                        ) : (
+                            <p className="text-muted">No restaurants available</p>
+                        )}
                     </div>
                 </div>
             </div>

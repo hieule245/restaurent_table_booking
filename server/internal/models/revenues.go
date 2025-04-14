@@ -48,7 +48,43 @@ func (rev *Revenues) GetCurrentWeekRevenue(ownerId int64) error {
 	err := row.Scan(&rev.WeeklyRevenue, &rev.ActiveStaff, &rev.OutStaff, &rev.CanceledBook, &rev.BookNumber, &rev.OrderCustomer, &rev.UsingCustomer)
 
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			fmt.Println("This is first week, no previous revenue record.")
+			rev.WeeklyRevenue = 0
+			rev.ActiveStaff = 0
+			rev.OutStaff = 0
+			rev.CanceledBook = 0
+			rev.BookNumber = 0
+			rev.OrderCustomer = 0
+			rev.UsingCustomer = 0
+			return nil
+		}
+	}
 
+	return nil
+}
+
+func (rev *Revenues) GetLastRevenueAdmin(adminId int64) error {
+	query := `
+	SELECT weekly_revenues, new_acc, penal_acc, order_done, order_cancel, order_customer, using_customer 
+	FROM revenueAdmin
+	WHERE admin_id = ? 
+	`
+	row := db.DB.QueryRow(query, adminId)
+	err := row.Scan(&rev.WeeklyRevenue, &rev.ActiveStaff, &rev.OutStaff, &rev.CanceledBook, &rev.BookNumber, &rev.OrderCustomer, &rev.UsingCustomer)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			fmt.Println("This is first week, no previous revenue record.")
+			rev.WeeklyRevenue = 0
+			rev.ActiveStaff = 0
+			rev.OutStaff = 0
+			rev.CanceledBook = 0
+			rev.BookNumber = 0
+			rev.OrderCustomer = 0
+			rev.UsingCustomer = 0
+			return nil
+		}
 		return err
 	}
 
@@ -140,6 +176,56 @@ func (rev *Revenues) SaveNewCurrentRevenues(ownerId int64) error {
 
 	_, err = stmt.Exec(rev.WeeklyRevenue, rev.ActiveStaff, rev.OutStaff, rev.BookNumber, rev.CanceledBook, rev.OrderCustomer, rev.UsingCustomer, ownerId)
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (rev *Revenues) GetCurrentWeekRevenueAdmin() error {
+	query := `   
+	SELECT 
+    SUM(b.price), 
+    COUNT(DISTINCT CASE WHEN b.status = 0 THEN b.id ELSE NULL END) , 
+    COUNT(DISTINCT CASE WHEN b.status != 0 THEN b.id ELSE NULL END),
+    COUNT(DISTINCT b.customer_id),
+    SUM(b.numberOfCustomer),
+    (
+        SELECT COUNT(*) FROM (
+            SELECT gmail FROM (
+                SELECT gmail, status FROM customers
+                UNION ALL
+                SELECT gmail, status FROM staffs
+                UNION ALL
+                SELECT gmail, status FROM owners
+            ) all_accounts
+            WHERE status = 'active'
+            GROUP BY gmail
+        ) active_emails
+    ),
+    (
+        SELECT COUNT(*) FROM (
+            SELECT gmail FROM (
+                SELECT gmail, status FROM customers
+                UNION ALL
+                SELECT gmail, status FROM staffs
+                UNION ALL
+                SELECT gmail, status FROM owners
+            ) all_accounts
+            WHERE status = 'inactive'
+            GROUP BY gmail
+        ) inactive_emails
+    )
+	FROM reservations b 
+	INNER JOIN tables t ON b.table_id = t.id 
+	INNER JOIN restaurants r ON t.restaurant_id = r.id 
+	WHERE YEARWEEK(b.book_date, 1) = YEARWEEK(CURRENT_DATE(), 1);
+	`
+	row := db.DB.QueryRow(query)
+	err := row.Scan(&rev.WeeklyRevenue, &rev.CanceledBook, &rev.BookNumber, &rev.OrderCustomer, &rev.UsingCustomer, &rev.ActiveStaff, &rev.OutStaff)
+
+	if err != nil {
+
 		return err
 	}
 

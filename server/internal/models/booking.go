@@ -169,7 +169,8 @@ func GetBookingsByUser(userGmail string) ([]Booking, error) {
 
 type Reservations struct {
 	Id             int64
-	CustomerName   string
+	UserBook       string
+	RoleBook       string
 	BookingDate    time.Time
 	BookingTime    string
 	ActualTime     string
@@ -184,20 +185,28 @@ func GetBookingByOwner(ownerId int64) ([]Reservations, error) {
 	var reservation []Reservations
 	query := `
 	SELECT
-	b.id,
-	r.name,
-    t.name,
-    c.name,
+    b.id AS reservation_id,
+    r.name AS restaurant_name,
+    t.name AS table_name,
+    CASE 
+        WHEN b.customer_id IS NOT NULL THEN c.name
+        ELSE s.name
+    END AS user_name,
+    CASE 
+        WHEN b.customer_id IS NOT NULL THEN 'customer'
+        ELSE 'staff'
+    END AS user_type,
     b.book_date,
-    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.time_end, b.time_start)))),
-    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.actual_end, b.time_start)))),
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.time_end, b.time_start)))) AS expected_duration,
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.actual_end, b.time_start)))) AS actual_duration,
     b.price,
-	b.status
+    b.status
 	FROM reservations b
 	JOIN tables t ON b.table_id = t.id
 	JOIN restaurants r ON t.restaurant_id = r.id
 	JOIN owners o ON r.owner_id = o.id
-	JOIN customers c On c.gmail = b.customer_email
+	LEFT JOIN customers c ON b.customer_id = c.id
+	LEFT JOIN staffs s ON b.staff_id = s.id
 	WHERE o.id = ?;
 	`
 
@@ -211,7 +220,7 @@ func GetBookingByOwner(ownerId int64) ([]Reservations, error) {
 
 	for rows.Next() {
 		var book Reservations
-		err = rows.Scan(&book.Id, &book.RestaurantName, &book.TableName, &book.CustomerName, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status)
+		err = rows.Scan(&book.Id, &book.RestaurantName, &book.TableName, &book.UserBook, &book.RoleBook, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status)
 		if err != nil {
 			panic(err)
 			return nil, err
@@ -225,21 +234,27 @@ func GetBookingByRestaurantId(ownerId int64, restaurant_id int) ([]Reservations,
 	var reservation []Reservations
 	query := `
 	SELECT
-	b.id,
-	r.name,
-    t.name,
-    c.name,
+    b.id AS reservation_id,
+    t.name AS table_name,
+    CASE 
+        WHEN b.customer_id IS NOT NULL THEN c.name
+        ELSE s.name
+    END AS user_name,
+    CASE 
+        WHEN b.customer_id IS NOT NULL THEN 'customer'
+        ELSE 'staff'
+    END AS user_type,
     b.book_date,
-    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.time_end, b.time_start)))),
-    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.actual_end, b.time_start)))),
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.time_end, b.time_start)))) AS expected_duration,
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.actual_end, b.time_start)))) AS actual_duration,
     b.price,
-	b.status,
-	o.id
+    b.status
 	FROM reservations b
 	JOIN tables t ON b.table_id = t.id
 	JOIN restaurants r ON t.restaurant_id = r.id
 	JOIN owners o ON r.owner_id = o.id
-	JOIN customers c On c.gmail = b.customer_email
+	LEFT JOIN customers c ON b.customer_id = c.id
+	LEFT JOIN staffs s ON b.staff_id = s.id
 	WHERE r.id = ?;
 	`
 
@@ -253,7 +268,7 @@ func GetBookingByRestaurantId(ownerId int64, restaurant_id int) ([]Reservations,
 
 	for rows.Next() {
 		var book Reservations
-		err = rows.Scan(&book.Id, &book.RestaurantName, &book.TableName, &book.CustomerName, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status, &book.Owner_id)
+		err = rows.Scan(&book.Id, &book.TableName, &book.UserBook, &book.RoleBook, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status)
 		if err != nil {
 			panic(err)
 			return nil, err
@@ -343,4 +358,82 @@ func GetTopRestaurantRevenues(ownerId int64) ([]TopRestaurant, error) {
 	}
 
 	return top, nil
+}
+
+func GetTopRestaurantRevenuesByAdmin() ([]TopRestaurant, error) {
+	query := `
+	SELECT 
+    re.name AS restaurant_name,
+    SUM(r.price) AS total_revenue,
+    SUM(r.numberOfCustomer) AS total_customers,
+    COUNT(r.id) AS total_reservations
+	FROM reservations r
+	INNER JOIN tables t ON r.table_id = t.id
+	INNER JOIN restaurants re ON re.id = t.restaurant_id
+	GROUP BY re.name
+	ORDER BY total_revenue DESC
+	LIMIT 5;
+	`
+
+	var top []TopRestaurant
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		fmt.Println("number 1- ", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var topRestaurant TopRestaurant
+		rows.Scan(&topRestaurant.Name, &topRestaurant.TotalRevenue, &topRestaurant.TotalCustomer, &topRestaurant.TotalReservation)
+		top = append(top, topRestaurant)
+	}
+
+	return top, nil
+}
+
+func GetBookingByAdmin() ([]Reservations, error) {
+	var reservation []Reservations
+	query := `
+	SELECT
+    b.id AS reservation_id,
+    r.name AS restaurant_name,
+    t.name AS table_name,
+    CASE 
+        WHEN b.customer_id IS NOT NULL THEN c.name
+        ELSE s.name
+    END AS user_name,
+    CASE 
+        WHEN b.customer_id IS NOT NULL THEN 'customer'
+        ELSE 'staff'
+    END AS user_type,
+    b.book_date,
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.time_end, b.time_start)))) AS expected_duration,
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.actual_end, b.time_start)))) AS actual_duration,
+    b.price,
+    b.status
+	FROM reservations b
+	JOIN tables t ON b.table_id = t.id
+	JOIN restaurants r ON t.restaurant_id = r.id
+	JOIN owners o ON r.owner_id = o.id
+	LEFT JOIN customers c ON b.customer_id = c.id
+	LEFT JOIN staffs s ON b.staff_id = s.id
+	`
+
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		panic(err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var book Reservations
+		err = rows.Scan(&book.Id, &book.RestaurantName, &book.TableName, &book.UserBook, &book.RoleBook, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status)
+		if err != nil {
+			panic(err)
+			return nil, err
+		}
+		reservation = append(reservation, book)
+	}
+	return reservation, nil
 }
