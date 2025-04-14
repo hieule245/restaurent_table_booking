@@ -168,7 +168,7 @@ func LockStaff(context *gin.Context) {
 func CurrentUser(context *gin.Context) int64 {
 	token, err := context.Cookie("token")
 	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
+		context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		context.Abort()
 		return 0
 	}
@@ -178,6 +178,50 @@ func CurrentUser(context *gin.Context) int64 {
 		context.Abort()
 		return 0
 	}
-	userId := claims.UserID
+	userId := claims.UserID 
 	return userId
+}
+
+func GetRestaurantByStaffID(context *gin.Context) {
+	staffId := CurrentUser(context)
+	res := &models.Restaurant{}
+	err := res.GetRestaurantByStaffID(staffId)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Can't get information in database"})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"restaurant": res})
+}
+
+func GetTablesByRestaurantID(context *gin.Context) {
+	restaurantId := context.Param("restaurant_id")
+	var tables []models.Table
+	resId, err := strconv.ParseInt(restaurantId, 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't parse restaurant id"})
+		return
+	}
+	tables, err = models.GetTablesByRestaurantID(resId)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Can't get information in database"})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"tables": tables})
+}
+
+func GetReservationByRestaurantID(context *gin.Context) {
+	staffId := CurrentUser(context)
+	res := &models.Restaurant{}
+	err := res.GetRestaurantByStaffID(staffId)
+	var reservation []models.Reservations
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't parse restaurant id"})
+		return
+	}
+	reservation, err = models.GetReservationByRestaurantID(res.Id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Can't get information in database"})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"reservation": reservation})
 }

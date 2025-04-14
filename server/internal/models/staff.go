@@ -181,3 +181,91 @@ func (staff *Staff) CreateStaff(userId int64) error {
 	staff.ID = insertedID
 	return nil
 }
+
+func (res *Restaurant) GetRestaurantByStaffID(staffID int64) error {
+	query := `
+	SELECT restaurant_id FROM staffs
+	WHERE id = ?
+	`
+	var restaurantID int64
+	row := db.DB.QueryRow(query, staffID)
+	err := row.Scan(&restaurantID)
+	if err != nil {
+		return err
+	}
+
+	query = `
+	SELECT name, description, time_start, time_end, location FROM restaurants
+	WHERE id = ?
+	`
+	row = db.DB.QueryRow(query, restaurantID)
+	err = row.Scan(&res.Name, &res.Description, &res.Started, &res.Ended, &res.Location)
+	if err != nil {
+		return err
+	}
+	res.Id = restaurantID
+	return nil
+}
+
+func GetTablesByRestaurantID(restaurantId int64) ([]Table, error) {
+	var tab []Table
+	query := `
+	SELECT id, name, type, seats, description FROM tables
+	WHERE restaurant_id = ?
+	`
+	rows, err := db.DB.Query(query, restaurantId)
+	if err != nil {
+		fmt.Println("table 1: ", err)
+		return nil, err
+	}
+
+	for rows.Next() {
+		var table Table
+		err := rows.Scan(&table.ID, &table.Name, &table.Type, &table.Seats, &table.Description)
+		if err != nil {
+			fmt.Println("table 2: ", err)
+			return nil, err
+		}
+		tab = append(tab, table)
+	}
+	return tab, nil
+}
+
+func GetReservationByRestaurantID(resId int64) ([]Reservations, error) {
+	var res []Reservations
+	query := `
+	SELECT
+	b.id, 
+    t.name,
+    c.name,
+    b.book_date,
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.time_end, b.time_start)))),
+    SEC_TO_TIME(ABS(TIME_TO_SEC(TIMEDIFF(b.actual_end, b.time_start)))),
+    b.price,
+	b.status
+	FROM reservations b
+	JOIN tables t ON b.table_id = t.id
+	JOIN restaurants r ON t.restaurant_id = r.id
+	JOIN customers c On c.gmail = b.customer_email
+	WHERE r.id = ?;
+	`
+
+	rows, err := db.DB.Query(query, resId)
+	if err != nil {
+		fmt.Println("bok 1- ", err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var book Reservations
+		err = rows.Scan(&book.Id, &book.TableName, &book.CustomerName, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status)
+		if err != nil {
+			fmt.Println("bok 2- ", err)
+			return nil, err
+		}
+		res = append(res, book)
+	}
+	return res, nil
+}
