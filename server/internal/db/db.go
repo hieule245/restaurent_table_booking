@@ -13,8 +13,8 @@ var IsDBConnected = false
 func InitDB() {
 	// time.Sleep(5 * time.Second) // Đợi 5 giây trước khi kết nối đến DB
 	var err error = nil
-	// DB, err = sql.Open("mysql", "root:123@tcp(localhost:3306)/restaurant_bookings?parseTime=true")
-	DB, err = sql.Open("mysql", "root:123@tcp(db:3306)/restaurant_bookings?parseTime=true")
+	DB, err = sql.Open("mysql", "root:123@tcp(localhost:3306)/restaurant_bookings?parseTime=true")
+	// DB, err = sql.Open("mysql", "root:123@tcp(db:3306)/restaurant_bookings?parseTime=true")
 	if err != nil {
 		IsDBConnected = false
 		fmt.Println("Cannot connect to database", err)
