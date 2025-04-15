@@ -12,8 +12,9 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := c.Cookie("token")
 		fmt.Println(token)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		if err != nil || token == "" {
+			fmt.Println("Không có token hoặc token trống")
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not logged in"})
 			c.Abort()
 			return
 		}

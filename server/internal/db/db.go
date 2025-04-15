@@ -8,6 +8,7 @@ import (
 )
 
 var DB *sql.DB
+var IsDBConnected = false
 
 func InitDB() {
 	// time.Sleep(5 * time.Second) // Đợi 5 giây trước khi kết nối đến DB
@@ -15,15 +16,17 @@ func InitDB() {
 	DB, err = sql.Open("mysql", "root:123@tcp(localhost:3306)/restaurant_bookings?parseTime=true")
 	// DB, err = sql.Open("mysql", "root:123@tcp(db:3306)/restaurant_bookings?parseTime=true")
 	if err != nil {
-		panic("Cannot connect to database")
+		IsDBConnected = false
+		fmt.Println("Cannot connect to database", err)
 	}
 
 	fmt.Println("Connected to database")
 	err = DB.Ping()
 	if err != nil {
 		fmt.Println("Cannot ping database", err)
-		panic("Cannot ping database")
+		IsDBConnected = false
 	}
+	IsDBConnected = true
 	fmt.Println("Ping database successfully")
 
 	DB.SetMaxOpenConns(10)

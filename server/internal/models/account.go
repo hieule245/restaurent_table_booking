@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/restaurent_table_booking/internal/db"
 	"github.com/restaurent_table_booking/internal/utils"
@@ -26,10 +27,16 @@ type NewPassword struct {
 	NewPassword string
 }
 
+type CheckPassword struct {
+	Attempt int
+}
+
+var failedAttempts = sync.Map{}
+
 func (u *Account) RegisterCustomer() error {
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("this gmail already create account before")
+		return errors.New("Email already exists")
 	}
 	query := `INSERT INTO customers(name, gmail, phone, password, status) 
 		VALUES (?,?,?,?,?)`
@@ -58,7 +65,7 @@ func (u *Account) RegisterCustomer() error {
 func (u *Account) RegisterOwner() error {
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("this gmail already create account before")
+		return errors.New("Email already exists")
 	}
 	query := `INSERT INTO owners(name, gmail, phone, password, status) 
 		VALUES (?,?,?,?,?)`
@@ -88,7 +95,7 @@ func (u *Account) RegisterOwner() error {
 func (u *Account) RegisterAdmin() error {
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("this email is already associated with an existing account")
+		return errors.New("Email already exists")
 	}
 	query := `INSERT INTO admin(name, gmail, phone, password) 
 		VALUES (?,?,?,?)`
@@ -117,7 +124,10 @@ func (u *Account) RegisterAdmin() error {
 }
 
 func (u *Account) Login() error {
+	fmt.Println("Login", u.Email)
+	// Check if the user exists
 	retrievedPassword, ok := CheckAccount(u)
+	fmt.Println("Login--1", retrievedPassword)
 	if ok {
 		return errors.New("email does not exist")
 	}
@@ -129,66 +139,85 @@ func (u *Account) Login() error {
 	} else if u.Status == "ban" && u.Role == "owner" || u.Status == "ban" && u.Role == "customer" {
 		return errors.New("this account is locked for violation. Check your email and contact us")
 	}
+	loginData, exists := failedAttempts.Load(u.Email)
+	fmt.Println("Login--2", loginData)
+	if exists {
+		data := loginData.(CheckPassword)
+		if data.Attempt >= 5 {
+			return errors.New("This account is locked due to too many failed attempts. Check your email and contact us")
+		}
+	}
+
 	ok = utils.PasswordVerify(u.Password, retrievedPassword)
 	if !ok {
-		return errors.New("invalid Password")
+		check := CheckPassword{
+			Attempt: 1,
+		}
+
+		if exists {
+			check = loginData.(CheckPassword)
+			check.Attempt++
+		}
+
+		failedAttempts.Store(u.Email, check)
+
+		remainingAttempts := 5 - check.Attempt
+		fmt.Println("Login--3", remainingAttempts)
+		if check.Attempt >= 5 {
+			err := SetAccountStatusInactive(u.Email, u.Role)
+			if err != nil {
+				return errors.New("failed to set account status to inactive: " + err.Error())
+			}
+			return errors.New("This account is locked for security. Check your email and contact us")
+		}
+		return errors.New("invalid Password. You have " + fmt.Sprint(remainingAttempts) + " attempts left")
 	}
+	failedAttempts.Delete(u.Email)
+
 	return nil
 }
 
 func CheckAccount(a *Account) (string, bool) {
-	CumtomersQuery := `
-	SELECT id, password, status FROM customers
-	WHERE gmail = ?
-	`
-	rowCustomer := db.DB.QueryRow(CumtomersQuery, a.Email)
+	fmt.Println("CheckAccount 0-", a.Email)
 
-	staffsQuery := `
-	SELECT id, password, status FROM staffs
-	WHERE gmail = ?
-	`
-	rowStaff := db.DB.QueryRow(staffsQuery, a.Email)
+	// Queries for each role
+	queries := map[string]string{
+		"admin":    "SELECT id, password FROM admin WHERE gmail = ?",
+		"staff":    "SELECT id, password, status FROM staffs WHERE gmail = ?",
+		"owner":    "SELECT id, password, status FROM owners WHERE gmail = ?",
+		"customer": "SELECT id, password, status FROM customers WHERE gmail = ?",
+	}
 
-	adminsQuery := `
-	SELECT id, password FROM admin
-	WHERE gmail = ?
-	`
-	rowAdmin := db.DB.QueryRow(adminsQuery, a.Email)
+	// Iterate over roles and check each one
+	for role, query := range queries {
+		var retrievedPassword string
+		var err error
+		var row *sql.Row
+		// Perform the query based on role
+		row = db.DB.QueryRow(query, a.Email)
 
-	ownersQuery := `
-	SELECT id, password, status FROM owners
-	WHERE gmail = ?
-	`
-	rowOwner := db.DB.QueryRow(ownersQuery, a.Email)
+		// Scan the result based on the role
+		switch role {
+		case "admin":
+			err = row.Scan(&a.Id, &retrievedPassword)
+		case "staff":
+			err = row.Scan(&a.Id, &retrievedPassword, &a.Status)
+		case "owner":
+			err = row.Scan(&a.Id, &retrievedPassword, &a.Status)
+		case "customer":
+			err = row.Scan(&a.Id, &retrievedPassword, &a.Status)
+		}
 
-	var retrievedPassword string
-	var err error
-	err = rowAdmin.Scan(&a.Id, &retrievedPassword)
-	if err == nil {
-		a.Role = "admin"
-		return retrievedPassword, false
-	} else {
-		err = rowStaff.Scan(&a.Id, &retrievedPassword, &a.Status)
+		// Check if the account exists for the current role
 		if err == nil {
-			a.Role = "staff"
+			a.Role = role // Set the role for the user
 			return retrievedPassword, false
-		} else {
-			err = rowOwner.Scan(&a.Id, &retrievedPassword, &a.Status)
-			if err == nil {
-				a.Role = "owner"
-				return retrievedPassword, false
-			} else {
-				err = rowCustomer.Scan(&a.Id, &retrievedPassword, &a.Status)
-				if err == nil {
-					a.Role = "customer"
-					return retrievedPassword, false
-				} else {
-					fmt.Printf("Don't have any account like this")
-					return "", true
-				}
-			}
 		}
 	}
+
+	// If no account found in any of the roles, return error
+	fmt.Printf("Don't have any account like this for email: %s\n", a.Email)
+	return "", true
 }
 
 func (u *Account) ResetPassword() error {
@@ -217,7 +246,7 @@ func GetAllAccounts() ([]Account, error) {
 	UNION
 	SELECT id, gmail, name, phone, status, 'customer' FROM customers
 	UNION
-	SELECT id, gmail, name, phone, status, 'staffs' FROM staffs
+	SELECT id, gmail, name, phone, status, 'staff' FROM staffs
 	`
 	rows, err := db.DB.Query(sqlQuery)
 	if err != nil {
