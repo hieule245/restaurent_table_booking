@@ -30,7 +30,7 @@ const DetailRestaurant = () => {
 
     // Lấy danh sách tất cả bàn (mặc định hiển thị)
     axios
-      .get(`http://localhost:8080/restaurant/${restaurant_id}/tables`)
+      .get(`http://localhost:8080/restaurant/${restaurant_id}/tables`) 
       .then((responseTables) => {
         if (responseTables.data.tables) {
           setTables(responseTables.data.tables);

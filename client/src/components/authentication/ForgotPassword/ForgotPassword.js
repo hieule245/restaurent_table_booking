@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-
+import { useEffect, useCallback } from "react";
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -10,14 +10,43 @@ const ForgotPassword = () => {
   const [isEmailValid, setIsEmailValid] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const handleNavigation = useCallback(
+    (Role) => {
+      console.log(Role)
+      if (Role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (Role === "owner") {
+        navigate("/owner");
+      } else if (Role === "staff") {
+        navigate("/staff");
+      } else if (Role === "customer") {
+        navigate("/");
+      }
+    },
+    [navigate]
+  );
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/me", { withCredentials: true })
+      .then((res) => {
+        // console.log(res.data.user.Role)
+        handleNavigation(res.data.user.Role);
+      })
+      .catch((err) => {
+        console.log("login dum tui", err);
+      });
+  }, [handleNavigation]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true)
     try {
       const response = await axios.post("http://localhost:8080/forgot-password", { email });
       if (response.status === 200) {
-        localStorage.setItem("resetEmail", email); // Lưu email vào localStorage
-        navigate("/verify-pin"); // Chuyển hướng đến trang nhập mã PIN
+        localStorage.setItem("resetEmail", email); // Email
+        localStorage.setItem("canVerifyPin", "true"); // Cho phép vào trang verify PIN
+        navigate("/verify-pin");
       }
     } catch (error) {
       setIsSubmitting(false);
@@ -75,7 +104,7 @@ const ForgotPassword = () => {
 
               />
             </div>
-            <button type="submit" id="forgotpassword" className="btn btn-primary w-100" disabled ={isSubmitting|!isEmailValid}>
+            <button type="submit" id="forgotpassword" className="btn btn-primary w-100" disabled={isSubmitting | !isEmailValid}>
               Send request
             </button>
           </form>

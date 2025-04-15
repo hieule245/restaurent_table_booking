@@ -28,19 +28,23 @@ const NavBar = () => {
 
   // Lưu thông tin từ cookie
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/me", { withCredentials: true })
-      .then((res) => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/me", {
+          withCredentials: true,
+        });
         if (res.data.user) {
-          setUser(res.data.user); // lưu thông tin user
-          console.log(res.data.user)
+          setUser(res.data.user);
         }
-      })
-      .catch(() => {
-        setUser(null);
-      });
+      } catch (err) {
+        console.log("User chưa đăng nhập hoặc token hết hạn");
+        setUser(null); // Có thể show UI guest ở đây
+      }
+    };
+  
+    fetchUser();
   }, []);
-
+  
   // Xử lý Logout
   const handleLogout = async () => {
     try {
@@ -96,7 +100,7 @@ const NavBar = () => {
               <FaUtensils className="nav-icon text-white fs-1 col-2" />
               <span className="fw-bolder text-white  fs-3 col-10 ">
                 <button
-                  onClick={() => navigate(user && user.Role === "owner" ? "/owner" : "/")}
+                  onClick={() => navigate(user && user.Role === "owner" ? "/owner" : user && user.Role === "admin" ? "/admin/dashboard" : "/")}
                   className="text-white text-decoration-none cursor-pointer border-0 bg-transparent"
                 >
                   TableBooker
@@ -134,7 +138,7 @@ const NavBar = () => {
                 {user ? (
                   <div>
                     <li className="d-flex justify-content-end align-items-center">
-                      <div class="dropdown d-flex justify-content-end">
+                      <div className="dropdown d-flex justify-content-end">
                         <button type="button" className="rounded-circle p-0 m-0 border-0" data-bs-toggle="dropdown" style={{ width: "40px", height: "40px", overflow: "hidden" }}>
                           <img
                             src={user && imageUrl ? imageUrl : avatar}

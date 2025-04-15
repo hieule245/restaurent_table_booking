@@ -23,7 +23,7 @@ const TableList = ({ restaurant_id }) => {
     setFormData({ ...formData, [e.target.name]: e.target.name === "seats" ? Number(e.target.value) : e.target.value });
   };
 
-  const fetchTables = useCallback(async () => {
+  const fetchTables = useCallback(async () => { 
     try {
       axios.get(`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables`, { withCredentials: true })
         .then((res) => setTables(res.data.tables || []))

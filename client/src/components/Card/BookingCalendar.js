@@ -98,6 +98,7 @@ const BookingCalendar = ({ table }) => {
         // Chuyển đổi mỗi reservation thành dạng "HH:MM - HH:MM"
         const format24To12 = (timeStr) => {
           const [hour, minute] = timeStr.split(":").map(Number);
+          console.log(hour, minute);
           const period = hour >= 12 ? "PM" : "AM";
           const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
           return `${formattedHour}:00 ${period}`;
@@ -300,15 +301,17 @@ const BookingCalendar = ({ table }) => {
           // Gửi request đặt bàn
           console.log("User object:", user);
           console.log("User role:", user?.Role);
-          {
-            user.Role === "staff" ? (await axios.post(
+          if (user.Role === "staff") {
+            await axios.post(
               `http://localhost:8080/staff/${restaurant_id}/bookings`,
               bookingStaffData[0]
-            )) : (await axios.post(
+            );
+          } else {
+            await axios.post(
               `http://localhost:8080/restaurants/${restaurant_id}/bookings`,
               bookingData[0]
-            ))
-          };
+            );
+          }
 
           // Hiển thị thông báo thành công
           Swal.fire({

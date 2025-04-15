@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import BookingForm from './components/BookingForm/BookingForm';
+import BookingForm from './components/BookingForm/BookingForm.js';
 import { initializeTimes, updateTimes } from './pages/BookingPage';
 import { submitAPI, fetchAPI } from './utils/temp';
 

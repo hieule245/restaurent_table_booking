@@ -128,7 +128,7 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
                                     </div>
                                 </div>
                                 <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-outline-dark fw-bold px-4" onClick={confirmDelete}>
+                                    <button type="button" className="btn btn-outline-dark fw-bold px-4" onClick={confirmDelete}>
                                         Delete
                                     </button>
                                     <button type="submit" className="btn btn-danger fw-bold px-4">

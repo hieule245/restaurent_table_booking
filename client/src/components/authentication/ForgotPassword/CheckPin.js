@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 
-const EnterPin = () => {
+const CheckPin = () => {
   const [pin, setPin] = useState(["", "", "", "", "", ""]);
   const [error] = useState("");
   const [timer, setTimer] = useState(120); // 2 phút
@@ -11,6 +11,41 @@ const EnterPin = () => {
   const inputRefs = useRef([]);
   const navigate = useNavigate();
   const email = localStorage.getItem("resetEmail");
+
+  useEffect(() => {
+    const canVerify = localStorage.getItem("canVerifyPin");
+    if (!canVerify || !email) {
+      navigate("/forgot-password"); // Không cho truy cập trực tiếp
+    }
+  }, [navigate, email]);
+
+  const handleNavigation = useCallback(
+    (Role) => {
+      console.log(Role)
+      if (Role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (Role === "owner") {
+        navigate("/owner");
+      } else if (Role === "staff") {
+        navigate("/staff");
+      } else if (Role === "customer") {
+        navigate("/");
+      }
+    },
+    [navigate]
+  );
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/me", { withCredentials: true })
+      .then((res) => {
+        // console.log(res.data.user.Role)
+        handleNavigation(res.data.user.Role);
+      })
+      .catch((err) => {
+        console.log("login dum tui", err);
+      });
+  }, [handleNavigation]);
 
   useEffect(() => {
     if (timer > 0) {
@@ -52,13 +87,14 @@ const EnterPin = () => {
       });
 
       if (response.status === 200) {
+        localStorage.setItem("canResetPassword", "true"); // Cho phép vào trang reset password
         navigate("/reset-password");
       }
     } catch (error) {
       toast.error(error.response.data.message);
       console.log(error.response.data.message);
-      if (error.response.status === 403){
-        setTimeout(()=>{
+      if (error.response.status === 403) {
+        setTimeout(() => {
           navigate("/login");
         }, 2000);
       }
@@ -107,6 +143,8 @@ const EnterPin = () => {
             <button type="submit" className="btn btn-primary w-50">Confirm</button>
           </form>
           <div className="text-center mt-3">
+            <small>The PIN will be deleted after 2 minutes.</small>
+            <br />
             <button
               className="btn btn-link"
               onClick={handleResendPin}
@@ -121,4 +159,4 @@ const EnterPin = () => {
   );
 };
 
-export default EnterPin;
+export default CheckPin;

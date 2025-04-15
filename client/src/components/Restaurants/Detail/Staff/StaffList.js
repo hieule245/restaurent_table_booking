@@ -4,9 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { toast, ToastContainer } from "react-toastify";
 import './StaffList.style.css'
 import axios from "axios";
-import { Modal } from "bootstrap";
 import AddStaff from "./AddStaff"
-
 
 export default function StaffList({ restaurant_id }) {
     const [staff, setStaff] = useState([]);
@@ -14,11 +12,14 @@ export default function StaffList({ restaurant_id }) {
     const [selectedStaff, setSelectedStaff] = useState(null);
     const [modalInstance, setModalInstance] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [setSortType] = useState(null);
+    const [sortType, setSortType] = useState(null);
     const itemsPerPage = 12;
 
     useEffect(() => {
-        if (!restaurant_id) return;
+        fetchStaff();
+    }, [restaurant_id]);
+
+    const fetchStaff = () => {
         axios.get(`http://localhost:8080/owners/:owner_id/${restaurant_id}/staffs`, { withCredentials: true })
             .then((res) => {
                 setStaff(res.data.staff || []);
@@ -27,23 +28,15 @@ export default function StaffList({ restaurant_id }) {
                 toast.error("Error fetching staff list!");
                 console.error("Error:", err);
             });
-
-        // Đợi DOM sẵn sàng trước khi khởi tạo modal
-        setTimeout(() => {
-            const modalElement = document.getElementById("confirmModal");
-            if (modalElement) {
-                setModalInstance(new Modal(modalElement));
-            }
-        }, 500);
-    }, [restaurant_id]);
+    };
 
 
     const handleSort = (type) => {
         setSortType(type);
         let sortedStaff = [...staff];
-        if (type === "name-asc") {
+        if (sortType === "name-asc") {
             sortedStaff.sort((a, b) => a.name.localeCompare(b.name));
-        } else if (type === "name-desc") {
+        } else if (sortType === "name-desc") {
             sortedStaff.sort((a, b) => b.name.localeCompare(a.name));
         }
         setStaff(sortedStaff);

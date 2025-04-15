@@ -3,16 +3,57 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import { useEffect } from "react";
-
+import { useEffect, useCallback } from "react";
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState({});
+  const navigate = useNavigate();
+
   let [showPassword, setShowPassword] = useState(false); // State for showing password
   let [showConfirmPassword, setShowConfirmPassword] = useState(false); // State for showing password
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    const canReset = localStorage.getItem("canResetPassword");
+    const email = localStorage.getItem("resetEmail");
+    if (!canReset || !email) {
+      navigate("/forgot-password"); // Chặn truy cập thẳng
+    }
+
+    return () => {
+      localStorage.removeItem("resetEmail");
+      localStorage.removeItem("canVerifyPin");
+      localStorage.removeItem("canResetPassword");
+    };
+  }, [navigate]);
+
+  const handleNavigation = useCallback(
+    (Role) => {
+      console.log(Role)
+      if (Role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (Role === "owner") {
+        navigate("/owner");
+      } else if (Role === "staff") {
+        navigate("/staff");
+      } else if (Role === "customer") {
+        navigate("/");
+      }
+    },
+    [navigate]
+  );
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/me", { withCredentials: true })
+      .then((res) => {
+        // console.log(res.data.user.Role)
+        handleNavigation(res.data.user.Role);
+      })
+      .catch((err) => {
+        console.log("login dum tui", err);
+      });
+  }, [handleNavigation]);
 
   const isValidPassword = (password) => {
     const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
@@ -77,7 +118,6 @@ const ResetPassword = () => {
                   style={{ borderRight: 0 }}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
                 />
                 <span
                   className="input-group-text bg-white"
@@ -102,7 +142,6 @@ const ResetPassword = () => {
                   style={{ borderRight: 0 }}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
                 />
                 <span
                   className="input-group-text bg-white"

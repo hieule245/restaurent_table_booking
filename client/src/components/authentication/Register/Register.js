@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion"; // Import animation
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { useCallback } from "react";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -24,6 +25,34 @@ const RegisterPage = () => {
   useEffect(() => {
     import("bootstrap/dist/js/bootstrap.bundle.min");
   }, []);
+
+  const handleNavigation = useCallback(
+    (Role) => {
+      console.log(Role)
+      if (Role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (Role === "owner") {
+        navigate("/owner");
+      } else if (Role === "staff") {
+        navigate("/staff");
+      } else if (Role === "customer") {
+        navigate("/");
+      }
+    },
+    [navigate]
+  );
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/me", { withCredentials: true })
+      .then((res) => {
+        // console.log(res.data.user.Role)
+        handleNavigation(res.data.user.Role);
+      })
+      .catch((err) => {
+        console.log("login dum tui", err);
+      });
+  }, [handleNavigation]);
 
   const isValidPhone = (phone) => {
     const phoneRegex = /^(0[1-9][0-9]{8})$/;
@@ -54,7 +83,9 @@ const RegisterPage = () => {
       validationErrors.email = "Email is required.";
     } else if (!isValidEmail(email)) {
       validationErrors.email = "Invalid email format.";
-    }
+    } else if (email.length > 50) {
+      validationErrors.email = "The email must not exceed 50 characters.";
+    } 
     if (!phone) {
       validationErrors.phone = "Phone number is required.";
     } else if (!isValidPhone(phone)) {
@@ -63,7 +94,9 @@ const RegisterPage = () => {
     if (!password) {
       validationErrors.password = "Password is required.";
     } else if (!isValidPassword(password)) {
-      validationErrors.password = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
+      validationErrors.password = "Password must include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
+    } else if (password.length > 64) {
+      validationErrors.password = "The password must not exceed 64 characters.";
     }
     if (!confirmPassword) {
       validationErrors.confirmPassword = "Confirm password is required.";
@@ -91,7 +124,16 @@ const RegisterPage = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("Registration failed. Please try again.");
+
+      const errorMessage =
+        error.response?.data?.message || "Registration failed. Please try again.";
+
+      // Nếu lỗi liên quan đến email, hiển thị dưới input email
+      if (errorMessage.toLowerCase().includes("gmail") || errorMessage.toLowerCase().includes("email")) {
+        setErrors(prev => ({ ...prev, email: errorMessage }));
+      } else {
+        toast.error(errorMessage);
+      }
     }
   };
 
@@ -161,15 +203,15 @@ const RegisterPage = () => {
                 <div className="form-group my-2">
                   <label className="form-label">Confirm Password</label>
                   <div className="input-group">
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    className="form-control"
-                    placeholder="Confirm Password"
-                    style={{ borderRight: 0 }}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
-                  <span
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      className="form-control"
+                      placeholder="Confirm Password"
+                      style={{ borderRight: 0 }}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    <span
                       className="input-group-text bg-white"
                       style={{ cursor: "pointer", borderLeft: 0 }}
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}

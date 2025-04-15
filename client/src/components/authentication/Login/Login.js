@@ -111,10 +111,18 @@ const LoginPage = () => {
       }
     } catch (error) {
       console.log(error);
-      if (error.response && error.response.data && error.response.data.message) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("Registration failed. Please try again.");
+
+      const errorMessage =
+        error.response?.data?.message || "Registration failed. Please try again.";
+
+      // Nếu lỗi liên quan đến email, hiển thị dưới input email
+      if (errorMessage.toLowerCase().includes("gmail") || errorMessage.toLowerCase().includes("email")) {
+        setErrors(prev => ({ ...prev, email: errorMessage }));
+      } else if (errorMessage.toLowerCase().includes("password")) {
+        setErrors(prev => ({ ...prev, password: errorMessage }));
+      }
+      else {
+        toast.error(errorMessage);
       }
     }
   };

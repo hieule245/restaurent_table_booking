@@ -6,11 +6,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faChevronRight, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaSortAlphaDown, FaSortAlphaUp, FaSortAmountDown, FaStoreAlt } from "react-icons/fa";
+import "./css/Restaurant.style.css";
 
 const Admin = () => {
     const navigate = useNavigate();
     const [restaurants, setRestaurants] = useState([]); // Dùng để hiển thị danh sách
-    const [setSortType] = useState(null);
+    const [sortType, setSortType] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8;
@@ -47,6 +48,7 @@ const Admin = () => {
             sortedRes.sort((a, b) => (b.Name || "").localeCompare(a.Name || ""));
         }
         setRestaurants(sortedRes);
+        console.log("Sort type đang dùng:", sortType);
     };
 
     const filteredRestaurants = (Array.isArray(restaurants) ? restaurants : []).filter((restaurant) =>
@@ -138,12 +140,18 @@ const Admin = () => {
                                         </div>
 
                                         {/* Nội dung */}
-                                        <div className="card-body text-center">
-                                            <h5 className="card-title">{restaurant.Name}</h5>
+                                        <div className="card-body text-center px-3">
+                                            <h5 className="restaurant-name">
+                                                {restaurant.Name}
+                                            </h5>
+
+                                            <p className="restaurant-description m-0"
+                                                title={restaurant.Description}>
+                                                {restaurant.Description}
+                                            </p>
+
                                             <div className="restaurant-hours">
-                                                <span className="open-time">
-                                                    🕒 {restaurant.Started} - {restaurant.Ended}
-                                                </span>
+                                                🕒 {restaurant.Started} - {restaurant.Ended}
                                             </div>
                                         </div>
                                     </div>
