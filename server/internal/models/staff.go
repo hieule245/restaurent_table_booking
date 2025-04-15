@@ -98,23 +98,6 @@ func LockStaff(ownerId, id int64) error {
 	return nil
 }
 
-func LockStaffByAdmin(id int64) error {
-	// Khóa nhân viên
-	query := `
-	UPDATE staffs SET status = 'ban'
-	WHERE id = ?
-	`
-
-	stmt, err := db.DB.Prepare(query)
-	if err != nil {
-		panic(err)
-		return err
-	}
-	defer stmt.Close()
-	_, err = stmt.Exec(id)
-	return nil
-}
-
 func UnlockStaff(ownerId, id int64) error {
 	// Check quyền
 	err := CheckPermissionsToLock(ownerId, id)
@@ -129,22 +112,6 @@ func UnlockStaff(ownerId, id int64) error {
 		panic(err)
 		return err
 	}
-
-	stmt, err := db.DB.Prepare(query)
-	if err != nil {
-		panic(err)
-		return err
-	}
-	defer stmt.Close()
-	_, err = stmt.Exec(id)
-	return nil
-}
-func UnlockStaffByAdmin(id int64) error {
-	// Khóa nhân viên
-	query := `
-	UPDATE staffs SET status = 'active'
-	WHERE id = ?
-	`
 
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
@@ -311,4 +278,71 @@ func GetReservationByRestaurantID(resId int64) ([]Reservations, error) {
 		res = append(res, book)
 	}
 	return res, nil
+}
+
+func SetStatusByAdmin(email, query string) error {
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		fmt.Println("prepare: ", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(email)
+	return nil
+}
+
+func BanByAdmin(email, role string) error {
+	var query string
+	switch role {
+	case "owner":
+		query = `
+		UPDATE owners SET status = 'ban'
+		WHERE gmail = ?
+		`
+	case "staff":
+		query = `
+		UPDATE staffs SET status = 'ban'
+		WHERE gmail = ?
+		`
+	case "customer":
+		query = `
+		UPDATE customers SET status = 'ban'
+		WHERE gmail = ?
+		`
+	default:
+		return errors.New("Invalid role")
+	}
+	err := SetStatusByAdmin(email, query)
+	if err != nil {
+		fmt.Println("ban 1-: ", err)
+	}
+	return err
+}
+
+func UnbanByAdmin(email, role string) error {
+	var query string
+	switch role {
+	case "owner":
+		query = `
+		UPDATE owners SET status = 'active'
+		WHERE gmail = ?
+		`
+	case "staff":
+		query = `
+		UPDATE staffs SET status = 'active'
+		WHERE gmail = ?
+		`
+	case "customer":
+		query = `
+		UPDATE customers SET status = 'active'
+		WHERE gmail = ?
+		`
+	default:
+		return errors.New("Invalid role")
+	}
+	err := SetStatusByAdmin(email, query)
+	if err != nil {
+		fmt.Println("ban 2-: ", err)
+	}
+	return err
 }

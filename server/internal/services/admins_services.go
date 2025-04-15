@@ -30,19 +30,21 @@ func LockAccount(context *gin.Context) {
 		return
 	}
 	if acc.Status == "active" || acc.Status == "inactive" {
-		err = models.LockStaffByAdmin(acc.Id)
+		fmt.Println("ban")
+		err = models.BanByAdmin(acc.Email, acc.Role)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 			return
 		}
-		context.JSON(http.StatusOK, gin.H{"message": "Lock successfully!!!"})
+		context.JSON(http.StatusOK, gin.H{"message": "Ban successfully!!!"})
 	} else {
-		err = models.UnlockStaffByAdmin(acc.Id)
+		err = models.UnbanByAdmin(acc.Email, acc.Role)
+		fmt.Println("unban", err)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 			return
 		}
-		context.JSON(http.StatusOK, gin.H{"message": "Unlock successfully!!!"})
+		context.JSON(http.StatusOK, gin.H{"message": "Unban successfully!!!"})
 	}
 }
 

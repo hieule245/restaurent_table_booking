@@ -35,13 +35,13 @@ func ResendPin(context *gin.Context) {
 	// Kiểm tra xem email có tồn tại không
 	_, exists := pinStorage.Load(input.Email)
 	if !exists {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Email không hợp lệ hoặc PIN đã hết hạn"})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid email or expired PIN."})
 		return
 	}
 
 	// Tạo mã PIN mới
 	newPin := pkg.RandomPin()
-	fmt.Println("Mã PIN mới được gửi cho:", input.Email)
+	fmt.Println("A new PIN has been sent to:", input.Email)
 	pkg.SendMailSimple(input.Email, newPin)
 
 	// Cập nhật bộ nhớ tạm
@@ -52,7 +52,7 @@ func ResendPin(context *gin.Context) {
 	}
 	pinStorage.Store(input.Email, newPinData)
 
-	context.JSON(http.StatusOK, gin.H{"message": "Mã PIN mới đã được gửi!"})
+	context.JSON(http.StatusOK, gin.H{"message": "New PIN has been sent!"})
 }
 
 func ResetPassword(context *gin.Context) {
@@ -117,15 +117,20 @@ func Logout(c *gin.Context) {
 }
 
 func Login(context *gin.Context) {
+	fmt.Println("Login--1")
 	_, err := context.Cookie("token")
+	fmt.Println("Login--2")
 	if err != nil {
 		var u models.Account
 		err = context.ShouldBindBodyWithJSON(&u)
+		fmt.Println("Login--aa", u.Email)
 		if err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
 			return
 		}
+		fmt.Println("Login--3")
 		err = u.Login()
+		fmt.Println("Login--4", err)
 		if err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return

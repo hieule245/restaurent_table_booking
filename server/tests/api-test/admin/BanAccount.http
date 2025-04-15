@@ -1,0 +1,9 @@
+POST http://localhost:8080/admin/users/:user_id/lock
+Content-Type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImdtYWlsIjoiaGlldWxlZUBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3NDQ2MDIyNDJ9.3r3hIMRLICs97vVUUIL2Lgm2oFLlkfJAOEGorJGoR8Q
+
+{
+    "Status": "ban",
+    "Email" : "hieuln245@gmail.com",
+    "Role" : "owner"
+}
