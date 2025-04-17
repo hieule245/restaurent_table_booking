@@ -1,3 +1,3 @@
-GET http://localhost:8080/staff/1/tables
+GET ${process.env.REACT_APP_API_URL}/staff/1/tables
 content-Type: application/json
 Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImdtYWlsIjoiaGlldWxlMjQ1MjAwM0BnbWFpbC5jb20iLCJyb2xlIjoic3RhZmYiLCJleHAiOjE3NDQxMTA2NTh9.FBba7ObBlz5V6h9wp8sl39EU_d_G5FlXvd1AI2CUoJ0

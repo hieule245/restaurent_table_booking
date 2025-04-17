@@ -24,10 +24,10 @@ const BookingHistory = () => {
   const currentItems = bookings.slice(indexOfFirstItem, indexOfLastItem);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Fetch user info 
+  // Fetch user info
   useEffect(() => {
     axios
-      .get("http://localhost:8080/me", { withCredentials: true })
+      .get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
       .then((res) => setUser(res.data.user))
       .catch(() => navigate("/login"));
   }, [navigate]);
@@ -36,9 +36,12 @@ const BookingHistory = () => {
   useEffect(() => {
     if (!user?.Id) return;
     axios
-      .get(`http://localhost:8080/booking-history?user_gmail=${user.Email}`, {
-        withCredentials: true,
-      })
+      .get(
+        `${process.env.REACT_APP_API_URL}/booking-history?user_gmail=${user.Email}`,
+        {
+          withCredentials: true,
+        }
+      )
       .then((res) => setBookings(res.data.bookings))
       .catch((err) => {
         console.error(err);
@@ -82,7 +85,7 @@ const BookingHistory = () => {
 
     axios
       .put(
-        `http://localhost:8080/reservation/${selectedBooking.id}`,
+        `${process.env.REACT_APP_API_URL}/reservation/${selectedBooking.id}`,
         updatedBooking,
         { withCredentials: true }
       )
@@ -111,9 +114,12 @@ const BookingHistory = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`http://localhost:8080/reservation/${booking.id}`, {
-            withCredentials: true,
-          })
+          .delete(
+            `${process.env.REACT_APP_API_URL}/reservation/${booking.id}`,
+            {
+              withCredentials: true,
+            }
+          )
           .then(() => {
             setBookings((prev) => prev.filter((b) => b.id !== booking.id));
             Swal.fire(
@@ -149,10 +155,12 @@ const BookingHistory = () => {
         ) : (
           <p className="booking-history-loading">Loading user info...</p>
         )}
-        
-        {(Array.isArray(bookings) && bookings.length === 0) ? (
+
+        {Array.isArray(bookings) && bookings.length === 0 ? (
           <p className="booking-history-no">No bookings found.</p>
-        ) : (bookings === null || bookings === undefined || (Array.isArray(bookings) && bookings.length === 0)) ? (
+        ) : bookings === null ||
+          bookings === undefined ||
+          (Array.isArray(bookings) && bookings.length === 0) ? (
           <p className="booking-history-no">No bookings found.</p>
         ) : (
           <motion.div
@@ -191,19 +199,33 @@ const BookingHistory = () => {
         )}
         {bookings.length > itemsPerPage && (
           <div className="pagination-container">
-            <button className="btn btn-outline-secondary me-2" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+            <button
+              className="btn btn-outline-secondary me-2"
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
               &laquo;
             </button>
-            {[...Array(Math.ceil(bookings.length / itemsPerPage)).keys()].map(number => (
-              <button
-                key={number + 1}
-                className={`btn ${currentPage === number + 1 ? "btn-dark" : "btn-outline-dark"} mx-1`}
-                onClick={() => paginate(number + 1)}
-              >
-                {number + 1}
-              </button>
-            ))}
-            <button className="btn btn-outline-secondary ms-2" onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(bookings.length / itemsPerPage)}>
+            {[...Array(Math.ceil(bookings.length / itemsPerPage)).keys()].map(
+              (number) => (
+                <button
+                  key={number + 1}
+                  className={`btn ${
+                    currentPage === number + 1 ? "btn-dark" : "btn-outline-dark"
+                  } mx-1`}
+                  onClick={() => paginate(number + 1)}
+                >
+                  {number + 1}
+                </button>
+              )
+            )}
+            <button
+              className="btn btn-outline-secondary ms-2"
+              onClick={() => paginate(currentPage + 1)}
+              disabled={
+                currentPage === Math.ceil(bookings.length / itemsPerPage)
+              }
+            >
               &raquo;
             </button>
           </div>
@@ -235,7 +257,7 @@ const BookingHistory = () => {
                       disabled
                       type="date"
                       className="form-control bg-secondary"
-                      value={selectedBooking.book_date?.split('T')[0] || ''}
+                      value={selectedBooking.book_date?.split("T")[0] || ""}
                       onChange={(e) =>
                         setSelectedBooking({
                           ...selectedBooking,
@@ -286,7 +308,8 @@ const BookingHistory = () => {
                     </select>
 
                     <small className="text-secondary p-0">
-                      * Please update the end time first if you want to reschedule.
+                      * Please update the end time first if you want to
+                      reschedule.
                     </small>
                     <br />
 

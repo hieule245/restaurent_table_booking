@@ -1,3 +1,3 @@
-GET http://localhost:8080/owners/:owner_id
+GET ${process.env.REACT_APP_API_URL}/owners/:owner_id
 Content-Type: application/json
 Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImdtYWlsIjoiaGlldWxlMjQ1MjAwM0BnbWFpbC5jb20iLCJyb2xlIjoib3duZXIiLCJleHAiOjE3NDM1NjU4OTR9.AoI0rOLTg4KNEKpAwtnzntURp2rjBX4cNtSr--sXG7Y

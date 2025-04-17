@@ -3,7 +3,7 @@ import axios from "axios";
 const HandleLogout = async () => {
   try {
     await axios.post(
-      "http://localhost:8080/logout",
+      `${process.env.REACT_APP_API_URL}/logout`,
       {},
       { withCredentials: true }
     );

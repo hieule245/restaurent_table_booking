@@ -17,7 +17,7 @@ const RestaurantList = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/restaurants")
+      .get(`${process.env.REACT_APP_API_URL}/restaurants`)
       .then((response) => {
         // console.log(response.data); // Debug để kiểm tra API trả về
         setRestaurants(response.data.restaurants); // Đúng key "restaurants"
