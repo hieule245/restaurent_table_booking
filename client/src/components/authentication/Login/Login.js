@@ -11,6 +11,8 @@ import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import './Login.style.css'
+import { loginSchema } from "../../../validations/AccountSchema";
+
 const LoginPage = () => {
   const navigate = useNavigate();
 
@@ -23,7 +25,7 @@ const LoginPage = () => {
         navigate("/owner");
       } else if (Role === "staff") {
         navigate("/staff");
-      } else if (Role === "customer")  {
+      } else if (Role === "customer") {
         navigate("/");
       }
     },
@@ -47,36 +49,12 @@ const LoginPage = () => {
       });
   }, [handleNavigation]);
 
-  const isValidPassword = (password) => {
-    const passwordRegex =
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
-    return passwordRegex.test(password);
-  };
-
-  const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
   const HandleLogin = async (e) => {
     e.preventDefault();
-    let validationErrors = {};
-    if (!email) {
-      validationErrors.email = "Email is required.";
-    } else if (!isValidEmail(email)) {
-      validationErrors.email = "Invalid email format.";
-    }
-    if (!password) {
-      validationErrors.password = "Password is required.";
-    } else if (!isValidPassword(password)) {
-      validationErrors.password =
-        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
-    }
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+
     try {
+      await loginSchema.validate({ email, password }, { abortEarly: false });
+      setErrors({});
       let res = await axios.post(
         "http://localhost:8080/login",
         { Email: email, Password: password },
@@ -156,7 +134,10 @@ const LoginPage = () => {
                     className="form-control"
                     placeholder="Email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setErrors((prev) => ({ ...prev, email: "" }));
+                    }}
                   />
                   {errors.email && (
                     <small className="text-danger">{errors.email}</small>
@@ -171,7 +152,10 @@ const LoginPage = () => {
                       placeholder="Password"
                       style={{ borderRight: 0 }}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setErrors((prev) => ({ ...prev, password: "" }));
+                      }}
                     />
                     <span
                       className="input-group-text bg-white"
@@ -202,7 +186,7 @@ const LoginPage = () => {
                     <hr className="flex-grow-1" />
                   </div>{" "}
                   {/* Added line dividers */}
-                  <button 
+                  <button
                     type="submit"
                     className="btn btn-light w-100"
                     onClick={() => navigate("/register")}

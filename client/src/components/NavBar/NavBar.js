@@ -11,6 +11,8 @@ import avatar from "../../assets/image/avatar.png";
 const NavBar = () => {
   // STATE FOR HAMBURGER MENU
   const [nav, setNav] = useState(false);
+  const navigate = useNavigate();
+  const navRef = useRef(null);
   const [user, setUser] = useState({
     Id: "",
     Name: "",
@@ -21,8 +23,6 @@ const NavBar = () => {
     Orther_id: 0,
     ImageFile: null,
   });
-  const navigate = useNavigate();
-  const navRef = useRef(null);
 
 
 

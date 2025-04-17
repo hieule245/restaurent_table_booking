@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { FaUtensils } from "react-icons/fa";
+import { useEffect } from "react";
 import { Tabs, Tab, TabList, TabPanel } from "react-tabs"
 import Dashboard from "../../components/Dashboard/Dashboard";
 import RestaurantList from "../../components/Restaurants/RestaurantList";
@@ -25,7 +24,7 @@ const Owner = () => {
             });
     }, [navigate]);
 
-    
+
     return (
         <>
             <NavBar />

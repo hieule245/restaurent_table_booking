@@ -5,7 +5,7 @@ import avatar from '../../assets/image/avatar.png'
 import axios from "axios";
 import { useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
-
+import { profileSchema } from "../../validations/AccountSchema";
 const Information = () => {
   const fileInputRef = useRef(null);
   const [originalUser, setOriginalUser] = useState(null);
@@ -27,36 +27,38 @@ const Information = () => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (isEditing) {
-      let validationErrors = {};
-      if (!user.Name) {
-        validationErrors.Name = "Name is required.";
-      } else if (!isValidName(user.Name)) {
-        validationErrors.Name = "Full name only contain letters and space"
-      }
-      if (!user.Phone) {
-        validationErrors.Phone = "Phone number is required.";
-      } else if (!isValidPhone(user.Phone)) {
-        validationErrors.Phone = "Phone number must be exactly 10 digits.";
-      }
+      try {
+        // Validate bằng Yup
+        await profileSchema.validate(
+          { Name: user.Name, Phone: user.Phone },
+          { abortEarly: false }
+        );
 
-      if (Object.keys(validationErrors).length > 0) {
-        setErrors(validationErrors);
-        return;
+        // Nếu hợp lệ, gọi API update
+        const res = await axios.post("http://localhost:8080/me", user, { withCredentials: true });
+
+        toast.success("Profile updated successfully");
+        setIsEditing(false);
+        setErrors({});
+        setOriginalUser(user);
+      } catch (err) {
+        if (err.name === "ValidationError") {
+          // Gom lỗi thành object để hiển thị
+          const validationErrors = {};
+          err.inner.forEach((error) => {
+            validationErrors[error.path] = error.message;
+          });
+          setErrors(validationErrors);
+        } else {
+          toast.error("Error updating profile: " + (err.response?.data || err.message));
+        }
       }
-      axios.post("http://localhost:8080/me", user, { withCredentials: true })
-        .then((res) => {
-          toast.success("Profile updated successfully:", res.data);
-          setIsEditing(false); // Tắt chế độ chỉnh sửa
-          setErrors({});
-          setOriginalUser(user);
-        })
-        .catch((err) => toast.error("Error updating profile:", err.response?.data || err.message));
     } else {
-      setIsEditing(true); // Bật chế độ chỉnh sửa
+      setIsEditing(true);
     }
-  }
+  };
 
   useEffect(() => {
     axios.get("http://localhost:8080/me", { withCredentials: true })
@@ -121,23 +123,24 @@ const Information = () => {
       <ToastContainer />
       <h3><strong>Profile</strong></h3>
       <div className="d-flex justify-content-center mt-4">
-        <div className="position-relative d-inline-block">
-          <img src={imageUrl} alt="User Avatar"
-            className="rounded-circle border border-3 border-white"
-            style={{ width: "200px", height: "200px", objectFit: "cover" }}
-          />
-          <FaPlusCircle
-            className="position-absolute bottom-0 end-0 text-dark bg-light rounded-circle" onClick={handleButtonClick}
-            style={{ fontSize: "24px", cursor: "pointer" }}
-          />
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-          />
-        </div>
+        {user && user.Role === "admin" ? <></> :
+          <div className="position-relative d-inline-block">
+            <img src={imageUrl} alt="User Avatar"
+              className="rounded-circle border border-3 border-white"
+              style={{ width: "200px", height: "200px", objectFit: "cover" }}
+            />
+            <FaPlusCircle
+              className="position-absolute bottom-0 end-0 text-dark bg-light rounded-circle" onClick={handleButtonClick}
+              style={{ fontSize: "24px", cursor: "pointer" }}
+            />
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              style={{ display: "none" }}
+            />
+          </div>}
       </div>
       <div className="container px-5 my-4">
         <form>

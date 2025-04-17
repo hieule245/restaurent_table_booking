@@ -9,6 +9,7 @@ import { motion } from "framer-motion"; // Import animation
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useCallback } from "react";
+import { AccountSchema } from "../../../validations/AccountSchema";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -54,62 +55,13 @@ const RegisterPage = () => {
       });
   }, [handleNavigation]);
 
-  const isValidPhone = (phone) => {
-    const phoneRegex = /^(0[1-9][0-9]{8})$/;
-    return phoneRegex.test(phone);
-  };
-
-  const isValidPassword = (password) => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
-    return passwordRegex.test(password);
-  };
-
-  const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
   const handleRegister = async (e) => {
     e.preventDefault();
-    let validationErrors = {};
-
-    // Validation checks
-    if (!name) {
-      validationErrors.name = "Name is required.";
-    } else if (name.length > 50) {
-      validationErrors.name = "Name must not exceed 50 characters.";
-    }
-    if (!email) {
-      validationErrors.email = "Email is required.";
-    } else if (!isValidEmail(email)) {
-      validationErrors.email = "Invalid email format.";
-    } else if (email.length > 50) {
-      validationErrors.email = "The email must not exceed 50 characters.";
-    } 
-    if (!phone) {
-      validationErrors.phone = "Phone number is required.";
-    } else if (!isValidPhone(phone)) {
-      validationErrors.phone = "Phone number must be exactly 10 digits.(e.g. 093*******)";
-    }
-    if (!password) {
-      validationErrors.password = "Password is required.";
-    } else if (!isValidPassword(password)) {
-      validationErrors.password = "Password must include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
-    } else if (password.length > 64) {
-      validationErrors.password = "The password must not exceed 64 characters.";
-    }
-    if (!confirmPassword) {
-      validationErrors.confirmPassword = "Confirm password is required.";
-    }
-    if (password !== confirmPassword) {
-      validationErrors.confirmPassword = "Passwords do not match.";
-    }
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-    console.log(role);
     try {
+      // Validate toàn bộ form
+      await AccountSchema.validate({ name, email, phone, password, confirmPassword, role }, { abortEarly: false });
+      setErrors({}); // Xoá lỗi cũ
+
       const res = await axios.post("http://localhost:8080/register", {
         Name: name,
         Email: email,
@@ -122,17 +74,22 @@ const RegisterPage = () => {
         toast.success("Registration successful! Redirecting to login...");
         setTimeout(() => navigate("/login"), 2000);
       }
-    } catch (error) {
-      console.log(error);
-
-      const errorMessage =
-        error.response?.data?.message || "Registration failed. Please try again.";
-
-      // Nếu lỗi liên quan đến email, hiển thị dưới input email
-      if (errorMessage.toLowerCase().includes("gmail") || errorMessage.toLowerCase().includes("email")) {
-        setErrors(prev => ({ ...prev, email: errorMessage }));
+    } catch (err) {
+      if (err.name === "ValidationError") {
+        const newErrors = {};
+        err.inner.forEach((error) => {
+          newErrors[error.path] = error.message;
+        });
+        setErrors(newErrors);
       } else {
-        toast.error(errorMessage);
+        const errorMessage =
+          err.response?.data?.message || "Registration failed. Please try again.";
+
+        if (errorMessage.toLowerCase().includes("email")) {
+          setErrors((prev) => ({ ...prev, email: errorMessage }));
+        } else {
+          toast.error(errorMessage);
+        }
       }
     }
   };

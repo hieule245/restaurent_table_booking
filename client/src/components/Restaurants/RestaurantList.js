@@ -9,9 +9,11 @@ import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import { FaSortAlphaDown, FaSortAlphaUp, FaSortAmountDown } from "react-icons/fa";
 import "./RestaurantList.styles.css"
-
+import { restaurantSchema } from "../../validations/RestaurantSchema";
 
 const RestaurantList = () => {
+    const modalElement = document.getElementById("myModal");
+
     const navigate = useNavigate();
     const [restaurants, setRestaurants] = useState([]); // Dùng để hiển thị danh sách
     const [restaurantData, setRestaurantData] = useState({
@@ -29,16 +31,30 @@ const RestaurantList = () => {
     };
     const modalRef = useRef(null);
     const [setSortType] = useState(null);
+    const [formErrors, setFormErrors] = useState({});
+    const [modalInstance, setModalInstance] = useState(null);
 
+    useEffect(() => {
+        if (modalRef.current) {
+            const instance = new window.bootstrap.Modal(modalRef.current);
+            setModalInstance(instance);
+        }
+    }, []);
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post(`http://localhost:8080/owners/${ownerId}/restaurants`, restaurantData, { withCredentials: true });
+            await restaurantSchema.validate(restaurantData, { abortEarly: false });
+            setFormErrors({});
 
-            console.log("Response", response.data);
+            // Submit thành công
+            await axios.post(
+                `http://localhost:8080/owners/${ownerId}/restaurants`,
+                restaurantData,
+                { withCredentials: true }
+            );
+
             toast.success("Create restaurant successfully!!!");
-
-            fetchRestaurant()
+            fetchRestaurant();
 
             // Reset form
             setRestaurantData({
@@ -48,9 +64,29 @@ const RestaurantList = () => {
                 ended: "",
                 location: "",
             });
+            if (modalInstance) {
+                modalInstance.hide();
+                setTimeout(() => {
+                    // Xóa class modal-open khỏi body
+                    document.body.classList.remove('modal-open');
+
+                    // Xóa tất cả modal backdrop còn sót lại
+                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+
+                    // Clear inline style có thể bị thêm vào body (nếu có)
+                    document.body.style = '';
+                }, 300); // delay cho animation kết thúc
+            }
         } catch (error) {
-            console.log("Error:", error);
-            toast.error("Fail to create!!");
+            if (error.name === "ValidationError") {
+                const errors = {};
+                error.inner.forEach((err) => {
+                    errors[err.path] = err.message;
+                });
+                setFormErrors(errors);
+            } else {
+                toast.error(error.response?.data?.message || error.response?.data?.error || "An error occurred");
+            }
         }
     };
 
@@ -149,7 +185,7 @@ const RestaurantList = () => {
                             </div>
                             <form onSubmit={handleSubmit}>
                                 <div className="modal-body">
-                                    <div className="form-group my-2">
+                                    {/* <div className="form-group my-2">
                                         <label className="form-label">Image</label>
                                         <input
                                             name="image"
@@ -159,17 +195,18 @@ const RestaurantList = () => {
                                             onChange={handleChange}
                                             value={restaurantData.image}
                                         />
-                                    </div>
+                                    </div> */}
                                     <div className="form-group my-2">
                                         <label className="form-label">Name</label>
                                         <input
                                             name="name"
                                             type="text"
-                                            className="form-control"
+                                            className={`form-control ${formErrors.name ? "is-invalid" : ""}`}
                                             placeholder="Full Name"
                                             onChange={handleChange}
                                             value={restaurantData.name}
                                         />
+                                        {formErrors.name && <div className="invalid-feedback">{formErrors.name}</div>}
                                     </div>
                                     <div className="form-group my-2">
                                         <label className="form-label">Description</label>
@@ -188,20 +225,22 @@ const RestaurantList = () => {
                                             <input
                                                 name="started"
                                                 type="time"
-                                                className="form-control"
+                                                className={`form-control ${formErrors.started ? "is-invalid" : ""}`}
                                                 onChange={handleChange}
                                                 value={restaurantData.started}
                                             />
+                                            {formErrors.started && <div className="invalid-feedback">{formErrors.started}</div>}
                                         </div>
                                         <div className="col-6">
                                             <label className="form-label">Closed</label>
                                             <input
                                                 name="ended"
                                                 type="time"
-                                                className="form-control"
+                                                className={`form-control ${formErrors.ended ? "is-invalid" : ""}`}
                                                 onChange={handleChange}
                                                 value={restaurantData.ended}
                                             />
+                                            {formErrors.ended && <div className="invalid-feedback">{formErrors.ended}</div>}
                                         </div>
                                     </div>
                                     <div className="form-group my-2">
@@ -209,15 +248,16 @@ const RestaurantList = () => {
                                         <input
                                             name="location"
                                             type="text"
-                                            className="form-control"
+                                            className={`form-control ${formErrors.location ? "is-invalid" : ""}`}
                                             placeholder="Location"
                                             onChange={handleChange}
                                             value={restaurantData.location}
                                         />
+                                        {formErrors.location && <div className="invalid-feedback">{formErrors.location}</div>}
                                     </div>
                                 </div>
                                 <div className="modal-footer">
-                                    <button type="submit" className="btn btn-outline-danger" data-bs-dismiss="modal">Create</button>
+                                    <button type="submit" className="btn btn-outline-danger">Create</button>
                                     <button type="button" className="btn btn-danger border-0 p-2" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </form>

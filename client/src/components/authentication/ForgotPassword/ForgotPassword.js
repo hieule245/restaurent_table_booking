@@ -3,40 +3,16 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import { useEffect, useCallback } from "react";
+import Cookies from "js-cookie";
+
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [message] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const handleNavigation = useCallback(
-    (Role) => {
-      console.log(Role)
-      if (Role === "admin") {
-        navigate("/admin/dashboard");
-      } else if (Role === "owner") {
-        navigate("/owner");
-      } else if (Role === "staff") {
-        navigate("/staff");
-      } else if (Role === "customer") {
-        navigate("/");
-      }
-    },
-    [navigate]
-  );
-
-  useEffect(() => {
-    axios
-      .get("http://localhost:8080/me", { withCredentials: true })
-      .then((res) => {
-        // console.log(res.data.user.Role)
-        handleNavigation(res.data.user.Role);
-      })
-      .catch((err) => {
-        console.log("login dum tui", err);
-      });
-  }, [handleNavigation]);
+  Cookies.set("canVerifyPin", "false", { expires: 1, secure: true, sameSite: "Strict" });
+  Cookies.set("canResetPassword", "false", { expires: 1, secure: true, sameSite: "Strict" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,8 +20,8 @@ const ForgotPassword = () => {
     try {
       const response = await axios.post("http://localhost:8080/forgot-password", { email });
       if (response.status === 200) {
-        localStorage.setItem("resetEmail", email); // Email
-        localStorage.setItem("canVerifyPin", "true"); // Cho phép vào trang verify PIN
+        Cookies.set("resetEmail", email, { expires: 1, secure: true, sameSite: "Strict" });
+        Cookies.set("canVerifyPin", "true", { expires: 1, secure: true, sameSite: "Strict" });
         navigate("/verify-pin");
       }
     } catch (error) {
@@ -104,9 +80,17 @@ const ForgotPassword = () => {
 
               />
             </div>
-            <button type="submit" id="forgotpassword" className="btn btn-primary w-100" disabled={isSubmitting | !isEmailValid}>
-              Send request
+            <button type="submit" id="forgotpassword" className="btn btn-primary w-100" disabled={isSubmitting || !isEmailValid}>
+              {isSubmitting ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Sending...
+                </>
+              ) : (
+                "Send request"
+              )}
             </button>
+
           </form>
           <div className="text-center mt-3">
             <a href="/login" className="text-decoration-none">

@@ -2,6 +2,7 @@ import React, { useCallback, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import Cookies from "js-cookie";
 
 const CheckPin = () => {
   const [pin, setPin] = useState(["", "", "", "", "", ""]);
@@ -10,42 +11,15 @@ const CheckPin = () => {
   const [canResend, setCanResend] = useState(false);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
-  const email = localStorage.getItem("resetEmail");
+  const email = Cookies.get("resetEmail");
 
   useEffect(() => {
-    const canVerify = localStorage.getItem("canVerifyPin");
-    if (!canVerify || !email) {
-      navigate("/forgot-password"); // Không cho truy cập trực tiếp
+    const canVerifyPin = Cookies.get("canVerifyPin");
+    console.log("canVerifyPin", canVerifyPin)
+    if (canVerifyPin === "false"||canVerifyPin === undefined) {
+      navigate("/forgot-password"); // Nếu không có cookie, chuyển hướng về trang forgot-password
     }
-  }, [navigate, email]);
-
-  const handleNavigation = useCallback(
-    (Role) => {
-      console.log(Role)
-      if (Role === "admin") {
-        navigate("/admin/dashboard");
-      } else if (Role === "owner") {
-        navigate("/owner");
-      } else if (Role === "staff") {
-        navigate("/staff");
-      } else if (Role === "customer") {
-        navigate("/");
-      }
-    },
-    [navigate]
-  );
-
-  useEffect(() => {
-    axios
-      .get("http://localhost:8080/me", { withCredentials: true })
-      .then((res) => {
-        // console.log(res.data.user.Role)
-        handleNavigation(res.data.user.Role);
-      })
-      .catch((err) => {
-        console.log("login dum tui", err);
-      });
-  }, [handleNavigation]);
+  }, [navigate]);
 
   useEffect(() => {
     if (timer > 0) {
@@ -87,17 +61,16 @@ const CheckPin = () => {
       });
 
       if (response.status === 200) {
-        localStorage.setItem("canResetPassword", "true"); // Cho phép vào trang reset password
-        navigate("/reset-password");
+        Cookies.remove("canVerifyPin");
+        Cookies.set("canResetPassword", true, { expires: (1 / 720) }); // 2 phút
+        toast.success("Verify PIN successfully");
+        setTimeout(() => {
+          navigate("/reset-password");
+        }, 1000);
       }
     } catch (error) {
       toast.error(error.response.data.message);
       console.log(error.response.data.message);
-      if (error.response.status === 403) {
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
-      }
     }
   };
 
@@ -108,7 +81,7 @@ const CheckPin = () => {
       setTimer(120); // Đặt lại bộ đếm 2 phút
       setCanResend(false);
     } catch (error) {
-      toast.error("Lỗi khi gửi lại mã PIN!");
+      toast.error(error.response.data.message);
     }
   };
 
