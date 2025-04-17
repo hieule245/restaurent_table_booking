@@ -11,6 +11,8 @@ import "./BookingHistory.css";
 import RestaurantLayout from "../../pages/Restaurant/restaurantLayout";
 
 const BookingHistory = () => {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
   const [user, setUser] = useState({});
   const [bookings, setBookings] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
@@ -23,6 +25,54 @@ const BookingHistory = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = bookings.slice(indexOfFirstItem, indexOfLastItem);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // cập nhật thời gian mỗi 5 giây và kiểm tra trạng thái
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      setCurrentTime(now);
+
+      // Cập nhật trạng thái đặt bàn
+      setBookings((prevBookings) =>
+        prevBookings.map((booking) => {
+          const bookDate = new Date(`${booking.book_date}`);
+          const today = new Date();
+          if (
+            bookDate.getFullYear() !== today.getFullYear() ||
+            bookDate.getMonth() !== today.getMonth() ||
+            bookDate.getDate() !== today.getDate()
+          ) {
+            return booking; // Không phải hôm nay => giữ nguyên
+          }
+
+          const timeNow =
+            now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+          const startSeconds = convertTimeToSeconds(booking.time_start);
+          const endSeconds = convertTimeToSeconds(booking.time_end);
+
+          // Pending => Cancelled nếu quá giờ
+          if (booking.status === 1 && timeNow >= startSeconds) {
+            updateStatusOnServer(booking.id, 0);
+            return { ...booking, status: 0 };
+          }
+          // Confirmed => Occupied hoặc Done
+          if (booking.status === 2) {
+            if (timeNow >= startSeconds && timeNow < endSeconds) {
+              updateStatusOnServer(booking.id, 3);
+              return { ...booking, status: 3 };
+            } else if (timeNow >= endSeconds) {
+              updateStatusOnServer(booking.id, 4);
+              return { ...booking, status: 4 };
+            }
+          }
+
+          return booking;
+        })
+      );
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Fetch user info
   useEffect(() => {
@@ -46,6 +96,26 @@ const BookingHistory = () => {
       });
   }, [user]);
 
+  const updateStatusOnServer = (id, newStatus) => {
+    axios
+      .put(
+        `http://localhost:8080/reservation/${id}/server`,
+        { status: newStatus },
+        { withCredentials: true }
+      )
+      .then(() => {
+        console.log(`✅ Booking ${id} updated to status ${newStatus}`);
+      })
+      .catch((err) => {
+        console.error(`❌ Failed to update booking ${id}`, err);
+      });
+  };
+
+  const convertTimeToSeconds = (timeStr) => {
+    const [h, m, s] = timeStr.split(":").map(Number);
+    return h * 3600 + m * 60 + s;
+  };
+
   const timeSlots = Array.from({ length: 9 }, (_, i) => {
     const hour = 7 + i * 2;
     return `${hour.toString().padStart(2, "0")}:00:00`;
@@ -58,8 +128,6 @@ const BookingHistory = () => {
     hour = hour % 12 || 12;
     return `${hour.toString().padStart(2, "0")}:${minuteStr} ${ampm}`;
   };
-
-  console.log("Booking history:", bookings);
   // Mở modal chỉnh sửa
   const handleEdit = (booking) => {
     setSelectedBooking(booking);
@@ -140,6 +208,8 @@ const BookingHistory = () => {
         <h2 className="booking-history-title text-danger fs-1">
           Booking History
         </h2>
+
+        <h5 className="text-muted">Current: {currentTime.toLocaleString()}</h5>
 
         {user ? (
           <p className="booking-history-welcome">

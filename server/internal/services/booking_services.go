@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -288,6 +289,65 @@ func EditReservation(c *gin.Context) {
 	`, input.NumberOfCustomer, input.BookDate, input.TimeStart, input.TimeEnd, input.Status, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update reservation"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Reservation updated successfully"})
+}
+
+func EditReservationByServer(c *gin.Context) {
+	id := c.Param("reservation_id")
+
+	var input struct {
+		NumberOfCustomer string `json:"numberOfCustomer"`
+		BookDate         string `json:"book_date"`
+		TimeStart        string `json:"time_start"`
+		TimeEnd          string `json:"time_end"`
+		Status           int    `json:"status"` // -1 nghĩa là không gửi
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	query := "UPDATE reservations SET "
+	params := []interface{}{}
+	setClauses := []string{}
+
+	if input.NumberOfCustomer != "" {
+		setClauses = append(setClauses, "numberOfCustomer = ?")
+		params = append(params, input.NumberOfCustomer)
+	}
+	if input.BookDate != "" {
+		setClauses = append(setClauses, "book_date = ?")
+		params = append(params, input.BookDate)
+	}
+	if input.TimeStart != "" {
+		setClauses = append(setClauses, "time_start = ?")
+		params = append(params, input.TimeStart)
+	}
+	if input.TimeEnd != "" {
+		setClauses = append(setClauses, "time_end = ?")
+		params = append(params, input.TimeEnd)
+	}
+	if input.Status != -1 {
+		setClauses = append(setClauses, "status = ?")
+		params = append(params, input.Status)
+	}
+
+	if len(setClauses) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No fields to update"})
+		return
+	}
+
+	query += strings.Join(setClauses, ", ") + " WHERE id = ?"
+	params = append(params, id)
+
+	_, err := db.DB.Exec(query, params...)
+	if err != nil {
+		// c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update reservation"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

@@ -22,6 +22,8 @@ func Routes(server *gin.Engine) {
 	server.GET("/booking-history", services.GetBookingHistoryByUserID)
 	// edit reservation for customer
 	server.PUT("/reservation/:reservation_id", services.EditReservation)
+	server.PUT("/reservation/:reservation_id/server", services.EditReservationByServer)
+
 	// delete reservation for customer
 	server.DELETE("/reservation/:reservation_id", services.CancelReservation)
 

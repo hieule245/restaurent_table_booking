@@ -3,6 +3,7 @@ import React from "react";
 const BookingRow = ({ booking, index, onEdit, onCancel }) => {
   // Mapping trạng thái đặt bàn
   const statusMapping = {
+    // -1: la khong cap nhat
     0: { label: "Cancelled", className: "badge bg-secondary" },
     1: { label: "Pending", className: "badge bg-warning" },
     2: { label: "Confirmed", className: "badge bg-success" },
