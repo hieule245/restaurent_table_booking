@@ -36,7 +36,7 @@ const TableList = ({ restaurant_id }) => {
     });
   };
 
-  const fetchTables = useCallback(async () => {
+  const fetchTables = useCallback(async () => { 
     try {
       axios
         .get(

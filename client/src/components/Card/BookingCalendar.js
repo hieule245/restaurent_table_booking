@@ -100,6 +100,7 @@ const BookingCalendar = ({ table }) => {
         // Chuyển đổi mỗi reservation thành dạng "HH:MM - HH:MM"
         const format24To12 = (timeStr) => {
           const [hour, minute] = timeStr.split(":").map(Number);
+          console.log(hour, minute);
           const period = hour >= 12 ? "PM" : "AM";
           const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
           return `${formattedHour}:00 ${period}`;

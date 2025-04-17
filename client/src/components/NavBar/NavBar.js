@@ -11,6 +11,8 @@ import avatar from "../../assets/image/avatar.png";
 const NavBar = () => {
   // STATE FOR HAMBURGER MENU
   const [nav, setNav] = useState(false);
+  const navigate = useNavigate();
+  const navRef = useRef(null);
   const [user, setUser] = useState({
     Id: "",
     Name: "",
@@ -21,8 +23,6 @@ const NavBar = () => {
     Orther_id: 0,
     ImageFile: null,
   });
-  const navigate = useNavigate();
-  const navRef = useRef(null);
 
   // Lưu thông tin từ cookie
   useEffect(() => {
@@ -33,12 +33,15 @@ const NavBar = () => {
           setUser(res.data.user); // lưu thông tin user
           console.log(res.data.user);
         }
-      })
-      .catch(() => {
-        setUser(null);
-      });
+      } catch (err) {
+        console.log("User chưa đăng nhập hoặc token hết hạn");
+        setUser(null); // Có thể show UI guest ở đây
+      }
+    };
+  
+    fetchUser();
   }, []);
-
+  
   // Xử lý Logout
   const handleLogout = async () => {
     try {
@@ -95,9 +98,7 @@ const NavBar = () => {
               <FaUtensils className="nav-icon text-white fs-1 col-2" />
               <span className="fw-bolder text-white  fs-3 col-10 ">
                 <button
-                  onClick={() =>
-                    navigate(user && user.Role === "owner" ? "/owner" : "/")
-                  }
+                  onClick={() => navigate(user && user.Role === "owner" ? "/owner" : user && user.Role === "admin" ? "/admin/dashboard" : "/")}
                   className="text-white text-decoration-none cursor-pointer border-0 bg-transparent"
                 >
                   TableBooker

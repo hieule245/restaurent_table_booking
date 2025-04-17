@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
@@ -17,10 +17,9 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
 
   const isValidGmail = (gmail) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(gmail);
   const isValidPassword = (password) =>
-    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/.test(
-      password
-    );
-
+    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/.test(password);
+  const isValidPhone = (phone) =>
+    /^(0[1-9][0-9]{8})$/.test(phone);
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
@@ -39,7 +38,8 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
       validationErrors.password =
         "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.";
     if (!formData.phone) validationErrors.phone = "Phone number is required.";
-
+    else if (!isValidPhone(formData.phone))
+      validationErrors.phone = "Phone number must be exactly 10 digits.(e.g. 093*******)";
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -70,13 +70,8 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
   };
 
   return (
-    <div
-      className="modal fade"
-      id="myModal"
-      tabIndex="-1"
-      aria-labelledby="myModalLabel"
-      aria-hidden="true"
-    >
+    <div className="modal fade" id="myModal" tabIndex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+      <ToastContainer />
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content rounded-4 shadow-lg border-0">
           <div className="modal-header bg-dark text-white rounded-top-4">

@@ -14,6 +14,7 @@ type Restaurant struct {
 	Started     string
 	Ended       string
 	Owner_id    int64
+	Status      string
 	Location    string
 	imageFile   []byte
 }
@@ -82,14 +83,15 @@ func GetAllRestaurants() ([]Restaurant, error) {
 
 func (r *Restaurant) CreateRestaurant() error {
 	query := `
-	INSERT INTO restaurants(name, description, time_start, time_end, location, owner_id)
-	VALUES (?, ?, ?, ?, ?, ?)`
+	INSERT INTO restaurants(name, description, status, time_start, time_end, location, owner_id)
+	VALUES (?, ?, ?, ?, ?, ?, ?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	result, err := stmt.Exec(r.Name, r.Description, r.Started, r.Ended, r.Location, r.Owner_id)
+	r.Status = "active"
+	result, err := stmt.Exec(r.Name, r.Description, r.Status, r.Started, r.Ended, r.Location, r.Owner_id)
 	fmt.Print(r.Owner_id)
 	if err != nil {
 		return err
@@ -135,7 +137,9 @@ func (r *Restaurant) UpdateRestaurant() error {
 }
 
 func DeleteRestaurantByID(id int64) error {
-	query := `DELETE FROM restaurants WHERE id = ?`
+	query := `UPDATE restaurants 
+		SET status = 'inactive'
+		WHERE id = ?`
 	result, err := db.DB.Exec(query, id)
 	if err != nil {
 		return err

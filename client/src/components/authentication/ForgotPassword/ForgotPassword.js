@@ -2,13 +2,17 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import { useEffect, useCallback } from "react";
+import Cookies from "js-cookie";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [message] = useState("");
-  const [isEmailValid, setIsEmailValid] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  Cookies.set("canVerifyPin", "false", { expires: 1, secure: true, sameSite: "Strict" });
+  Cookies.set("canResetPassword", "false", { expires: 1, secure: true, sameSite: "Strict" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,8 +23,9 @@ const ForgotPassword = () => {
         { email }
       );
       if (response.status === 200) {
-        localStorage.setItem("resetEmail", email); // Lưu email vào localStorage
-        navigate("/verify-pin"); // Chuyển hướng đến trang nhập mã PIN
+        Cookies.set("resetEmail", email, { expires: 1, secure: true, sameSite: "Strict" });
+        Cookies.set("canVerifyPin", "true", { expires: 1, secure: true, sameSite: "Strict" });
+        navigate("/verify-pin");
       }
     } catch (error) {
       setIsSubmitting(false);
@@ -81,14 +86,17 @@ const ForgotPassword = () => {
                 required
               />
             </div>
-            <button
-              type="submit"
-              id="forgotpassword"
-              className="btn btn-primary w-100"
-              disabled={isSubmitting | !isEmailValid}
-            >
-              Send request
+            <button type="submit" id="forgotpassword" className="btn btn-primary w-100" disabled={isSubmitting || !isEmailValid}>
+              {isSubmitting ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Sending...
+                </>
+              ) : (
+                "Send request"
+              )}
             </button>
+
           </form>
           <div className="text-center mt-3">
             <a href="/login" className="text-decoration-none">

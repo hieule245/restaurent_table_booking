@@ -20,6 +20,8 @@ import Reservation from "../../pages/Staff/HistoryReservation/HistoryReservation
 import AccountList from "../../pages/Admin/AccountList"
 import RestaurantList from "../../pages/Admin/Restaurants"
 import Revenues from "../../pages/Admin/Revenues"
+import PrivateRoute from "./Per/PrivateRoute";
+import PublicRoute from "./Per/PublicRoute";
 const Main = () => {
   return (
     <Routes future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -27,18 +29,23 @@ const Main = () => {
       <Route path="/bookings" element={<BookingPage />} />
       <Route path="/confirmed" element={<ConfirmedBookingPage />} />
       {/* Authentication */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/verify-pin" element={<CheckPin />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-
+      <Route element={<PublicRoute />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-pin" element={<CheckPin />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+      </Route>
       {/* Admin */}
-      <Route path="/admin/dashboard" element={<DashboardAdmin />} />
-      <Route path="/admin/accounts" element={<AccountList />} />
-      <Route path="/admin/restaurants" element={<RestaurantList />} />
-      <Route path="/admin/revenues" element={<Revenues />} />
-      <Route path="/personal" element={<PersonalPage />} />
+      <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
+        <Route path="/admin/dashboard" element={<DashboardAdmin />} />
+        <Route path="/admin/accounts" element={<AccountList />} />
+        <Route path="/admin/restaurants" element={<RestaurantList />} />
+        <Route path="/admin/revenues" element={<Revenues />} />
+      </Route>
+      <Route element={<PrivateRoute allowedRoles={["admin", "customer", "staff", "owner"]} />}>
+        <Route path="/personal" element={<PersonalPage />} />
+      </Route>
 
       {/* Restaurant */}
       <Route path="/restaurants" element={<Restaurants />} />
@@ -46,14 +53,19 @@ const Main = () => {
       <Route path="/restaurants/:restaurant_id/detail" element={<RestaurantDetailPage />} />
 
       {/* Owner */}
-      <Route path="/owner" element={<OwnerControll />} />
-      <Route path="/owner/restaurants/:restaurant_id/detail" element={<RestaurantOwnerDetailPage />} />
-
+      <Route element={<PrivateRoute allowedRoles={["owner"]} />}>
+        <Route path="/owner" element={<OwnerControll />} />
+        <Route path="/owner/restaurants/:restaurant_id/detail" element={<RestaurantOwnerDetailPage />} />
+      </Route>
       {/* Staff */}
-      <Route path="/staff" element={<RestaurantPage />} />
-      <Route path="/staff/booking-history" element={<Reservation />} />
+      <Route element={<PrivateRoute allowedRoles={["staff"]} />}>
+        <Route path="/staff" element={<RestaurantPage />} />
+        <Route path="/staff/booking-history" element={<Reservation />} />
+      </Route>
       {/* Customer */}
-      <Route path="/booking-history" element={<BookingHistory />} />
+      <Route element={<PrivateRoute allowedRoles={["admin", "customer", "staff", "owner"]} />}>
+        <Route path="/booking-history" element={<BookingHistory />} />
+      </Route>
     </Routes>
   );
 };

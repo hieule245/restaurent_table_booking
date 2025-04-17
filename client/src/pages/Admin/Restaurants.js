@@ -9,21 +9,17 @@ import {
   faChevronLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  FaSortAlphaDown,
-  FaSortAlphaUp,
-  FaSortAmountDown,
-  FaStoreAlt,
-} from "react-icons/fa";
+import { FaSortAlphaDown, FaSortAlphaUp, FaSortAmountDown, FaStoreAlt } from "react-icons/fa";
+import "./css/Restaurant.style.css";
 
 const Admin = () => {
-  const navigate = useNavigate();
-  const [restaurants, setRestaurants] = useState([]); // Dùng để hiển thị danh sách
-  const [setSortType] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
-  const { ownerId } = useParams();
+    const navigate = useNavigate();
+    const [restaurants, setRestaurants] = useState([]); // Dùng để hiển thị danh sách
+    const [sortType, setSortType] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
+    const { ownerId } = useParams();
 
   const fetchRestaurant = useCallback(async () => {
     axios
@@ -38,12 +34,9 @@ const Admin = () => {
           toast.error("Expected array but got:", response.data);
           setRestaurants([]); // Đặt giá trị mặc định để tránh lỗi
         }
-      })
-      .catch((error) => {
-        toast.error("Error fetching restaurants:", error);
-        setRestaurants([]); // Đảm bảo `restaurants` luôn là mảng
-      });
-  }, [ownerId]);
+        setRestaurants(sortedRes);
+        console.log("Sort type đang dùng:", sortType);
+    };
 
   useEffect(() => {
     fetchRestaurant();
@@ -69,17 +62,72 @@ const Admin = () => {
       restaurant.Name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalPages = Math.ceil(filteredRestaurants.length / itemsPerPage);
-  const paginatedRestaurants = filteredRestaurants.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-  return (
-    <div className="bg-black">
-      <ToastContainer />
-      <div className="p-4 text-white row vh-100">
-        <div className="col-2">
-          <Sidebar />
+                    {/* Restaurant cards */}
+                    <div className="">
+                        <div className="row">
+                            {paginatedRestaurants.map((restaurant) => (
+                                <div
+                                    key={restaurant.Id}
+                                    className="col-md-3 mb-3"
+                                    onClick={() => {
+                                        navigate(`/owner/restaurants/${restaurant.Id}/detail`);
+                                    }}
+                                >
+                                    <div className="card restaurant-card h-100">
+                                        {/* Hình ảnh */}
+                                        <div className="image-container">
+                                            <img
+                                                src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/c9/02/06/discovering-sky-view.jpg?w=900&h=500&s=1"
+                                                alt={restaurant.Name}
+                                                className="card-img-top restaurant-image"
+                                            />
+                                        </div>
+
+                                        {/* Nội dung */}
+                                        <div className="card-body text-center px-3">
+                                            <h5 className="restaurant-name">
+                                                {restaurant.Name}
+                                            </h5>
+
+                                            <p className="restaurant-description m-0"
+                                                title={restaurant.Description}>
+                                                {restaurant.Description}
+                                            </p>
+
+                                            <div className="restaurant-hours">
+                                                🕒 {restaurant.Started} - {restaurant.Ended}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <nav className="d-flex justify-content-center mt-3">
+                            <ul className="pagination">
+                                <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                                    <button className="page-link text-dark" onClick={() => setCurrentPage(currentPage - 1)}>
+                                        <FontAwesomeIcon icon={faChevronLeft} />
+                                    </button>
+                                </li>
+                                {Array.from({ length: totalPages }, (_, index) => (
+                                    <li key={index} className={`page-item ${currentPage === index + 1 ? "active" : ""}`}>
+                                        <button className="page-link">{index + 1}</button>
+                                    </li>
+                                ))}
+                                <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                                    <button className="page-link text-dark" onClick={() => setCurrentPage(currentPage + 1)}>
+                                        <FontAwesomeIcon icon={faChevronRight} />
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    )}
+                </div>
+            </div>
         </div>
         <div className="bg-dark rounded-4 shadow-lg col-10 pt-4 px-5">
           {/* Header */}
