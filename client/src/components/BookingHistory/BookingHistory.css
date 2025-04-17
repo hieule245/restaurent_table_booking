@@ -1,8 +1,8 @@
 /* Container chính */
 .booking-history-container {
   padding: 30px 40px; /* Margin, padding 2 bên cho dễ nhìn */
-  background-color: #111; /* Nền đen */
-  color: #fff; /* Chữ trắng */
+  background-color: #fff;
+  color: #111;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
@@ -11,7 +11,6 @@
   text-align: center;
   margin-bottom: 30px;
   font-weight: bold;
-  color: #fff;
   font-size: 2.2rem;
 }
 
@@ -21,7 +20,7 @@
 .booking-history-no {
   text-align: center;
   margin-bottom: 20px;
-  color: #ccc;
+  color: #111;
   font-size: 1rem;
 }
 
@@ -52,8 +51,8 @@
   padding: 12px;
   border-bottom: 1px solid #333;
   text-align: center;
-  background-color: #222;
-  color: #fff;
+  background-color: #fff;
+  color: #222;
 }
 
 /* Hover của hàng bảng */
@@ -89,8 +88,8 @@
 }
 
 .booking-modal-header {
-  background-color: #000;
-  color: #fff;
+  background-color: #fff;
+  color: #000;
   border-bottom: none;
   padding: 20px;
   border-top-left-radius: 8px;
@@ -128,23 +127,23 @@
 
 /* Nút chính (Save changes) */
 .booking-modal-btn-primary {
-  background-color: #ff0000;
+  background-color: #09a509;
   color: #fff;
 }
 
 .booking-modal-btn-primary:hover {
-  background-color: #e60000;
+  background-color: #1be600;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
 }
 
 /* Nút phụ (Close) */
 .booking-modal-btn-secondary {
-  background-color: #000;
+  background-color: #e92828;
   color: #fff;
 }
 
 .booking-modal-btn-secondary:hover {
-  background-color: #333;
+  background-color: #742727;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
 }
 
@@ -160,13 +159,13 @@
 }
 
 .action-button.edit {
-  background-color: #000;
+  background-color: #e2c000;
   color: #fff;
 }
 
 .action-button.edit:hover {
-  background-color: #333;
-  transform: scale(1.05);
+  background-color: #9faa02;
+  transform: scale(1.03);
 }
 
 .action-button.cancel {
@@ -176,9 +175,9 @@
 
 .action-button.cancel:hover {
   background-color: #e60000;
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
-  
-.table-responsive{
+
+.table-responsive {
   height: 67vh;
 }

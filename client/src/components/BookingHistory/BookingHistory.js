@@ -24,7 +24,7 @@ const BookingHistory = () => {
   const currentItems = bookings.slice(indexOfFirstItem, indexOfLastItem);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Fetch user info 
+  // Fetch user info
   useEffect(() => {
     axios
       .get("http://localhost:8080/me", { withCredentials: true })
@@ -143,71 +143,92 @@ const BookingHistory = () => {
 
         {user ? (
           <p className="booking-history-welcome">
-            Welcome, {user.Name}! Here is your booking history:
             <hr />
+            Welcome,<strong> {user.Name}! </strong>
+            <p> Here is your booking history:</p>
           </p>
         ) : (
           <p className="booking-history-loading">Loading user info...</p>
         )}
-        
-        {(Array.isArray(bookings) && bookings.length === 0) ? (
-          <p className="booking-history-no">No bookings found.</p>
-        ) : (bookings === null || bookings === undefined || (Array.isArray(bookings) && bookings.length === 0)) ? (
-          <p className="booking-history-no">No bookings found.</p>
-        ) : (
-          <motion.div
-            className="table-responsive"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <table className="booking-history-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Book Date</th>
-                  <th>Time Start</th>
-                  <th>Time End</th>
-                  <th>Seats</th>
-                  <th>Table ID</th>
-                  <th>Price ($)</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentItems?.map((booking, index) => (
-                  <BookingRow
-                    key={booking.id}
-                    booking={booking}
-                    index={index}
-                    onEdit={handleEdit}
-                    onCancel={handleCancel}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </motion.div>
-        )}
-        {bookings.length > itemsPerPage && (
-          <div className="pagination-container">
-            <button className="btn btn-outline-secondary me-2" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-              &laquo;
-            </button>
-            {[...Array(Math.ceil(bookings.length / itemsPerPage)).keys()].map(number => (
+
+        <div className="container-fluid shadow">
+          {Array.isArray(bookings) && bookings.length === 0 ? (
+            <p className="booking-history-no">No bookings found.</p>
+          ) : bookings === null ||
+            bookings === undefined ||
+            (Array.isArray(bookings) && bookings.length === 0) ? (
+            <p className="booking-history-no">No bookings found.</p>
+          ) : (
+            <motion.div
+              className="table-responsive"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <table className="booking-history-table border mt-4">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Book Date</th>
+                    <th>Time Start</th>
+                    <th>Time End</th>
+                    <th>Seats</th>
+                    <th>Table ID</th>
+                    <th>Price ($)</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentItems?.map((booking, index) => (
+                    <BookingRow
+                      key={booking.id}
+                      booking={booking}
+                      index={index}
+                      onEdit={handleEdit}
+                      onCancel={handleCancel}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </motion.div>
+          )}
+          {bookings.length > itemsPerPage && (
+            <div className="pagination-container">
               <button
-                key={number + 1}
-                className={`btn ${currentPage === number + 1 ? "btn-dark" : "btn-outline-dark"} mx-1`}
-                onClick={() => paginate(number + 1)}
+                className="btn btn-outline-secondary me-2"
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
               >
-                {number + 1}
+                &laquo;
               </button>
-            ))}
-            <button className="btn btn-outline-secondary ms-2" onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(bookings.length / itemsPerPage)}>
-              &raquo;
-            </button>
-          </div>
-        )}
+              {[...Array(Math.ceil(bookings.length / itemsPerPage)).keys()].map(
+                (number) => (
+                  <button
+                    key={number + 1}
+                    className={`btn ${
+                      currentPage === number + 1
+                        ? "btn-dark"
+                        : "btn-outline-dark"
+                    } mx-1`}
+                    onClick={() => paginate(number + 1)}
+                  >
+                    {number + 1}
+                  </button>
+                )
+              )}
+              <button
+                className="btn btn-outline-secondary ms-2"
+                onClick={() => paginate(currentPage + 1)}
+                disabled={
+                  currentPage === Math.ceil(bookings.length / itemsPerPage)
+                }
+              >
+                &raquo;
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Modal chỉnh sửa booking */}
         <div
@@ -235,7 +256,7 @@ const BookingHistory = () => {
                       disabled
                       type="date"
                       className="form-control bg-secondary"
-                      value={selectedBooking.book_date?.split('T')[0] || ''}
+                      value={selectedBooking.book_date?.split("T")[0] || ""}
                       onChange={(e) =>
                         setSelectedBooking({
                           ...selectedBooking,
@@ -286,7 +307,8 @@ const BookingHistory = () => {
                     </select>
 
                     <small className="text-secondary p-0">
-                      * Please update the end time first if you want to reschedule.
+                      * Please update the end time first if you want to
+                      reschedule.
                     </small>
                     <br />
 
