@@ -10,20 +10,20 @@ import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import './Login.style.css'
+import "./Login.style.css";
 const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleNavigation = useCallback(
     (Role) => {
-      console.log(Role)
+      console.log(Role);
       if (Role === "admin") {
         navigate("/admin/dashboard");
       } else if (Role === "owner") {
         navigate("/owner");
       } else if (Role === "staff") {
         navigate("/staff");
-      } else if (Role === "customer")  {
+      } else if (Role === "customer") {
         navigate("/");
       }
     },
@@ -37,7 +37,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/me", { withCredentials: true })
+      .get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
       .then((res) => {
         // console.log(res.data.user.Role)
         handleNavigation(res.data.user.Role);
@@ -78,7 +78,7 @@ const LoginPage = () => {
     }
     try {
       let res = await axios.post(
-        "http://localhost:8080/login",
+        `${process.env.REACT_APP_API_URL}/login`,
         { Email: email, Password: password },
         { withCredentials: true }
       );
@@ -87,7 +87,7 @@ const LoginPage = () => {
         toast.success("Login successful!");
 
         axios
-          .get("http://localhost:8080/me", { withCredentials: true })
+          .get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
           .then((res) => {
             setTimeout(() => {
               const userRole = res.data.user.Role;
@@ -111,7 +111,11 @@ const LoginPage = () => {
       }
     } catch (error) {
       console.log(error);
-      if (error.response && error.response.data && error.response.data.message) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
         toast.error(error.response.data.message);
       } else {
         toast.error("Registration failed. Please try again.");
@@ -194,7 +198,7 @@ const LoginPage = () => {
                     <hr className="flex-grow-1" />
                   </div>{" "}
                   {/* Added line dividers */}
-                  <button 
+                  <button
                     type="submit"
                     className="btn btn-light w-100"
                     onClick={() => navigate("/register")}
@@ -212,4 +216,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-

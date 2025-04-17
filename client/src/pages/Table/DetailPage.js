@@ -10,14 +10,16 @@ import "./DetailRestaurant.css";
 const DetailRestaurant = () => {
   const navigate = useNavigate();
   const { table_id } = useParams();
-  console.log("table id",table_id)
-  const [table, setTable] = useState({}); 
+  console.log("table id", table_id);
+  const [table, setTable] = useState({});
   const [bookings, setBookings] = useState({});
 
   useEffect(() => {
-    axios.get(`http://localhost:8080/table/${table_id}`).then((response) => {
-      setTable(response.data.table);
-    });
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/table/${table_id}`)
+      .then((response) => {
+        setTable(response.data.table);
+      });
   }, [table_id]);
 
   return (

@@ -10,7 +10,7 @@ function TestBookTimeTable() {
 
   const handleSearch = async () => {
     // Xây dựng URL endpoint dựa trên path parameters
-    const url = `http://localhost:8080/owners/${ownerId}/restaurants/${restaurantId}/tables/${tableId}/booked-times`;
+    const url = `${process.env.REACT_APP_API_URL}/owners/${ownerId}/restaurants/${restaurantId}/tables/${tableId}/booked-times`;
 
     // Query parameter: book_date
     const params = { book_date: bookDate };
