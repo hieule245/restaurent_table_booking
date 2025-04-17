@@ -4,6 +4,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 const BookingCalendar = ({ table }) => {
+  const [isLoading, setIsLoading] = useState(false);
   // Lấy thông tin thời gian hiện tại
   const today = new Date();
   const currentYear = today.getFullYear();
@@ -21,7 +22,7 @@ const BookingCalendar = ({ table }) => {
 
   // Lấy tham số từ URL
   const { table_id, restaurant_id } = useParams();
-  console.log("restaurant id", restaurant_id)
+  console.log("restaurant id", restaurant_id);
   // Khởi tạo state cho tháng và ngày được chọn
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
@@ -53,7 +54,9 @@ const BookingCalendar = ({ table }) => {
   const timeSlots = Array.from({ length: 7 }, (_, i) => {
     const startHour = 7 + i * 2;
     const endHour = startHour + 2;
-    return `${convertTo12HourFormat(startHour)} - ${convertTo12HourFormat(endHour)}`;
+    return `${convertTo12HourFormat(startHour)} - ${convertTo12HourFormat(
+      endHour
+    )}`;
   });
 
   // Fetch thông tin user
@@ -115,7 +118,6 @@ const BookingCalendar = ({ table }) => {
           ...prev,
           [`${selectedMonth}-${selectedDay}`]: formattedBookings,
         }));
-
       } catch (error) {
         console.error("Lỗi khi lấy booking times:", error);
       }
@@ -296,19 +298,29 @@ const BookingCalendar = ({ table }) => {
       cancelButtonText: "Hủy",
     }).then(async (result) => {
       if (result.isConfirmed) {
+        setIsLoading(true);
+
+        Swal.fire({
+          title: "Đang xử lý...",
+          text: "Vui lòng chờ trong giây lát.",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
         try {
-          // Gửi request đặt bàn
-          console.log("User object:", user);
-          console.log("User role:", user?.Role);
           {
-            user.Role === "staff" ? (await axios.post(
-              `http://localhost:8080/staff/${restaurant_id}/bookings`,
-              bookingStaffData[0]
-            )) : (await axios.post(
-              `http://localhost:8080/restaurants/${restaurant_id}/bookings`,
-              bookingData[0]
-            ))
-          };
+            user.Role === "staff"
+              ? await axios.post(
+                  `http://localhost:8080/staff/${restaurant_id}/bookings`,
+                  bookingStaffData[0]
+                )
+              : await axios.post(
+                  `http://localhost:8080/restaurants/${restaurant_id}/bookings`,
+                  bookingData[0]
+                );
+          }
 
           // Hiển thị thông báo thành công
           Swal.fire({
@@ -328,6 +340,8 @@ const BookingCalendar = ({ table }) => {
             text: error.response?.data?.error || "Đặt bàn thất bại!",
             icon: "error",
           });
+        } finally {
+          setIsLoading(false);
         }
       }
     });
@@ -344,10 +358,11 @@ const BookingCalendar = ({ table }) => {
               {months.map((month) => (
                 <button
                   key={month}
-                  className={`btn btn-sm ${selectedMonth === month
-                    ? "btn-primary"
-                    : "btn-outline-secondary"
-                    }`}
+                  className={`btn btn-sm ${
+                    selectedMonth === month
+                      ? "btn-primary"
+                      : "btn-outline-secondary"
+                  }`}
                   onClick={() => setSelectedMonth(month)}
                   disabled={month < currentMonth} // Không cho chọn tháng trước
                 >
@@ -367,10 +382,11 @@ const BookingCalendar = ({ table }) => {
               {days.map((day) => (
                 <button
                   key={day}
-                  className={`btn btn-sm ${selectedDay === day
-                    ? "btn-success text-white"
-                    : "btn-outline-secondary"
-                    }`}
+                  className={`btn btn-sm ${
+                    selectedDay === day
+                      ? "btn-success text-white"
+                      : "btn-outline-secondary"
+                  }`}
                   onClick={() => setSelectedDay(day)}
                   disabled={selectedMonth === currentMonth && day < currentDay} // Không cho chọn ngày trước
                 >
@@ -397,12 +413,13 @@ const BookingCalendar = ({ table }) => {
                     const isPreBooked = preBookedForDay.includes(timeSlot);
                     const isSelected = selectedSlots.includes(timeSlot);
 
-                    const buttonClass = `btn btn-sm ${isPreBooked
-                      ? "btn-secondary text-white" // Đã đặt từ backend
-                      : isSelected
+                    const buttonClass = `btn btn-sm ${
+                      isPreBooked
+                        ? "btn-secondary text-white" // Đã đặt từ backend
+                        : isSelected
                         ? "btn-outline-danger bg-danger text-white" // Đang được chọn
                         : "btn-outline-secondary"
-                      }`;
+                    }`;
 
                     return (
                       <button
@@ -424,7 +441,10 @@ const BookingCalendar = ({ table }) => {
                 {user?.Role === "staff" && (
                   <div>
                     <div className="text-center mt-4">
-                      <label htmlFor="customerEmail" className="form-label fw-bold">
+                      <label
+                        htmlFor="customerEmail"
+                        className="form-label fw-bold"
+                      >
                         Nhập email khách hàng:
                       </label>
                       <input
@@ -438,7 +458,10 @@ const BookingCalendar = ({ table }) => {
                       />
                     </div>
                     <div className="text-center my-4">
-                      <label htmlFor="customerPhone" className="form-label fw-bold">
+                      <label
+                        htmlFor="customerPhone"
+                        className="form-label fw-bold"
+                      >
                         Nhập số điện thoại khách hàng:
                       </label>
                       <input
@@ -452,7 +475,6 @@ const BookingCalendar = ({ table }) => {
                       />
                     </div>
                   </div>
-
                 )}
 
                 <button

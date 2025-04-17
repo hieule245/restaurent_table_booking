@@ -6,19 +6,30 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import RestaurantLayout from "../Restaurant/restaurantLayout";
 import "./DetailRestaurant.css";
+const [restaurant, setRestaurant] = useState({});
+const { restaurant_id } = useParams();
 
 const DetailRestaurant = () => {
   const navigate = useNavigate();
   const { table_id } = useParams();
-  console.log("table id",table_id)
-  const [table, setTable] = useState({}); 
+  const [table, setTable] = useState({});
   const [bookings, setBookings] = useState({});
 
   useEffect(() => {
     axios.get(`http://localhost:8080/table/${table_id}`).then((response) => {
       setTable(response.data.table);
     });
-  }, [table_id]);
+
+    if (!restaurant_id) return;
+
+    // Lấy thông tin nhà hàng
+    axios
+      .get(`http://localhost:8080/restaurant/${restaurant_id}`)
+      .then((responseRestaurant) => {
+        setRestaurant(responseRestaurant.data.restaurant);
+      })
+      .catch((error) => console.error("Error fetching restaurant:", error));
+  }, [table_id, restaurant_id]);
 
   return (
     <RestaurantLayout>
