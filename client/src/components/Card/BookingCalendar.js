@@ -154,12 +154,41 @@ const BookingCalendar = ({ table, restaurant }) => {
 
     setSelectedSlots((prevSelected) => {
       const isAlreadySelected = prevSelected.includes(timeSlot);
-      const updatedSelected = isAlreadySelected
-        ? prevSelected.filter((slot) => slot !== timeSlot)
-        : [...prevSelected, timeSlot];
 
-      setHasBooking(updatedSelected.length > 0);
-      return updatedSelected;
+      if (isAlreadySelected) {
+        const updated = prevSelected.filter((slot) => slot !== timeSlot);
+        setHasBooking(updated.length > 0);
+        return updated;
+      }
+
+      if (prevSelected.length === 0) {
+        setHasBooking(true);
+        return [timeSlot];
+      }
+
+      // Nếu có slot đang chọn rồi, chỉ cho chọn thêm nếu liền kề
+      const getStartHour = (slot) => getStartHourIn24Format(slot);
+      const getEndHour = (slot) => getStartHour(slot) + 2;
+
+      const sorted = [...prevSelected].sort(
+        (a, b) => getStartHour(a) - getStartHour(b)
+      );
+      const earliest = sorted[0];
+      const latest = sorted[sorted.length - 1];
+
+      const newStart = getStartHour(timeSlot);
+      const newEnd = newStart + 2;
+
+      const canAdd =
+        newStart === getEndHour(latest) || newEnd === getStartHour(earliest);
+      if (canAdd) {
+        const updated = [...prevSelected, timeSlot];
+        setHasBooking(true);
+        return updated;
+      }
+
+      // Không cho chọn nếu không liền kề
+      return prevSelected;
     });
   };
 
@@ -280,6 +309,15 @@ const BookingCalendar = ({ table, restaurant }) => {
       }
     }
 
+    const sortedBookings = [...bookingData].sort(
+      (a, b) => parseInt(a.time_start) - parseInt(b.time_start)
+    );
+    const firstSlot = sortedBookings[0];
+    const lastSlot = sortedBookings[sortedBookings.length - 1];
+
+    bookingData[0].time_start = firstSlot.time_start;
+    bookingData[0].time_end = lastSlot.time_end;
+
     // Hiển thị hộp thoại xác nhận trước khi gửi request
     Swal.fire({
       title: "Xác nhận đặt bàn",
@@ -293,6 +331,7 @@ const BookingCalendar = ({ table, restaurant }) => {
             <p><strong>Book Date :</strong> </p>
             <p><strong>Time Start :</strong> </p>
             <p><strong>Time End :</strong> </p>
+            <p><strong>Time Duration :</strong> </p>
             <p><strong>Number of Seats :</strong> </p>
             
           </div>
@@ -301,8 +340,9 @@ const BookingCalendar = ({ table, restaurant }) => {
             <p>${user?.Role === "staff" ? customerEmail : user.Email}</p>
             <p>${user?.Role === "staff" ? customerPhone : user.Phone}</p>
             <p>${book_date}</p>
-            <p>${bookingData[0].time_start}</p>
-            <p>${bookingData[0].time_end}</p>
+            <p>${firstSlot.time_start}</p>
+            <p>${lastSlot.time_end}</p>
+            <p>${selectedSlots.length * 2 + " Hours"}</p>
             <p>${numberOfCustomer}</p>
           </div>
         </div>
