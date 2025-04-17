@@ -6,10 +6,10 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import RestaurantLayout from "../Restaurant/restaurantLayout";
 import "./DetailRestaurant.css";
-const [restaurant, setRestaurant] = useState({});
-const { restaurant_id } = useParams();
 
 const DetailRestaurant = () => {
+  const [restaurant, setRestaurant] = useState({});
+  const { restaurant_id } = useParams();
   const navigate = useNavigate();
   const { table_id } = useParams();
   const [table, setTable] = useState({});
@@ -56,6 +56,7 @@ const DetailRestaurant = () => {
             table={table}
             bookings={bookings}
             setBookings={setBookings}
+            restaurant={restaurant}
           />
         </div>
       </div>

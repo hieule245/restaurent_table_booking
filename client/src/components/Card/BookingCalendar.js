@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-const BookingCalendar = ({ table }) => {
+const BookingCalendar = ({ table, restaurant }) => {
   const [isLoading, setIsLoading] = useState(false);
   // Lấy thông tin thời gian hiện tại
   const today = new Date();
@@ -23,6 +23,8 @@ const BookingCalendar = ({ table }) => {
   // Lấy tham số từ URL
   const { table_id, restaurant_id } = useParams();
   console.log("restaurant id", restaurant_id);
+
+  console.log("restaurant", restaurant);
   // Khởi tạo state cho tháng và ngày được chọn
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
@@ -50,14 +52,28 @@ const BookingCalendar = ({ table }) => {
     return hour;
   };
 
-  // Tạo danh sách khung giờ từ 7:00 đến 21:00 theo định dạng 12 giờ
-  const timeSlots = Array.from({ length: 7 }, (_, i) => {
-    const startHour = 7 + i * 2;
-    const endHour = startHour + 2;
-    return `${convertTo12HourFormat(startHour)} - ${convertTo12HourFormat(
-      endHour
-    )}`;
-  });
+  const extractHour = (timeStr) => {
+    const [hourStr] = timeStr.split(":");
+    return parseInt(hourStr, 10);
+  };
+
+  const generateTimeSlots = () => {
+    if (!restaurant?.Started || !restaurant?.Ended) return [];
+
+    const openHour = extractHour(restaurant.Started);
+    const closeHour = extractHour(restaurant.Ended);
+    const slots = [];
+
+    for (let hour = openHour; hour + 2 <= closeHour; hour += 2) {
+      const start = convertTo12HourFormat(hour);
+      const end = convertTo12HourFormat(hour + 2);
+      slots.push(`${start} - ${end}`);
+    }
+
+    return slots;
+  };
+
+  const timeSlots = generateTimeSlots();
 
   // Fetch thông tin user
   useEffect(() => {
