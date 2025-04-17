@@ -150,7 +150,9 @@ const RegisterPage = () => {
                       style={{ cursor: "pointer", borderLeft: 0 }}
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+                      <FontAwesomeIcon
+                        icon={showPassword ? faEye : faEyeSlash}
+                      />
                     </span>
                   </div>
                   {errors.password && (
@@ -171,9 +173,13 @@ const RegisterPage = () => {
                     <span
                       className="input-group-text bg-white"
                       style={{ cursor: "pointer", borderLeft: 0 }}
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                     >
-                      <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
+                      <FontAwesomeIcon
+                        icon={showConfirmPassword ? faEye : faEyeSlash}
+                      />
                     </span>
                   </div>
                   {errors.confirmPassword && (

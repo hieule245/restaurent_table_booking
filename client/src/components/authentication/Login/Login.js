@@ -18,7 +18,7 @@ const LoginPage = () => {
 
   const handleNavigation = useCallback(
     (Role) => {
-      console.log(Role)
+      console.log(Role);
       if (Role === "admin") {
         navigate("/admin/dashboard");
       } else if (Role === "owner") {
@@ -39,7 +39,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/me", { withCredentials: true })
+      .get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
       .then((res) => {
         // console.log(res.data.user.Role)
         handleNavigation(res.data.user.Role);
@@ -56,7 +56,7 @@ const LoginPage = () => {
       await loginSchema.validate({ email, password }, { abortEarly: false });
       setErrors({});
       let res = await axios.post(
-        "http://localhost:8080/login",
+        `${process.env.REACT_APP_API_URL}/login`,
         { Email: email, Password: password },
         { withCredentials: true }
       );
@@ -65,7 +65,7 @@ const LoginPage = () => {
         toast.success("Login successful!");
 
         axios
-          .get("http://localhost:8080/me", { withCredentials: true })
+          .get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
           .then((res) => {
             setTimeout(() => {
               const userRole = res.data.user.Role;
@@ -204,4 +204,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-

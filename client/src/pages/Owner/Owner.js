@@ -3,26 +3,26 @@ import { Tabs, Tab, TabList, TabPanel } from "react-tabs"
 import Dashboard from "../../components/Dashboard/Dashboard";
 import RestaurantList from "../../components/Restaurants/RestaurantList";
 import ReservationList from "../../components/Restaurants/Reservations/ReservationList";
-import NavBar from '../../components/NavBar/NavBar';
-import './Owner.styles.css'
+import NavBar from "../../components/NavBar/NavBar";
+import "./Owner.styles.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 const Owner = () => {
-    const navigate = useNavigate();
-    useEffect(() => {
-        axios
-            .get("http://localhost:8080/me", { withCredentials: true })
-            .then((res) => {
-                if (res.data.user && res.data.user.Role === "owner") {
-                    // User is an owner, proceed to the dashboard
-                } else {
-                    navigate("/login");
-                }
-            })
-            .catch(() => {
-                navigate("/login");
-            });
-    }, [navigate]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
+      .then((res) => {
+        if (res.data.user && res.data.user.Role === "owner") {
+          // User is an owner, proceed to the dashboard
+        } else {
+          navigate("/login");
+        }
+      })
+      .catch(() => {
+        navigate("/login");
+      });
+  }, [navigate]);
 
 
     return (
@@ -61,8 +61,5 @@ const Owner = () => {
                 </div>
             </main>
         </>
-
-    )
-}
 
 export default Owner;

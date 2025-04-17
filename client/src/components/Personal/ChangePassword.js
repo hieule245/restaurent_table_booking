@@ -35,7 +35,7 @@ const ChangePassword = () => {
         ?.split("=")[1];
 
       const res = await axios.post(
-        "http://localhost:8080/change-password",
+        `${process.env.REACT_APP_API_URL}/change-password`,
         {
           OldPassword: oldPassword,
           NewPassword: newPassword,
@@ -86,7 +86,9 @@ const ChangePassword = () => {
   return (
     <div className="container mt-4 text-center">
       <ToastContainer />
-      <h3><strong>Change Password</strong></h3>
+      <h3>
+        <strong>Change Password</strong>
+      </h3>
       <div className="container px-5 my-4">
         <form onSubmit={handleChangePassword}>
           <div className="input-group">
@@ -100,11 +102,16 @@ const ChangePassword = () => {
                 setErrors((prev) => ({ ...prev, oldPassword: "" }));
               }}
             />
-            <span className="input-group-text bg-white" onClick={() => setShowOldPassword(!showOldPassword)}>
+            <span
+              className="input-group-text bg-white"
+              onClick={() => setShowOldPassword(!showOldPassword)}
+            >
               <FontAwesomeIcon icon={showOldPassword ? faEye : faEyeSlash} />
             </span>
           </div>
-          {errors.oldPassword && <small className="text-danger">{errors.oldPassword}</small>}
+          {errors.oldPassword && (
+            <small className="text-danger">{errors.oldPassword}</small>
+          )}
 
           <div className="mt-2 input-group">
             <input
@@ -117,11 +124,16 @@ const ChangePassword = () => {
                 setErrors((prev) => ({ ...prev, newPassword: "" }));
               }}
             />
-            <span className="input-group-text bg-white" onClick={() => setShowNewPassword(!showNewPassword)}>
+            <span
+              className="input-group-text bg-white"
+              onClick={() => setShowNewPassword(!showNewPassword)}
+            >
               <FontAwesomeIcon icon={showNewPassword ? faEye : faEyeSlash} />
             </span>
           </div>
-          {errors.newPassword && <small className="text-danger">{errors.newPassword}</small>}
+          {errors.newPassword && (
+            <small className="text-danger">{errors.newPassword}</small>
+          )}
 
           <div className="mt-2 input-group">
             <input
@@ -134,15 +146,27 @@ const ChangePassword = () => {
                 setErrors((prev) => ({ ...prev, confirmPassword: "" }));
               }}
             />
-            <span className="input-group-text bg-white" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-              <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
+            <span
+              className="input-group-text bg-white"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              <FontAwesomeIcon
+                icon={showConfirmPassword ? faEye : faEyeSlash}
+              />
             </span>
           </div>
-          {errors.confirmPassword && <small className="text-danger">{errors.confirmPassword}</small>}
+          {errors.confirmPassword && (
+            <small className="text-danger">{errors.confirmPassword}</small>
+          )}
 
           <div className="d-flex justify-content-center gap-3 mt-3">
-            <button type="submit" className="btn btn-danger rounded-pill px-4 py-3">
-              <h5 className="mb-0"><strong>Save</strong></h5>
+            <button
+              type="submit"
+              className="btn btn-danger rounded-pill px-4 py-3"
+            >
+              <h5 className="mb-0">
+                <strong>Save</strong>
+              </h5>
             </button>
           </div>
         </form>

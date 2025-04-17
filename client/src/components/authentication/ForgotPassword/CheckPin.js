@@ -55,10 +55,13 @@ const CheckPin = () => {
     const enteredPin = pin.join("");
 
     try {
-      const response = await axios.post("http://localhost:8080/verify-pin", {
-        email: email, // Gửi email kèm theo
-        pin: parseInt(enteredPin) // Chuyển pin từ string sang int
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/verify-pin`,
+        {
+          email: email, // Gửi email kèm theo
+          pin: parseInt(enteredPin), // Chuyển pin từ string sang int
+        }
+      );
 
       if (response.status === 200) {
         Cookies.remove("canVerifyPin");
@@ -76,7 +79,9 @@ const CheckPin = () => {
 
   const handleResendPin = async () => {
     try {
-      await axios.post("http://localhost:8080/resend-pin", { email });
+      await axios.post(`${process.env.REACT_APP_API_URL}/resend-pin`, {
+        email,
+      });
       toast.success("Mã PIN mới đã được gửi!");
       setTimer(120); // Đặt lại bộ đếm 2 phút
       setCanResend(false);
@@ -113,7 +118,9 @@ const CheckPin = () => {
                 </div>
               ))}
             </div>
-            <button type="submit" className="btn btn-primary w-50">Confirm</button>
+            <button type="submit" className="btn btn-primary w-50">
+              Confirm
+            </button>
           </form>
           <div className="text-center mt-3">
             <small>The PIN will be deleted after 2 minutes.</small>

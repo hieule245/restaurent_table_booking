@@ -1,20 +1,27 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaTachometerAlt, FaUsers, FaUtensils, FaCalendarCheck } from "react-icons/fa";
+import {
+  FaTachometerAlt,
+  FaUsers,
+  FaUtensils,
+  FaCalendarCheck,
+} from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
-import Card from "../../components/Card/AdminCard"
+import Card from "../../components/Card/AdminCard";
 import Sidebar from "./SideBar";
 import Cookies from "js-cookie";
 
 const Admin = () => {
 
   const [revenues, SetRevenues] = useState([]);
-  const [top, SetTop] = useState([])
+  const [top, SetTop] = useState([]);
   const fetch = () => {
     try {
       axios
-        .get(`http://localhost:8080/admin`, { withCredentials: true })
+        .get(`${process.env.REACT_APP_API_URL}/admin`, {
+          withCredentials: true,
+        })
         .then((res) => {
           console.log("API Response:", res.data); // Kiểm tra dữ liệu trả về
           SetRevenues(res.data.message || {}); // Gán dữ liệu vào state
@@ -43,7 +50,9 @@ const Admin = () => {
   const topReservation = () => {
     try {
       axios
-        .get(`http://localhost:8080/admin/top`, { withCredentials: true })
+        .get(`${process.env.REACT_APP_API_URL}/admin/top`, {
+          withCredentials: true,
+        })
         .then((res) => {
           console.log("API Response:", res.data.top); // Kiểm tra dữ liệu trả về
           SetTop(res.data.top || {}); // Gán dữ liệu vào state
@@ -83,7 +92,9 @@ const Admin = () => {
         <div className="bg-dark rounded-4 shadow-lg col-10 py-4 px-5">
           {/* Header */}
           <div className="d-flex justify-content-between align-items-center w-100">
-            <h1 className="text-danger fw-bold d-flex justify-content-center gap-2"><FaTachometerAlt className="pt-2" /> Dashboard</h1>
+            <h1 className="text-danger fw-bold d-flex justify-content-center gap-2">
+              <FaTachometerAlt className="pt-2" /> Dashboard
+            </h1>
           </div>
 
           <hr className="border-secondary" />
@@ -93,14 +104,22 @@ const Admin = () => {
             <Card
               icon={<FaUsers className="text-white fs-4" />}
               title="Weekly Revenue"
-              value={revenues.WeeklyRevenue ? `${revenues.WeeklyRevenue.toLocaleString()} VND` : 0}
+              value={
+                revenues.WeeklyRevenue
+                  ? `${revenues.WeeklyRevenue.toLocaleString()} VND`
+                  : 0
+              }
               growth="+55% than last week"
               color="danger"
             />
             <Card
               icon={<FaUsers className="text-white fs-4" />}
               title="Total Accounts"
-              value={revenues.ActiveStaff ? `${revenues.ActiveStaff} accounts` : "0 account"}
+              value={
+                revenues.ActiveStaff
+                  ? `${revenues.ActiveStaff} accounts`
+                  : "0 account"
+              }
               growth="+55% than last week"
               color="danger"
             />
@@ -114,7 +133,13 @@ const Admin = () => {
             <Card
               icon={<FaUsers className="text-white fs-4" />}
               title="Weekly Table Bookings"
-              value={revenues.BookNumber && revenues.CanceledBook ? `${revenues.BookNumber - revenues.CanceledBook} reservations` : "0 reservation"}
+              value={
+                revenues.BookNumber && revenues.CanceledBook
+                  ? `${
+                      revenues.BookNumber - revenues.CanceledBook
+                    } reservations`
+                  : "0 reservation"
+              }
               growth="+55% than last week"
               color="danger"
             />
@@ -124,18 +149,45 @@ const Admin = () => {
           <div className="row d-flex align-items-stretch">
             {/* Transaction History */}
             <div className="col-md-6 mb-4 d-flex">
-              <div className="p-3 rounded shadow-sm w-100 h-100" style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "2px solid #D1E7FF" }}>
-                <h5 className="pb-2 text-primary">Top {top.length} Performing Restaurants</h5>
+              <div
+                className="p-3 rounded shadow-sm w-100 h-100"
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  borderRadius: "12px",
+                  border: "2px solid #D1E7FF",
+                }}
+              >
+                <h5 className="pb-2 text-primary">
+                  Top {top.length} Performing Restaurants
+                </h5>
                 {top.map((restaurant, index) => (
-                  <div key={index} className="d-flex justify-content-between p-2 mt-2 rounded shadow-sm"
-                    style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}>
+                  <div
+                    key={index}
+                    className="d-flex justify-content-between p-2 mt-2 rounded shadow-sm"
+                    style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}
+                  >
                     <div>
                       <strong className="text-dark">{restaurant.Name}</strong>
-                      <p className="mb-0 text-muted">{restaurant.TotalRevenue ? restaurant.TotalRevenue.toLocaleString() : 0} VND</p>
+                      <p className="mb-0 text-muted">
+                        {restaurant.TotalRevenue
+                          ? restaurant.TotalRevenue.toLocaleString()
+                          : 0}{" "}
+                        VND
+                      </p>
                     </div>
                     <div className="text-end">
-                      <small className="text-muted">{restaurant.TotalCustomer ? restaurant.TotalCustomer : 0} customers</small>
-                      <p className="mb-0 text-dark">{restaurant.TotalReservation ? restaurant.TotalReservation : 0} reservations</p>
+                      <small className="text-muted">
+                        {restaurant.TotalCustomer
+                          ? restaurant.TotalCustomer
+                          : 0}{" "}
+                        customers
+                      </small>
+                      <p className="mb-0 text-dark">
+                        {restaurant.TotalReservation
+                          ? restaurant.TotalReservation
+                          : 0}{" "}
+                        reservations
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -144,18 +196,45 @@ const Admin = () => {
 
             {/* Open Projects */}
             <div className="col-md-6 mb-4 d-flex">
-              <div className="p-3 rounded shadow-sm w-100 h-100" style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "2px solid #D1E7FF" }}>
-                <h5 className="pb-2 text-primary">Top {top.length} Performing Restaurants</h5>
+              <div
+                className="p-3 rounded shadow-sm w-100 h-100"
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  borderRadius: "12px",
+                  border: "2px solid #D1E7FF",
+                }}
+              >
+                <h5 className="pb-2 text-primary">
+                  Top {top.length} Performing Restaurants
+                </h5>
                 {top.map((restaurant, index) => (
-                  <div key={index} className="d-flex justify-content-between p-2 mt-2 rounded shadow-sm"
-                    style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}>
+                  <div
+                    key={index}
+                    className="d-flex justify-content-between p-2 mt-2 rounded shadow-sm"
+                    style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}
+                  >
                     <div>
                       <strong className="text-dark">{restaurant.Name}</strong>
-                      <p className="mb-0 text-muted">{restaurant.TotalRevenue ? restaurant.TotalRevenue.toLocaleString() : 0} VND</p>
+                      <p className="mb-0 text-muted">
+                        {restaurant.TotalRevenue
+                          ? restaurant.TotalRevenue.toLocaleString()
+                          : 0}{" "}
+                        VND
+                      </p>
                     </div>
                     <div className="text-end">
-                      <small className="text-muted">{restaurant.TotalCustomer ? restaurant.TotalCustomer : 0} customers</small>
-                      <p className="mb-0 text-dark">{restaurant.TotalReservation ? restaurant.TotalReservation : 0} reservations</p>
+                      <small className="text-muted">
+                        {restaurant.TotalCustomer
+                          ? restaurant.TotalCustomer
+                          : 0}{" "}
+                        customers
+                      </small>
+                      <p className="mb-0 text-dark">
+                        {restaurant.TotalReservation
+                          ? restaurant.TotalReservation
+                          : 0}{" "}
+                        reservations
+                      </p>
                     </div>
                   </div>
                 ))}

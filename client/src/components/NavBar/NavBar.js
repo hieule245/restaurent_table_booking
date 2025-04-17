@@ -24,17 +24,14 @@ const NavBar = () => {
     ImageFile: null,
   });
 
-
-
   // Lưu thông tin từ cookie
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get("http://localhost:8080/me", {
-          withCredentials: true,
-        });
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
+      .then((res) => {
         if (res.data.user) {
-          setUser(res.data.user);
+          setUser(res.data.user); // lưu thông tin user
+          console.log(res.data.user);
         }
       } catch (err) {
         console.log("User chưa đăng nhập hoặc token hết hạn");
@@ -49,7 +46,7 @@ const NavBar = () => {
   const handleLogout = async () => {
     try {
       await axios.post(
-        "http://localhost:8080/logout",
+        `${process.env.REACT_APP_API_URL}/logout`,
         {},
         { withCredentials: true }
       );
@@ -66,7 +63,8 @@ const NavBar = () => {
     }
   };
 
-  const imageUrl = user && user.ImageFile ? `data:image/png;base64,${user.ImageFile}` : avatar;
+  const imageUrl =
+    user && user.ImageFile ? `data:image/png;base64,${user.ImageFile}` : avatar;
 
   // NAVBAR HIDE/ SHOW ON SCROLL
   useEffect(() => {
@@ -111,25 +109,32 @@ const NavBar = () => {
               <div className="d-flex justify-content-start align-items-center">
                 <button
                   className="mt-1 fw-bold text-white fs-5 text-decoration-none p-0 m-0 border-0"
-                  onClick={() => navigate(user && user.Role === "staff" ? "/staff" : "/restaurants")}
-                  role="link"  // Indicate this button should behave like a link
-                  style={{ background: 'transparent', border: 'none' }} // Make the button look like a link
+                  onClick={() =>
+                    navigate(
+                      user && user.Role === "staff" ? "/staff" : "/restaurants"
+                    )
+                  }
+                  role="link" // Indicate this button should behave like a link
+                  style={{ background: "transparent", border: "none" }} // Make the button look like a link
                 >
-                  {user && user.Role === "staff" ? "Serving restaurant" : user && user.Role === "owner" ? "" : "Restaurants"}
+                  {user && user.Role === "staff"
+                    ? "Serving restaurant"
+                    : user && user.Role === "owner"
+                    ? ""
+                    : "Restaurants"}
                 </button>
                 {user && user.Role === "staff" ? (
                   <button
                     className="mt-1 ms-5 fw-bold text-white fs-5 text-decoration-none p-0 m-0 border-0"
-                    role="link"  // Indicate this button should behave like a link
+                    role="link" // Indicate this button should behave like a link
                     onClick={() => navigate("/staff/booking-history")}
-                    style={{ background: 'transparent', border: 'none' }} // Make the button look like a link
+                    style={{ background: "transparent", border: "none" }} // Make the button look like a link
                   >
                     Revenue
                   </button>
                 ) : (
                   <></>
-                )
-                }
+                )}
               </div>
             </div>
             <div className="pt-3 col-2">
@@ -138,15 +143,23 @@ const NavBar = () => {
                 {user ? (
                   <div>
                     <li className="d-flex justify-content-end align-items-center">
-                      <div className="dropdown d-flex justify-content-end">
-                        <button type="button" className="rounded-circle p-0 m-0 border-0" data-bs-toggle="dropdown" style={{ width: "40px", height: "40px", overflow: "hidden" }}>
+                      <div class="dropdown d-flex justify-content-end">
+                        <button
+                          type="button"
+                          className="rounded-circle p-0 m-0 border-0"
+                          data-bs-toggle="dropdown"
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            overflow: "hidden",
+                          }}
+                        >
                           <img
                             src={user && imageUrl ? imageUrl : avatar}
                             alt="User Avatar"
                             className="w-100 h-100 rounded-circle object-fit-cover"
                           />
                         </button>
-
 
                         <ul className="dropdown-menu">
                           <li>
@@ -161,10 +174,12 @@ const NavBar = () => {
                             >
                               Booking History
                             </button>
-
                           </li>
                           <li>
-                            <button className="dropdown-item" onClick={handleLogout}>
+                            <button
+                              className="dropdown-item"
+                              onClick={handleLogout}
+                            >
                               Logout
                             </button>
                           </li>

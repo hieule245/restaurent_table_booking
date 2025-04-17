@@ -63,7 +63,9 @@ const ResetPassword = () => {
           <h3 className="text-center mb-4">Reset your password</h3>
           <form onSubmit={handleSubmit}>
             <div className="input-group mb-3">
-              <label htmlFor="password" className="form-label">New password</label>
+              <label htmlFor="password" className="form-label">
+                New password
+              </label>
               <div className="input-group">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -90,7 +92,9 @@ const ResetPassword = () => {
               )}
             </div>
             <div className="input-group mb-3">
-              <label htmlFor="confirmPassword" className="form-label">Confim new password</label>
+              <label htmlFor="confirmPassword" className="form-label">
+                Confim new password
+              </label>
               <div className="input-group">
                 <input
                   type={showConfirmPassword ? "text" : "password"}
@@ -109,12 +113,18 @@ const ResetPassword = () => {
                   style={{ cursor: "pointer", borderLeft: 0 }}
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
+                  <FontAwesomeIcon
+                    icon={showConfirmPassword ? faEye : faEyeSlash}
+                  />
                 </span>
               </div>
-              {error.confirmpassword && <small className="text-danger">{error.confirmpassword}</small>}
+              {error.confirmpassword && (
+                <small className="text-danger">{error.confirmpassword}</small>
+              )}
             </div>
-            <button type="submit" className="btn btn-success w-100">Reset Password</button>
+            <button type="submit" className="btn btn-success w-100">
+              Reset Password
+            </button>
           </form>
         </div>
       </div>

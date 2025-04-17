@@ -16,9 +16,12 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const response = await axios.post("http://localhost:8080/forgot-password", { email });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/forgot-password`,
+        { email }
+      );
       if (response.status === 200) {
         Cookies.set("resetEmail", email, { expires: 1, secure: true, sameSite: "Strict" });
         Cookies.set("canVerifyPin", "true", { expires: 1, secure: true, sameSite: "Strict" });
@@ -26,12 +29,16 @@ const ForgotPassword = () => {
       }
     } catch (error) {
       setIsSubmitting(false);
-      if (error.response && error.response.data && error.response.data.message) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
         toast.error(error.response.data.message);
-        console.log(error.response.data.message)
+        console.log(error.response.data.message);
       } else {
         // await toast.error("Đã xảy ra lỗi. Vui lòng thử lại.");
-        console.log("Đã xảy ra lỗi. Vui lòng thử lại.")
+        console.log("Đã xảy ra lỗi. Vui lòng thử lại.");
       }
     }
   };
@@ -47,18 +54,18 @@ const ForgotPassword = () => {
     setIsEmailValid(validateEmail(email));
   };
 
-
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <ToastContainer />
-      <div className="card shadow p-4" style={{ width: "100%", maxWidth: "400px" }}>
+      <div
+        className="card shadow p-4"
+        style={{ width: "100%", maxWidth: "400px" }}
+      >
         <div className="card-body">
           <h3 className="text-center mb-4">
             <i className="fas fa-lock text-primary"></i> Forgot Password?
           </h3>
-          <p className="text-center text-muted">
-            Input your email
-          </p>
+          <p className="text-center text-muted">Input your email</p>
           {message && (
             <div className="alert alert-success" role="alert">
               {message}
@@ -77,7 +84,6 @@ const ForgotPassword = () => {
                 value={email}
                 onChange={handleEmailChange}
                 required
-
               />
             </div>
             <button type="submit" id="forgotpassword" className="btn btn-primary w-100" disabled={isSubmitting || !isEmailValid}>

@@ -22,7 +22,7 @@ const DetailRestaurant = () => {
 
     // Lấy thông tin nhà hàng
     axios
-      .get(`http://localhost:8080/restaurant/${restaurant_id}`)
+      .get(`${process.env.REACT_APP_API_URL}/restaurant/${restaurant_id}`)
       .then((responseRestaurant) => {
         setRestaurant(responseRestaurant.data.restaurant);
       })
@@ -30,7 +30,9 @@ const DetailRestaurant = () => {
 
     // Lấy danh sách tất cả bàn (mặc định hiển thị)
     axios
-      .get(`http://localhost:8080/restaurant/${restaurant_id}/tables`) 
+      .get(
+        `${process.env.REACT_APP_API_URL}/restaurant/${restaurant_id}/tables`
+      )
       .then((responseTables) => {
         if (responseTables.data.tables) {
           setTables(responseTables.data.tables);
@@ -77,7 +79,7 @@ const DetailRestaurant = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:8080/restaurant/${restaurant_id}/available-tables`,
+        `${process.env.REACT_APP_API_URL}/restaurant/${restaurant_id}/available-tables`,
         {
           params: {
             date: selectedDate,

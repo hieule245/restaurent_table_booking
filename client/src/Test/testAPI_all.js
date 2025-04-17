@@ -5,7 +5,7 @@ function TestApiAll() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const baseURL = "http://localhost:8080"; // Thay đổi thành URL backend của bạn
+  const baseURL = `${process.env.REACT_APP_API_URL}`; // Thay đổi thành URL backend của bạn
 
   // Hàm gọi API với Axios
   const callAPI = async (method, endpoint, data = null) => {

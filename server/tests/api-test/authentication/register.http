@@ -1,4 +1,4 @@
-POST http://localhost:8080/register
+POST ${process.env.REACT_APP_API_URL}/register
 content-Type: application/json 
 
 {
