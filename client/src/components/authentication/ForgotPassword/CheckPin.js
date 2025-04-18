@@ -1,25 +1,16 @@
-import React, { useCallback, useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import Cookies from "js-cookie";
 
-const CheckPin = () => {
+const EnterPin = () => {
   const [pin, setPin] = useState(["", "", "", "", "", ""]);
   const [error] = useState("");
   const [timer, setTimer] = useState(120); // 2 phút
   const [canResend, setCanResend] = useState(false);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
-  const email = Cookies.get("resetEmail");
-
-  useEffect(() => {
-    const canVerifyPin = Cookies.get("canVerifyPin");
-    console.log("canVerifyPin", canVerifyPin)
-    if (canVerifyPin === "false"||canVerifyPin === undefined) {
-      navigate("/forgot-password"); // Nếu không có cookie, chuyển hướng về trang forgot-password
-    }
-  }, [navigate]);
+  const email = localStorage.getItem("resetEmail");
 
   useEffect(() => {
     if (timer > 0) {
@@ -64,16 +55,16 @@ const CheckPin = () => {
       );
 
       if (response.status === 200) {
-        Cookies.remove("canVerifyPin");
-        Cookies.set("canResetPassword", true, { expires: (1 / 720) }); // 2 phút
-        toast.success("Verify PIN successfully");
-        setTimeout(() => {
-          navigate("/reset-password");
-        }, 1000);
+        navigate("/reset-password");
       }
     } catch (error) {
       toast.error(error.response.data.message);
       console.log(error.response.data.message);
+      if (error.response.status === 403) {
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      }
     }
   };
 
@@ -86,7 +77,7 @@ const CheckPin = () => {
       setTimer(120); // Đặt lại bộ đếm 2 phút
       setCanResend(false);
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error("Lỗi khi gửi lại mã PIN!");
     }
   };
 
@@ -123,8 +114,6 @@ const CheckPin = () => {
             </button>
           </form>
           <div className="text-center mt-3">
-            <small>The PIN will be deleted after 2 minutes.</small>
-            <br />
             <button
               className="btn btn-link"
               onClick={handleResendPin}
@@ -139,4 +128,4 @@ const CheckPin = () => {
   );
 };
 
-export default CheckPin;
+export default EnterPin;

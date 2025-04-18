@@ -1,5 +1,5 @@
 import { useReducer } from "react";
-import BookingForm from "../components/BookingForm/BookingForm.js";
+import BookingForm from "../components/BookingForm/BookingForm";
 import { fetchAPI } from "../utils/temp";
 
 export const updateTimes = (state, action) => {

@@ -8,8 +8,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion"; // Import animation
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import { useCallback } from "react";
-import { AccountSchema } from "../../../validations/AccountSchema";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -27,70 +25,79 @@ const RegisterPage = () => {
     import("bootstrap/dist/js/bootstrap.bundle.min");
   }, []);
 
-  const handleNavigation = useCallback(
-    (Role) => {
-      console.log(Role)
-      if (Role === "admin") {
-        navigate("/admin/dashboard");
-      } else if (Role === "owner") {
-        navigate("/owner");
-      } else if (Role === "staff") {
-        navigate("/staff");
-      } else if (Role === "customer") {
-        navigate("/");
-      }
-    },
-    [navigate]
-  );
+  const isValidPhone = (phone) => {
+    const phoneRegex = /^(0[1-9][0-9]{8})$/;
+    return phoneRegex.test(phone);
+  };
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:8080/me", { withCredentials: true })
-      .then((res) => {
-        // console.log(res.data.user.Role)
-        handleNavigation(res.data.user.Role);
-      })
-      .catch((err) => {
-        console.log("login dum tui", err);
-      });
-  }, [handleNavigation]);
+  const isValidPassword = (password) => {
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
+    return passwordRegex.test(password);
+  };
+
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    try {
-      // Validate toàn bộ form
-      await AccountSchema.validate({ name, email, phone, password, confirmPassword, role }, { abortEarly: false });
-      setErrors({}); // Xoá lỗi cũ
+    let validationErrors = {};
 
-      const res = await axios.post("http://localhost:8080/register", {
-        Name: name,
-        Email: email,
-        Password: password,
-        Phone: phone,
-        Role: role,
-      });
+    // Validation checks
+    if (!name) {
+      validationErrors.name = "Name is required.";
+    } else if (name.length > 50) {
+      validationErrors.name = "Name must not exceed 50 characters.";
+    }
+    if (!email) {
+      validationErrors.email = "Email is required.";
+    } else if (!isValidEmail(email)) {
+      validationErrors.email = "Invalid email format.";
+    }
+    if (!phone) {
+      validationErrors.phone = "Phone number is required.";
+    } else if (!isValidPhone(phone)) {
+      validationErrors.phone =
+        "Phone number must be exactly 10 digits.(e.g. 093*******)";
+    }
+    if (!password) {
+      validationErrors.password = "Password is required.";
+    } else if (!isValidPassword(password)) {
+      validationErrors.password =
+        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
+    }
+    if (!confirmPassword) {
+      validationErrors.confirmPassword = "Confirm password is required.";
+    }
+    if (password !== confirmPassword) {
+      validationErrors.confirmPassword = "Passwords do not match.";
+    }
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    console.log(role);
+    try {
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/register`,
+        {
+          Name: name,
+          Email: email,
+          Password: password,
+          Phone: phone,
+          Role: role,
+        }
+      );
 
       if (res.status === 201) {
         toast.success("Registration successful! Redirecting to login...");
         setTimeout(() => navigate("/login"), 2000);
       }
-    } catch (err) {
-      if (err.name === "ValidationError") {
-        const newErrors = {};
-        err.inner.forEach((error) => {
-          newErrors[error.path] = error.message;
-        });
-        setErrors(newErrors);
-      } else {
-        const errorMessage =
-          err.response?.data?.message || "Registration failed. Please try again.";
-
-        if (errorMessage.toLowerCase().includes("email")) {
-          setErrors((prev) => ({ ...prev, email: errorMessage }));
-        } else {
-          toast.error(errorMessage);
-        }
-      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Registration failed. Please try again.");
     }
   };
 
