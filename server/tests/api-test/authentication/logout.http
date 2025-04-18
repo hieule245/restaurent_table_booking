@@ -1,1 +1,1 @@
-POST http://localhost:8080/logout
+POST ${process.env.REACT_APP_API_URL}/logout

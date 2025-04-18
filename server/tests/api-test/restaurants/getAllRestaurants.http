@@ -1,4 +1,4 @@
-POST http://localhost:8080/owners/:owner_id/reservations/finish_booking
+POST ${process.env.REACT_APP_API_URL}/owners/:owner_id/reservations/finish_booking
 Content-Type: application/json
 Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImdtYWlsIjoiaGlldWxlMjQ1MjAwM0BnbWFpbC5jb20iLCJyb2xlIjoib3duZXIiLCJleHAiOjE3NDM0OTgyNDZ9.OEl7KgLuaTkWC2871rYJCKvfim2vCoNvgvP0U7QhM-g
 

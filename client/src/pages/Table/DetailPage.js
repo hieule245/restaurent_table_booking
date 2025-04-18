@@ -12,19 +12,22 @@ const DetailRestaurant = () => {
   const { restaurant_id } = useParams();
   const navigate = useNavigate();
   const { table_id } = useParams();
+  console.log("table id", table_id);
   const [table, setTable] = useState({});
   const [bookings, setBookings] = useState({});
 
   useEffect(() => {
-    axios.get(`http://localhost:8080/table/${table_id}`).then((response) => {
-      setTable(response.data.table);
-    });
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/table/${table_id}`)
+      .then((response) => {
+        setTable(response.data.table);
+      });
 
     if (!restaurant_id) return;
 
     // Lấy thông tin nhà hàng
     axios
-      .get(`http://localhost:8080/restaurant/${restaurant_id}`)
+      .get(`${process.env.REACT_APP_API_URL}/restaurant/${restaurant_id}`)
       .then((responseRestaurant) => {
         setRestaurant(responseRestaurant.data.restaurant);
       })

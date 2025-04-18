@@ -1,4 +1,4 @@
-POST http://localhost:8080/me
+POST ${process.env.REACT_APP_API_URL}/me
 Content-Type: application/json
 Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImdtYWlsIjoiaGlldWxuMjQ1QGdtYWlsLmNvbSIsInJvbGUiOiJjdXN0b21lciIsImV4cCI6MTc0Mjc5Mjg5NH0.FQn_1oIP97C_GTxREaQ0pzTbUsi77HVR55_LTHXFpNk
 

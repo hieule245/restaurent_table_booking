@@ -22,9 +22,6 @@ const BookingCalendar = ({ table, restaurant }) => {
 
   // Lấy tham số từ URL
   const { table_id, restaurant_id } = useParams();
-  console.log("restaurant id", restaurant_id);
-
-  console.log("restaurant", restaurant);
   // Khởi tạo state cho tháng và ngày được chọn
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
@@ -78,7 +75,7 @@ const BookingCalendar = ({ table, restaurant }) => {
   // Fetch thông tin user
   useEffect(() => {
     axios
-      .get("http://localhost:8080/me", { withCredentials: true })
+      .get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
       .then((res) => {
         if (res.data && res.data.user) {
           setUser(res.data.user);
@@ -96,11 +93,14 @@ const BookingCalendar = ({ table, restaurant }) => {
   // Fetch các khung giờ đã đặt từ backend cho ngày được chọn
   useEffect(() => {
     if (!selectedDay) return;
+    {
+      console.log("restaurant id", restaurant.id);
+    }
 
     const fetchBookings = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8080/restaurants/${restaurant_id}/tables/${table_id}/booked-times`,
+          `${process.env.REACT_APP_API_URL}/restaurants/${restaurant_id}/tables/${table_id}/booked-times`,
           {
             params: {
               book_date: `${currentYear}-${selectedMonth}-${selectedDay}`,
@@ -110,7 +110,6 @@ const BookingCalendar = ({ table, restaurant }) => {
 
         const reservations = response.data.reservations || [];
         // Lọc chỉ lấy những reservation có status khác 0
-        console.log(response.data.reservations);
         const validReservations = reservations.filter(
           (reservation) => reservation.status !== "0"
         );
@@ -128,7 +127,6 @@ const BookingCalendar = ({ table, restaurant }) => {
           return `${startLabel} - ${endLabel}`;
         });
 
-        console.log(formattedBookings);
         // Lưu kết quả cho ngày được chọn
         setPreBooked((prev) => ({
           ...prev,
@@ -199,7 +197,7 @@ const BookingCalendar = ({ table, restaurant }) => {
 
     try {
       // Cập nhật thông tin user
-      const res = await axios.get("http://localhost:8080/me", {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/me`, {
         withCredentials: true,
       });
       if (res.data && res.data.user) {
@@ -212,7 +210,6 @@ const BookingCalendar = ({ table, restaurant }) => {
       console.error("Lỗi khi lấy thông tin user:", error);
       setUser(null);
     }
-    console.log("User", user);
 
     const formattedMonth = String(selectedMonth).padStart(2, "0");
     const formattedDay = String(selectedDay).padStart(2, "0");
@@ -369,11 +366,11 @@ const BookingCalendar = ({ table, restaurant }) => {
           {
             user.Role === "staff"
               ? await axios.post(
-                  `http://localhost:8080/staff/${restaurant_id}/bookings`,
+                  `${process.env.REACT_APP_API_URL}/staff/${restaurant_id}/bookings`,
                   bookingStaffData[0]
                 )
               : await axios.post(
-                  `http://localhost:8080/restaurants/${restaurant_id}/bookings`,
+                  `${process.env.REACT_APP_API_URL}/restaurants/${restaurant_id}/bookings`,
                   bookingData[0]
                 );
           }

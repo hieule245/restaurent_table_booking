@@ -5,14 +5,21 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 
 export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
-
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ name: "", gmail: "", password: "", phone: "", restaurant_id: 0 });
+  const [formData, setFormData] = useState({
+    name: "",
+    gmail: "",
+    password: "",
+    phone: "",
+    restaurant_id: 0,
+  });
   const [errors, setErrors] = useState({});
 
   const isValidGmail = (gmail) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(gmail);
   const isValidPassword = (password) =>
-    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/.test(password);
+    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/.test(
+      password
+    );
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,7 +32,8 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
 
     if (!formData.name) validationErrors.name = "Name is required.";
     if (!formData.gmail) validationErrors.gmail = "Gmail is required.";
-    else if (!isValidGmail(formData.gmail)) validationErrors.gmail = "Invalid gmail format.";
+    else if (!isValidGmail(formData.gmail))
+      validationErrors.gmail = "Invalid gmail format.";
     if (!formData.password) validationErrors.password = "Password is required.";
     else if (!isValidPassword(formData.password))
       validationErrors.password =
@@ -39,8 +47,8 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
 
     try {
       await axios.post(
-        `http://localhost:8080/owners/:owner_id/${restaurant_id}/staffs`,
-        { ...formData, restaurant_id: restaurant_id},
+        `${process.env.REACT_APP_API_URL}/owners/:owner_id/${restaurant_id}/staffs`,
+        { ...formData, restaurant_id: restaurant_id },
         { withCredentials: true }
       );
 
@@ -49,20 +57,37 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
       onStaffAdded(formData);
 
       // Reset form
-      setFormData({ name: "", gmail: "", password: "", phone: "", restaurant_id: 0 });
+      setFormData({
+        name: "",
+        gmail: "",
+        password: "",
+        phone: "",
+        restaurant_id: 0,
+      });
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to create staff.");
     }
   };
 
- 
   return (
-    <div className="modal fade" id="myModal" tabIndex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div
+      className="modal fade"
+      id="myModal"
+      tabIndex="-1"
+      aria-labelledby="myModalLabel"
+      aria-hidden="true"
+    >
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content rounded-4 shadow-lg border-0">
           <div className="modal-header bg-dark text-white rounded-top-4">
-            <h4 className="modal-title fw-bold" id="myModalLabel">Create New Staff</h4>
-            <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <h4 className="modal-title fw-bold" id="myModalLabel">
+              Create New Staff
+            </h4>
+            <button
+              type="button"
+              className="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
           <form onSubmit={handleSubmit}>
             <div className="modal-body p-4 bg-white">
@@ -76,7 +101,9 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
                   value={formData.name}
                   onChange={handleChange}
                 />
-                {errors.name && <small className="text-danger">{errors.name}</small>}
+                {errors.name && (
+                  <small className="text-danger">{errors.name}</small>
+                )}
               </div>
               <div className="form-group mb-3">
                 <label className="form-label fw-bold text-dark">Gmail</label>
@@ -88,7 +115,9 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
                   value={formData.gmail}
                   onChange={handleChange}
                 />
-                {errors.gmail && <small className="text-danger">{errors.gmail}</small>}
+                {errors.gmail && (
+                  <small className="text-danger">{errors.gmail}</small>
+                )}
               </div>
               <div className="form-group mb-3">
                 <label className="form-label fw-bold text-dark">Password</label>
@@ -109,7 +138,9 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
                     <FontAwesomeIcon icon={showPassword ? FaEye : FaEyeSlash} />
                   </span>
                 </div>
-                {errors.password && <small className="text-danger">{errors.password}</small>}
+                {errors.password && (
+                  <small className="text-danger">{errors.password}</small>
+                )}
               </div>
               <div className="form-group mb-3">
                 <label className="form-label fw-bold text-dark">Phone</label>
@@ -121,14 +152,26 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
                   value={formData.phone}
                   onChange={handleChange}
                 />
-                {errors.phone && <small className="text-danger">{errors.phone}</small>}
+                {errors.phone && (
+                  <small className="text-danger">{errors.phone}</small>
+                )}
               </div>
             </div>
             <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
-              <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal">
+              <button
+                type="button"
+                className="btn btn-outline-dark fw-bold px-4"
+                data-bs-dismiss="modal"
+              >
                 Close
               </button>
-              <button type="submit" className="btn btn-danger fw-bold px-4" {...(Object.keys(errors).length === 0 ? { "data-bs-dismiss": "modal" } : "")}>
+              <button
+                type="submit"
+                className="btn btn-danger fw-bold px-4"
+                {...(Object.keys(errors).length === 0
+                  ? { "data-bs-dismiss": "modal" }
+                  : "")}
+              >
                 Create
               </button>
             </div>
@@ -138,4 +181,3 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
     </div>
   );
 }
-

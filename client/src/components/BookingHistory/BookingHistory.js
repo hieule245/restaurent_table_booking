@@ -77,7 +77,7 @@ const BookingHistory = () => {
   // Fetch user info
   useEffect(() => {
     axios
-      .get("http://localhost:8080/me", { withCredentials: true })
+      .get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
       .then((res) => setUser(res.data.user))
       .catch(() => navigate("/login"));
   }, [navigate]);
@@ -86,9 +86,12 @@ const BookingHistory = () => {
   useEffect(() => {
     if (!user?.Id) return;
     axios
-      .get(`http://localhost:8080/booking-history?user_gmail=${user.Email}`, {
-        withCredentials: true,
-      })
+      .get(
+        `${process.env.REACT_APP_API_URL}/booking-history?user_gmail=${user.Email}`,
+        {
+          withCredentials: true,
+        }
+      )
       .then((res) => setBookings(res.data.bookings))
       .catch((err) => {
         console.error(err);
@@ -99,7 +102,7 @@ const BookingHistory = () => {
   const updateStatusOnServer = (id, newStatus) => {
     axios
       .put(
-        `http://localhost:8080/reservation/${id}/server`,
+        `${process.env.REACT_APP_API_URL}/reservation/${id}/server`,
         { status: newStatus },
         { withCredentials: true }
       )
@@ -150,7 +153,7 @@ const BookingHistory = () => {
 
     axios
       .put(
-        `http://localhost:8080/reservation/${selectedBooking.id}`,
+        `${process.env.REACT_APP_API_URL}/reservation/${selectedBooking.id}`,
         updatedBooking,
         { withCredentials: true }
       )
@@ -179,9 +182,12 @@ const BookingHistory = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`http://localhost:8080/reservation/${booking.id}`, {
-            withCredentials: true,
-          })
+          .delete(
+            `${process.env.REACT_APP_API_URL}/reservation/${booking.id}`,
+            {
+              withCredentials: true,
+            }
+          )
           .then(() => {
             setBookings((prev) => prev.filter((b) => b.id !== booking.id));
             Swal.fire(

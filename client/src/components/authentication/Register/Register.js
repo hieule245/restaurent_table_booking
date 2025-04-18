@@ -31,7 +31,8 @@ const RegisterPage = () => {
   };
 
   const isValidPassword = (password) => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
     return passwordRegex.test(password);
   };
 
@@ -58,12 +59,14 @@ const RegisterPage = () => {
     if (!phone) {
       validationErrors.phone = "Phone number is required.";
     } else if (!isValidPhone(phone)) {
-      validationErrors.phone = "Phone number must be exactly 10 digits.(e.g. 093*******)";
+      validationErrors.phone =
+        "Phone number must be exactly 10 digits.(e.g. 093*******)";
     }
     if (!password) {
       validationErrors.password = "Password is required.";
     } else if (!isValidPassword(password)) {
-      validationErrors.password = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
+      validationErrors.password =
+        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
     }
     if (!confirmPassword) {
       validationErrors.confirmPassword = "Confirm password is required.";
@@ -77,13 +80,16 @@ const RegisterPage = () => {
     }
     console.log(role);
     try {
-      const res = await axios.post("http://localhost:8080/register", {
-        Name: name,
-        Email: email,
-        Password: password,
-        Phone: phone,
-        Role: role,
-      });
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/register`,
+        {
+          Name: name,
+          Email: email,
+          Password: password,
+          Phone: phone,
+          Role: role,
+        }
+      );
 
       if (res.status === 201) {
         toast.success("Registration successful! Redirecting to login...");
@@ -151,7 +157,9 @@ const RegisterPage = () => {
                       style={{ cursor: "pointer", borderLeft: 0 }}
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+                      <FontAwesomeIcon
+                        icon={showPassword ? faEye : faEyeSlash}
+                      />
                     </span>
                   </div>
                   {errors.password && (
@@ -161,20 +169,24 @@ const RegisterPage = () => {
                 <div className="form-group my-2">
                   <label className="form-label">Confirm Password</label>
                   <div className="input-group">
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    className="form-control"
-                    placeholder="Confirm Password"
-                    style={{ borderRight: 0 }}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
-                  <span
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      className="form-control"
+                      placeholder="Confirm Password"
+                      style={{ borderRight: 0 }}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    <span
                       className="input-group-text bg-white"
                       style={{ cursor: "pointer", borderLeft: 0 }}
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                     >
-                      <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
+                      <FontAwesomeIcon
+                        icon={showConfirmPassword ? faEye : faEyeSlash}
+                      />
                     </span>
                   </div>
                   {errors.confirmPassword && (
