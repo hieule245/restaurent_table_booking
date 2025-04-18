@@ -10,9 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import './Login.style.css'
-import { loginSchema } from "../../../validations/AccountSchema";
-
+import "./Login.style.css";
 const LoginPage = () => {
   const navigate = useNavigate();
 
@@ -49,12 +47,36 @@ const LoginPage = () => {
       });
   }, [handleNavigation]);
 
+  const isValidPassword = (password) => {
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
+    return passwordRegex.test(password);
+  };
+
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const HandleLogin = async (e) => {
     e.preventDefault();
-
+    let validationErrors = {};
+    if (!email) {
+      validationErrors.email = "Email is required.";
+    } else if (!isValidEmail(email)) {
+      validationErrors.email = "Invalid email format.";
+    }
+    if (!password) {
+      validationErrors.password = "Password is required.";
+    } else if (!isValidPassword(password)) {
+      validationErrors.password =
+        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
+    }
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     try {
-      await loginSchema.validate({ email, password }, { abortEarly: false });
-      setErrors({});
       let res = await axios.post(
         `${process.env.REACT_APP_API_URL}/login`,
         { Email: email, Password: password },
@@ -89,18 +111,14 @@ const LoginPage = () => {
       }
     } catch (error) {
       console.log(error);
-
-      const errorMessage =
-        error.response?.data?.message || "Registration failed. Please try again.";
-
-      // Nếu lỗi liên quan đến email, hiển thị dưới input email
-      if (errorMessage.toLowerCase().includes("gmail") || errorMessage.toLowerCase().includes("email")) {
-        setErrors(prev => ({ ...prev, email: errorMessage }));
-      } else if (errorMessage.toLowerCase().includes("password")) {
-        setErrors(prev => ({ ...prev, password: errorMessage }));
-      }
-      else {
-        toast.error(errorMessage);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Registration failed. Please try again.");
       }
     }
   };
@@ -134,10 +152,7 @@ const LoginPage = () => {
                     className="form-control"
                     placeholder="Email"
                     value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setErrors((prev) => ({ ...prev, email: "" }));
-                    }}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                   {errors.email && (
                     <small className="text-danger">{errors.email}</small>
@@ -152,10 +167,7 @@ const LoginPage = () => {
                       placeholder="Password"
                       style={{ borderRight: 0 }}
                       value={password}
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                        setErrors((prev) => ({ ...prev, password: "" }));
-                      }}
+                      onChange={(e) => setPassword(e.target.value)}
                     />
                     <span
                       className="input-group-text bg-white"

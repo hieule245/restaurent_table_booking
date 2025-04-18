@@ -28,11 +28,7 @@ const Personal = () => {
   const handleBack = () => {
     if (userRole === "owner") {
       navigate("/owner");
-    } else if (userRole === "staff") {
-      navigate("/staff");
-    } else if (userRole === "admin") {
-      navigate("/admin/dashboard");
-    } else if (userRole === "customer") {
+    } else {
       navigate("/");
     }
   };

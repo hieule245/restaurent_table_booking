@@ -14,7 +14,6 @@ type Table struct {
 	Name         string `json:"name"`
 	Type         string `json:"type"`
 	Seats        int    `json:"seats"`
-	Status       string `json:"status"`
 	RestaurantID int    `json:"restaurant_id"`
 	Description  string
 }
@@ -124,15 +123,15 @@ func (t *Table) CreateTable() error {
 		return errors.New("This table should have seat!!")
 	}
 
-	query := `INSERT INTO tables (name, type, seats, status, restaurant_id, description) VALUES (?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO tables (name, type, seats, restaurant_id, description) VALUES (?, ?, ?, ?, ?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		fmt.Println("table 3-", err)
 		return err
 	}
 	defer stmt.Close()
-	t.Status = "active"
-	result, err := stmt.Exec(t.Name, t.Type, t.Seats, t.Status, t.RestaurantID, t.Description)
+
+	result, err := stmt.Exec(t.Name, t.Type, t.Seats, t.RestaurantID, t.Description)
 	if err != nil {
 		fmt.Println("table 4-", err)
 		return err

@@ -10,10 +10,7 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import Card from "../../components/Card/AdminCard";
 import Sidebar from "./SideBar";
-import Cookies from "js-cookie";
-
 const Admin = () => {
-
   const [revenues, SetRevenues] = useState([]);
   const [top, SetTop] = useState([]);
   const fetch = () => {
@@ -45,7 +42,6 @@ const Admin = () => {
       toast.error("Lỗi không xác định: " + err.message);
     }
   };
-  console.log("Token from cookie:", Cookies.get("token"));
 
   const topReservation = () => {
     try {

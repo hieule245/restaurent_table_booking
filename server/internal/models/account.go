@@ -124,28 +124,26 @@ func (u *Account) RegisterAdmin() error {
 }
 
 func (u *Account) Login() error {
+	fmt.Println("Login", u.Email)
 	// Check if the user exists
 	retrievedPassword, ok := CheckAccount(u)
+	fmt.Println("Login--1", retrievedPassword)
 	if ok {
 		return errors.New("email does not exist")
 	}
 
 	if u.Status == "inactive" {
-		return errors.New("This account is locked for security. Check your email and contact us")
+		return errors.New("this account is locked for security. Check your email and contact us")
 	} else if u.Status == "ban" && u.Role == "staff" {
-		return errors.New("Account deleted. Contact the restaurant owner to restore")
+		return errors.New("account deleted. Contact the restaurant owner to restore")
 	} else if u.Status == "ban" && u.Role == "owner" || u.Status == "ban" && u.Role == "customer" {
-		return errors.New("This account is locked for violation. Check your email and contact us")
+		return errors.New("this account is locked for violation. Check your email and contact us")
 	}
-
 	loginData, exists := failedAttempts.Load(u.Email)
+	fmt.Println("Login--2", loginData)
 	if exists {
 		data := loginData.(CheckPassword)
-		fmt.Println("Login--2", data.Attempt)
-		if data.Attempt == 5 {
-			data.Attempt = 0
-			fmt.Println("Login--2", data.Attempt)
-			failedAttempts.Delete(u.Email)
+		if data.Attempt >= 5 {
 			return errors.New("This account is locked due to too many failed attempts. Check your email and contact us")
 		}
 	}
@@ -164,17 +162,15 @@ func (u *Account) Login() error {
 		failedAttempts.Store(u.Email, check)
 
 		remainingAttempts := 5 - check.Attempt
-		fmt.Println("Attempt", check.Attempt)
-		if check.Attempt == 5 {
+		fmt.Println("Login--3", remainingAttempts)
+		if check.Attempt >= 5 {
 			err := SetAccountStatusInactive(u.Email, u.Role)
-			check.Attempt = 0
-			failedAttempts.Delete(u.Email)
 			if err != nil {
-				return errors.New("Failed to set account status to inactive: " + err.Error())
+				return errors.New("failed to set account status to inactive: " + err.Error())
 			}
 			return errors.New("This account is locked for security. Check your email and contact us")
 		}
-		return errors.New("Invalid Password. You have " + fmt.Sprint(remainingAttempts) + " attempts left")
+		return errors.New("invalid Password. You have " + fmt.Sprint(remainingAttempts) + " attempts left")
 	}
 	failedAttempts.Delete(u.Email)
 
@@ -182,6 +178,7 @@ func (u *Account) Login() error {
 }
 
 func CheckAccount(a *Account) (string, bool) {
+	fmt.Println("CheckAccount 0-", a.Email)
 
 	// Queries for each role
 	queries := map[string]string{
@@ -224,32 +221,18 @@ func CheckAccount(a *Account) (string, bool) {
 }
 
 func (u *Account) ResetPassword() error {
-	fmt.Println("ResetPassword", u.Email, u.Password)
-	CheckAccount(u)
-	var query string
-	switch u.Role {
-	case "customer":
-		query = `UPDATE customers SET password = ? WHERE gmail = ?`
-	case "staff":
-		query = `UPDATE staffs SET password = ? WHERE gmail = ?`
-	case "admin":
-		query = `UPDATE admin SET password = ? WHERE gmail = ?`
-	case "owner":
-		query = `UPDATE owners SET password = ? WHERE gmail = ?`
-	default:
-		return errors.New("invalid role provided")
-	}
+	query := `UPDATE customers SET password = ? WHERE gmail = ?`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		return errors.New("failed to prepare the SQL statement for resetting password: " + err.Error())
 	}
 	defer stmt.Close()
-	fmt.Println("ResetPassword", u.Email, u.Password)
+
 	hashPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
 		return errors.New("failed to hash the password: " + err.Error())
 	}
-	fmt.Println(hashPassword)
+
 	_, err = stmt.Exec(hashPassword, u.Email)
 	if err != nil {
 		return errors.New("failed to execute the SQL statement for resetting password: " + err.Error())
@@ -389,28 +372,7 @@ func (u *Account) UpdateStaff() error {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(u.Name, u.Phone, u.Email)
-	if err != nil {
-		panic(err)
-		return err
-	}
-	return err
-}
-
-func (u *Account) UpdateAdmin() error {
-	query := `UPDATE admin SET name = ?, phone = ?
-    WHERE gmail = ?`
-	stmt, err := db.DB.Prepare(query)
-	if err != nil {
-		return errors.New("failed to prepare the SQL statement for setting account status: " + err.Error())
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(u.Name, u.Phone, u.Email)
-	if err != nil {
-		panic(err)
-		return err
-	}
+	// _, err = stmt.Exec(email)
 	return err
 }
 
@@ -481,6 +443,8 @@ func SaveImageAvatar(imageId int64, acc *Account) error {
 		query = `UPDATE customers SET image_id = ? WHERE id = ?`
 	case "staff":
 		query = `UPDATE staffs SET image_id = ? WHERE id = ?`
+	case "admin":
+		query = `UPDATE admin SET image_id = ? WHERE id = ?`
 	case "owner":
 		query = `UPDATE owners SET image_id = ? WHERE id = ?`
 	default:

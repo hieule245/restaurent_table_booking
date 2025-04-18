@@ -57,20 +57,16 @@ func ResendPin(context *gin.Context) {
 
 func ResetPassword(context *gin.Context) {
 	var u models.Account
-	fmt.Println("Reset password 1")
 	err := context.ShouldBindBodyWithJSON(&u)
-	fmt.Println(u.Password, u.Email)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
 		return
 	}
-	fmt.Println(err)
 	err = u.ResetPassword()
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't reset password"})
 		return
 	}
-	fmt.Println(err)
 	context.JSON(http.StatusOK, gin.H{"Message": "Reset password successfully !!"})
 }
 
@@ -121,15 +117,20 @@ func Logout(c *gin.Context) {
 }
 
 func Login(context *gin.Context) {
+	fmt.Println("Login--1")
 	_, err := context.Cookie("token")
+	fmt.Println("Login--2")
 	if err != nil {
 		var u models.Account
 		err = context.ShouldBindBodyWithJSON(&u)
+		fmt.Println("Login--aa", u.Email)
 		if err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
 			return
 		}
+		fmt.Println("Login--3")
 		err = u.Login()
+		fmt.Println("Login--4", err)
 		if err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -241,17 +242,8 @@ func CheckPin(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "PIN expired or email not found"})
 		return
 	}
-
 	acc.Email = input.Email
 	storedPin := value.(PinData)
-
-	// 👉 THÊM DÒNG NÀY: kiểm tra thời hạn mã PIN
-	if time.Now().After(storedPin.ExpireAt) {
-		pinStorage.Delete(input.Pin) // Xoá luôn nếu quá hạn
-		fmt.Println("PIN expired for email:", input.Email)
-		context.JSON(http.StatusUnauthorized, gin.H{"message": "Your PIN has expired. Please request a new one."})
-		return
-	}
 
 	_, _ = models.CheckAccount(&acc)
 
@@ -285,15 +277,9 @@ func CheckPin(context *gin.Context) {
 
 func ChangePassword(context *gin.Context) {
 	var pass models.NewPassword
-	fmt.Println("Change password")
 	err := context.ShouldBindBodyWithJSON(&pass)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid Input"})
-		return
-	}
-	if pass.NewPassword == pass.OldPassword {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "New password should not be the same as the old password."})
-		return
 	}
 	var acc models.Account
 	token, err := context.Cookie("token")
@@ -327,10 +313,7 @@ func UpdateProfile(context *gin.Context) {
 		err = acc.UpdateOwner()
 	} else if acc.Role == "customer" {
 		err = acc.UpdateCustomer()
-	} else if acc.Role == "admin" {
-		err = acc.UpdateAdmin()
 	}
-
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 	}
