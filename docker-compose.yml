@@ -4,7 +4,7 @@ services:
     build: ./nginx
     container_name: nginx
     ports:
-      - "80:80"
+      - "5002:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     networks:
