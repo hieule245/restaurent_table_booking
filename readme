@@ -1,0 +1,5 @@
+If you can't run the project
+Please check:
+
+.env => localhost:8080
+db in backend => localhost:3306

@@ -14,14 +14,17 @@ func main() {
 	server := gin.Default()
 
 	server.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"http://localhost:3000"}, // Chỉ cho phép frontend của bạn truy cập
-		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowAllOrigins: true,
+		AllowMethods:    []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders: []string{
 			"Origin", "Content-Length", "Content-Type", "Authorization", "X-Requested-With",
 		},
 
 		AllowCredentials: true, // Cho phép gửi cookie qua CORS
 	}))
+	server.GET("/sayhi", func(context *gin.Context) { context.JSON(200, gin.H{"response": "Hello"}) })
+	server.GET("/", func(context *gin.Context) { context.JSON(200, gin.H{"response": "Hi, web is on"}) })
+
 	// Check connect DB
 	routes.RegisterStatusRoutes(server)
 	// Đăng ký các routes
