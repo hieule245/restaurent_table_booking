@@ -6,7 +6,7 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useEffect } from "react";
 import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
-import { resetPasswordSchema } from "../../validations/AccountSchema";
+import { resetPasswordSchema } from "../../../validations/AccountSchema";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");

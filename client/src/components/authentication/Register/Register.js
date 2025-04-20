@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion"; // Import animation
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import { AccountSchema } from "../../validations/AccountSchema";
+import { AccountSchema } from "../../../validations/AccountSchema";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 
 const RegisterPage = () => {

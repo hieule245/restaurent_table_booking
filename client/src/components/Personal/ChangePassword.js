@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import { changePasswordSchema } from "../validations/AccountSchema";
+import { changePasswordSchema } from "../../validations/AccountSchema";
 import axios from "axios";
 
 const ChangePassword = () => {
