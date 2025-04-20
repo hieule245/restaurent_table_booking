@@ -1,14 +1,22 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"github.com/restaurent_table_booking/api/routes"
 	"github.com/restaurent_table_booking/internal/cronjobs"
 	"github.com/restaurent_table_booking/internal/db"
 )
 
 func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Println("No .env file found or failed to load")
+	}
+
 	db.InitDB()
 
 	server := gin.Default()

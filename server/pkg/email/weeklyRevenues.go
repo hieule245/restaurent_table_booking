@@ -3,20 +3,20 @@ package pkg
 import (
 	"fmt"
 	"net/smtp"
+	"os"
 	"time"
 )
 
 func SendMailRevenues(email, name, revenueChange string, weekTotal float32, newStaff, outStaff, order, using int) error {
-	auth := smtp.PlainAuth(
-		"",
-		"golangtraining2025@gmail.com",
-		"vowhfgfectpvypos",
-		"smtp.gmail.com",
-	)
+	mailUser := os.Getenv("MAIL_USERNAME")
+	mailPass := os.Getenv("MAIL_PASSWORD")
+	smtpHost := os.Getenv("MAIL_SMTP_HOST")
+	smtpPort := os.Getenv("MAIL_SMTP_PORT")
 
+	auth := smtp.PlainAuth("", mailUser, mailPass, smtpHost)
 	currentYear, currentWeek := time.Now().ISOWeek()
 
-	msg := fmt.Sprintf(`From: golangtraining2025@gmail.com
+	msg := fmt.Sprintf(`From: %s
 To: %s
 Subject: Báo cáo doanh thu tuần
 MIME-Version: 1.0
@@ -28,7 +28,7 @@ Content-Type: text/html; charset="UTF-8"
 		<p>Dưới đây là báo cáo doanh thu của nhà hàng trong tuần %d năm %d:</p>
 
 		<ul>
-			<li><strong>Tổng doanh thu tuần:</strong> %.1fVND</li>
+			<li><strong>Tổng doanh thu tuần:</strong> %.1f VND</li>
 			<li><strong>Chênh lệch so với tháng trước:</strong> %s</li>
 			<li><strong>Số lượng nhân viên mới:</strong> %d</li>
 			<li><strong>Số lượng nhân viên xin nghỉ:</strong> %d</li>
@@ -40,12 +40,12 @@ Content-Type: text/html; charset="UTF-8"
 		<p>Trân trọng,</p>
 		<p><strong>TableBooker</strong></p>
 	</body>
-</html>`, email, name, currentWeek, currentYear, weekTotal, revenueChange, newStaff, outStaff, order, using)
+</html>`, mailUser, email, name, currentWeek, currentYear, weekTotal, revenueChange, newStaff, outStaff, order, using)
 
 	err := smtp.SendMail(
-		"smtp.gmail.com:587",
+		smtpHost+":"+smtpPort,
 		auth,
-		"golangtraining2025@gmail.com",
+		mailUser,
 		[]string{email},
 		[]byte(msg),
 	)
