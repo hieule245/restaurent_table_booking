@@ -87,7 +87,7 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
 
       {showDeleteConfirm && (
         <DeleteConfirmationModal
-          link={`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables/${table.id}`}
+          link={`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables/${table.id}`}
           tableName={table.name}
           setShowDeleteConfirm={setShowDeleteConfirm}
           onDelete={() => {
@@ -107,7 +107,7 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
             toast.success("Table updated successfully");
             onUpdate();
           }}
-          link={`http://localhost:8080/owners/:owner_id/restaurants/${restaurant_id}/tables/${table.id}`}
+          link={`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables/${table.id}`}
           setValidationErrors={setValidationErrors}
         />
       )}

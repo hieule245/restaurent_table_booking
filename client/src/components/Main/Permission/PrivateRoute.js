@@ -8,7 +8,7 @@ const PrivateRoute = ({ allowedRoles }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get("http://localhost:8080/me", { withCredentials: true })
+    axios.get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
       .then((res) => {
         setRole(res.data.user.Role);
         setLoading(false);

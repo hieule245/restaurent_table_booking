@@ -33,7 +33,7 @@ const ReservationList = ({ restaurant_id }) => {
 
   const fetch = useCallback(() => {
     try {
-      axios
+      axios 
         .get(
           `${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/reservations`,
           { withCredentials: true }

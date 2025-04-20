@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaLock, FaUnlock, FaPhone, FaEnvelope, FaSearch, FaSortAmountDown, FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { toast, ToastContainer } from "react-toastify";
 import './StaffList.style.css'
 import axios from "axios";
+import AddStaff from "./AddStaff"
 import { Modal } from "bootstrap";
 
 export default function StaffList({ restaurant_id }) {
@@ -15,8 +16,8 @@ export default function StaffList({ restaurant_id }) {
     const [sortType, setSortType] = useState(null);
     const itemsPerPage = 12;
 
-    const fetchStaff = useCallback(() => {
-        axios.get(`${process.env.REACT_APP_API_URL}/admin/restaurants/${restaurant_id}/staffs`, { withCredentials: true })
+    const fetchStaff = () => {
+        axios.get(`${process.env.REACT_APP_API_URL}/owners/:owner_id/${restaurant_id}/staffs`, { withCredentials: true })
             .then((res) => {
                 setStaff(res.data.staff || []);
             })
@@ -24,7 +25,7 @@ export default function StaffList({ restaurant_id }) {
                 toast.error("Error fetching staff list!");
                 console.error("Error:", err);
             });
-    });
+    };
 
     useEffect(() => {
         fetchStaff();
@@ -34,7 +35,6 @@ export default function StaffList({ restaurant_id }) {
             setModalInstance(instance);
         }
     }, [fetchStaff, restaurant_id]);
-
 
     const handleSort = (type) => {
         setSortType(type);
@@ -47,6 +47,11 @@ export default function StaffList({ restaurant_id }) {
         setStaff(sortedStaff);
     };
 
+    // Hàm này sẽ được truyền xuống AddStaffForm
+    const handleStaffAdded = (newStaff) => {
+        setStaff((prevStaff) => [...prevStaff, newStaff]); // Cập nhật danh sách mà không cần load lại trang
+    };
+
     const handleOpenModal = (staff) => {
         setSelectedStaff(staff);
         modalInstance?.show();
@@ -56,11 +61,11 @@ export default function StaffList({ restaurant_id }) {
         if (!selectedStaff) return;
 
         const { id, status } = selectedStaff;
-        const newStatus = status === "active" ? "ban" : "active";
+        const newStatus = status === "active" ? "inactive" : "active";
 
         try {
             await axios.post(
-                `${process.env.REACT_APP_API_URL}/admin/restaurants/${restaurant_id}/staffs/${id}`,
+                `${process.env.REACT_APP_API_URL}/owners/:owner_id/${restaurant_id}/staffs/${id}`,
                 { Status: status, Id: id },
                 { withCredentials: true }
             );
@@ -70,7 +75,7 @@ export default function StaffList({ restaurant_id }) {
                     s.id === id ? { ...s, status: newStatus } : s
                 )
             );
-            toast.success(`Staff ${newStatus === "active" ? "unbaned" : "baned"} successfully!`);
+            toast.success(`Staff ${newStatus === "active" ? "unlocked" : "locked"} successfully!`);
         } catch (error) {
             toast.error(`Failed to update staff status! Error: ${error.message}`);
             console.error(error);
@@ -88,9 +93,18 @@ export default function StaffList({ restaurant_id }) {
         <div className="container mt-5">
             <ToastContainer />
             <div className="d-flex justify-content-between align-items-center mb-3">
+                {/* Nút thêm nhân viên */}
+                <button
+                    type="button"
+                    className="btn btn-outline-danger fw-bold"
+                    data-bs-toggle="modal"
+                    data-bs-target="#myModal"
+                >
+                    Add Staff
+                </button>
 
                 {/* Ô tìm kiếm và nút sắp xếp tách biệt */}
-                <div className="d-flex gap-3 justify-content-between align-items-center">
+                <div className="d-flex gap-3 align-items-center">
                     {/* Ô tìm kiếm */}
                     <div className="input-group">
                         <span className="input-group-text bg-white">
@@ -124,8 +138,11 @@ export default function StaffList({ restaurant_id }) {
                             <li><button className="dropdown-item" onClick={() => handleSort("name-desc")}><FaSortAlphaUp className="me-2 text-danger" /> Name (Z-A)</button></li>
                         </ul>
                     </div>
+
                 </div>
             </div>
+
+            {restaurant_id && <AddStaff restaurant_id={restaurant_id} onStaffAdded={handleStaffAdded} />}
 
             <div className="staff-container">
                 <div className="row">
@@ -135,7 +152,8 @@ export default function StaffList({ restaurant_id }) {
                                 <button
                                     className={`btn btn-square position-absolute top-0 end-0 m-2 
                                 ${status === "ban" ? "btn-secondary" : status === "active" ? "btn-outline-danger" : "btn-danger"}`}
-                                    onClick={() => handleOpenModal({ id, name, status })}
+                                    onClick={() => status !== "ban" && handleOpenModal({ id, name, status })}
+                                    disabled={status === "ban"}
                                 >
                                     {status === "active" ? <FaUnlock /> : status === "inactive" ? <FaLock /> : <FaLock />}
                                 </button>
@@ -166,7 +184,7 @@ export default function StaffList({ restaurant_id }) {
 
                         <div className="modal-body p-4 bg-white">
                             <p className="text-dark">
-                                Are you sure you want to <strong>{selectedStaff?.status === "active" ? "ban" : "unban"} </strong>
+                                Are you sure you want to <strong>{selectedStaff?.status === "active" ? "lock" : "unlock"} </strong>
                                 staff <strong className="text-danger">{selectedStaff?.name}</strong>?
                             </p>
                         </div>

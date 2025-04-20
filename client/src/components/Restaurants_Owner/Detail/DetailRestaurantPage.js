@@ -1,15 +1,16 @@
 import { FaUtensils } from "react-icons/fa";
 import { FaArrowLeft } from "react-icons/fa";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+
 import TableList from "./Table/TableList";
 import StaffList from "./Staff/StaffList";
 import HistoryReservation from "./History/HistoryReservation"
-
 const RestaurantPage = () => {
   const navigate = useNavigate();
   const { restaurant_id } = useParams();
-  console.log("restaurant",restaurant_id);
+  console.log(restaurant_id);
   const [activeComponent, setActiveComponent] = useState(() => {
     return sessionStorage.getItem("activeComponent") || "Detail";
   });
@@ -29,7 +30,7 @@ const RestaurantPage = () => {
       default:
         return <TableList restaurant_id={restaurant_id} />
     }
-  }; 
+  };
 
   return (
     <div className="row">

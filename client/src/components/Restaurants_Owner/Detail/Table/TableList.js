@@ -1,22 +1,27 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMapMarkerAlt, faClock } from "@fortawesome/free-solid-svg-icons";
+import { faMapMarkerAlt, faClock, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FaPen, FaStoreSlash } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
-import TableCard from "../../../Card/Table/Admin";
+import TableCard from "../../../Card/Table/Owner";
 import "./Tablelist.styles.css";
 import { ToastContainer } from "react-toastify";
 import { Modal } from "bootstrap";
+import { tableSchema } from "../../../../validations/TableSchema";
 import { restaurantEditSchema } from "../../../../validations/RestaurantSchema";
+
 const TableList = ({ restaurant_id }) => {
   const [tables, setTables] = useState([]);
   const [restaurant, setRestaurant] = useState({});
   const [formData, setFormData] = useState({});
+  const [newTable, setNewTable] = useState({ name: "", type: "", seats: tables.seats || 1, Description: "" });
   const modalRef = useRef(null);
+  const addTableModalRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
   const tablesPerPage = 6;
   const [validationErrors, setValidationErrors] = useState({});
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.name === "seats" ? Number(e.target.value) : e.target.value });
@@ -24,7 +29,7 @@ const TableList = ({ restaurant_id }) => {
 
   const fetchTables = useCallback(async () => {
     try {
-      axios.get(`${process.env.REACT_APP_API_URL}/admin/restaurants/${restaurant_id}/tables`, { withCredentials: true })
+      axios.get(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables`, { withCredentials: true })
         .then((res) => setTables(res.data.tables || []))
         .catch(() => toast.error("Error fetching table list!"));
     } catch (error) {
@@ -37,7 +42,7 @@ const TableList = ({ restaurant_id }) => {
   }, [restaurant_id, fetchTables]);
 
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API_URL}/admin/restaurants/${restaurant_id}`, { withCredentials: true })
+    axios.get(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}`, { withCredentials: true })
       .then((res) => {
         setRestaurant(res.data.restaurant || {});
         setFormData(res.data.restaurant || {});
@@ -51,7 +56,7 @@ const TableList = ({ restaurant_id }) => {
     try {
       await restaurantEditSchema.validate(formData, { abortEarly: false });
 
-      await axios.put(`${process.env.REACT_APP_API_URL}/admin/restaurants/${restaurant_id}`, formData, { withCredentials: true })
+      await axios.put(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}`, formData, { withCredentials: true })
         .then(() => {
           setRestaurant(formData);
           toast.success("Restaurant updated successfully!");
@@ -71,8 +76,45 @@ const TableList = ({ restaurant_id }) => {
     }
   };
 
+
+  const handleNewTableChange = (e) => {
+    setNewTable({ ...newTable, [e.target.name]: e.target.name === "seats" ? Number(e.target.value) : e.target.value });
+  };
+
+  const handleAddTable = async (e) => {
+    e.preventDefault();
+    setValidationErrors({}); // reset trước
+
+    try {
+      await tableSchema.validate(newTable, { abortEarly: false });
+
+      axios.post(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables`, newTable, { withCredentials: true })
+        .then((res) => {
+          setTables([...tables, newTable]);
+          toast.success("Table added successfully!");
+          addTableModalRef.current.querySelector(".btn-close").click();
+          setNewTable({ name: "", type: "", seats: 1, Description: "" });
+        })
+        .catch((error) => {
+          if (error.response?.data?.error) {
+            toast.error(error.response.data.error);
+          }
+        });
+    } catch (error) {
+      if (error.inner) {
+        const formattedErrors = {};
+        error.inner.forEach(err => {
+          formattedErrors[err.path] = err.message;
+        });
+        setValidationErrors(formattedErrors); // cập nhật state lỗi
+      } else {
+        toast.error("Đã có lỗi xảy ra!");
+      }
+    }
+  };
+
   const handleDeleteRestaurant = () => {
-    axios.post(`${process.env.REACT_APP_API_URL}/admin/restaurants/${restaurant_id}`, {}, { withCredentials: true, })
+    axios.post(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}`, {}, { withCredentials: true, })
       .then(() => {
         toast.success("Restaurant deleted successfully!");
 
@@ -107,9 +149,9 @@ const TableList = ({ restaurant_id }) => {
       <div className="col-9">
         <div className="">
           <div className="restaurant-details mt-1 pt-1 pb-0">
-            <h1 className="restaurant-name text-dark mb-2 card-title text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>
+            <h1 className="restaurant-name text-dark mb-2" style={{ whiteSpace: "normal", overflow: "visible", textOverflow: "unset" }}>
               {restaurant.Name}
-              </h1>
+            </h1>
             <p className="restaurant-description text-muted">{restaurant.Description}</p>
             <p className="restaurant-address-text">
               <FontAwesomeIcon icon={faMapMarkerAlt} className="text-danger me-2" />
@@ -128,6 +170,7 @@ const TableList = ({ restaurant_id }) => {
       </div>
 
       <div className="col-3 text-end pe-5">
+        <button className="btn btn-outline-success me-3" data-bs-toggle="modal" data-bs-target="#addTableModal"><FontAwesomeIcon icon={faPlus} /></button>
         <button className="btn btn-outline-primary me-3" data-bs-toggle="modal" data-bs-target="#editRestaurantModal"><FaPen /></button>
         <button className="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteRestaurantModal">
           <FaStoreSlash />
@@ -303,6 +346,105 @@ const TableList = ({ restaurant_id }) => {
               <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal">Cancel</button>
               <button type="button" className="btn btn-danger fw-bold px-4" onClick={handleDeleteRestaurant}>Delete</button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal thêm bàn */}
+      <div ref={addTableModalRef} className="modal fade" id="addTableModal" tabIndex="-1" aria-labelledby="addTableModalLabel" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content rounded-4 shadow-lg border-0">
+            <div className="modal-header bg-dark text-white rounded-top-4">
+              <h4 className="modal-title fw-bold" id="addTableModalLabel">Add Table</h4>
+              <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form onSubmit={handleAddTable}>
+              <div className="modal-body p-4 bg-white">
+                <div className="form-group mb-2">
+                  <label className="form-label fw-bold text-dark">Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    className={`form-control border-secondary rounded-3 ${validationErrors.name ? 'is-invalid' : ''}`}
+                    value={newTable.name}
+                    onChange={(e) => {
+                      handleNewTableChange(e);
+
+                      // Xóa lỗi nếu có khi người dùng sửa
+                      if (validationErrors.name) {
+                        setValidationErrors(prev => {
+                          const { name, ...rest } = prev;
+                          return rest;
+                        });
+                      }
+                    }}
+                  />
+                  {validationErrors.name && <div className="invalid-feedback">{validationErrors.name}</div>}
+                </div>
+                <div className="form-group mb-3">
+                  <label className="form-label fw-bold text-dark">Type</label>
+                  <input
+                    type="text"
+                    name="type"
+                    className={`form-control border-secondary rounded-3 ${validationErrors.type ? 'is-invalid' : ''}`}
+                    value={newTable.type}
+                    onChange={(e) => {
+                      handleNewTableChange(e);
+
+                      // Xóa lỗi nếu có khi người dùng sửa
+                      if (validationErrors.type) {
+                        setValidationErrors(prev => {
+                          const { type, ...rest } = prev;
+                          return rest;
+                        });
+                      }
+                    }} />
+                  {validationErrors.type && <div className="invalid-feedback">{validationErrors.type}</div>}
+                </div>
+                <div className="form-group mb-3">
+                  <label className="form-label fw-bold text-dark">Seats</label>
+                  <input type="number"
+                    name="seats"
+                    className={`form-control border-secondary rounded-3 ${validationErrors.seats ? 'is-invalid' : ''}`}
+                    value={newTable.seats}
+                    onChange={(e) => {
+                      handleNewTableChange(e);
+
+                      // Xóa lỗi nếu có khi người dùng sửa
+                      if (validationErrors.seats) {
+                        setValidationErrors(prev => {
+                          const { seats, ...rest } = prev;
+                          return rest;
+                        });
+                      }
+                    }} />
+                  {validationErrors.type && <div className="invalid-feedback">{validationErrors.type}</div>}
+                </div>
+                <div className="form-group mb-3">
+                  <label className="form-label fw-bold text-dark">Description</label>
+                  <textarea type="text"
+                    name="Description"
+                    className={`form-control border-secondary rounded-3 ${validationErrors.Description ? 'is-invalid' : ''}`}
+                    value={newTable.Description}
+                    onChange={(e) => {
+                      handleNewTableChange(e);
+
+                      // Xóa lỗi nếu có khi người dùng sửa
+                      if (validationErrors.Description) {
+                        setValidationErrors(prev => {
+                          const { Description, ...rest } = prev;
+                          return rest;
+                        });
+                      }
+                    }} />
+                  {validationErrors.Description && <div className="invalid-feedback">{validationErrors.Description}</div>}
+                </div>
+              </div>
+              <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
+                <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal">Close</button>
+                <button type="submit" className="btn btn-success fw-bold px-4">Add</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarAlt, faClock, faChair, faUser } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import { useCallback } from "react";
+
 const ReservationList = ({ restaurant_id }) => {
     const [reservations, setReservations] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -23,10 +23,10 @@ const ReservationList = ({ restaurant_id }) => {
         Price: 1
     });
 
-    const fetch = useCallback(() => {
+    const fetch = () => {
         try {
             axios
-                .get(`${process.env.REACT_APP_API_URL}/admin/restaurants/${restaurant_id}/reservations`, { withCredentials: true })
+                .get(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/reservations`, { withCredentials: true })
                 .then((res) => {
                     if (res.data && Array.isArray(res.data.booking)) {
                         setReservations(res.data.booking);
@@ -53,7 +53,7 @@ const ReservationList = ({ restaurant_id }) => {
         } catch (err) {
             console.error(err);
         }
-    });
+    };
 
     useEffect(() => {
         fetch();
@@ -62,7 +62,7 @@ const ReservationList = ({ restaurant_id }) => {
     const handleUpdate = (e) => {
         e.preventDefault();
         axios
-            .post(`${process.env.REACT_APP_API_URL}/admin/restaurants/${restaurant_id}/reservations/edit`, finish, { withCredentials: true })
+            .post(`${process.env.REACT_APP_API_URL}/owners/:owner_id/reservations/finish_booking`, finish, { withCredentials: true })
             .then(() => {
                 toast.success("Update successfully!!");
                 fetch();
@@ -138,10 +138,12 @@ const ReservationList = ({ restaurant_id }) => {
                                         className={
                                             res.Status === 4
                                                 ? "btn btn-outline-danger"
-                                                : "btn btn-outline-secondary disabled"
+                                                : res.Status === 0
+                                                    ? "btn btn-outline-secondary disabled"
+                                                    : "btn btn-danger"
                                         }
                                     >
-                                        {res.Status === 4 ? "Edit" : res.Status === 0 ? "Cancel" : "On going"}
+                                        {res.Status === 4 ? "Edit" : res.Status === 0 ? "Cancel" : "Finish?"}
                                     </button>
                                 </td>
                             </tr>

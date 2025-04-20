@@ -22,7 +22,7 @@ const Admin = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [modalInstance, setModalInstance] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [setSortType] = useState(null);
+  const [,setSortType] = useState(null);
   const itemsPerPage = 12;
 
   useEffect(() => {
@@ -52,9 +52,9 @@ const Admin = () => {
     setSortType(type);
     let sortedAccount = [...accounts];
     if (type === "name-asc") {
-      sortedAccount.sort((a, b) => a.name.localeCompare(b.name));
+      sortedAccount.sort((a, b) => a.Name.localeCompare(b.Name));
     } else if (type === "name-desc") {
-      sortedAccount.sort((a, b) => b.name.localeCompare(a.name));
+      sortedAccount.sort((a, b) => b.Name.localeCompare(a.Name));
     }
     setAccount(sortedAccount);
   };

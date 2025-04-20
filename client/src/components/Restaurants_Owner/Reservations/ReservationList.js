@@ -30,7 +30,7 @@ const ReservationList = () => {
   const fetch = () => {
     try {
       axios
-        .get(`${process.env.REACT_APP_API_URL}/admin/reservations`, { withCredentials: true })
+        .get(`${process.env.REACT_APP_API_URL}/owners/:owner_id/reservations`, { withCredentials: true })
         .then((res) => {
           if (res.data && Array.isArray(res.data.booking)) {
             setReservations(res.data.booking);
@@ -48,7 +48,7 @@ const ReservationList = () => {
   const handleUpdate = (e) => {
     e.preventDefault();
     axios
-      .post(`${process.env.REACT_APP_API_URL}/admin/reservations/finish_booking`, finish, { withCredentials: true })
+      .post(`${process.env.REACT_APP_API_URL}/owners/:owner_id/reservations/finish_booking`, finish, { withCredentials: true })
       .then(() => {
         toast.success("Update successfully!!");
         fetch();
