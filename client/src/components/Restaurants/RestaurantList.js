@@ -160,7 +160,7 @@ const RestaurantList = () => {
                 type="button"
                 className="btn btn-danger fw-bolder d-flex align-items-center px-3"
                 data-bs-toggle="dropdown"
-                // Đảm bảo đồng bộ chiều cao
+              // Đảm bảo đồng bộ chiều cao
               >
                 <FaSortAmountDown className="me-2" />
                 Sort
@@ -318,9 +318,14 @@ const RestaurantList = () => {
 
                 {/* Nội dung */}
                 <div className="card-body text-center">
-                  <h5 className="card-title">{restaurant.Name}</h5>
-                  <p className="card-text text-muted">
-                    {restaurant.Description}
+                  <h5 className="card-title text-dark text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>
+                    {restaurant.Name}
+                  </h5>
+                  <p
+                    className="card-text text-muted text-truncate"
+                    style={{ maxWidth: '100%' }}
+                  >
+                    {restaurant.Description || '\u00A0'}
                   </p>
 
                   {/* Giờ mở cửa */}
@@ -350,9 +355,8 @@ const RestaurantList = () => {
             {Array.from({ length: totalPages }, (_, index) => (
               <li
                 key={index}
-                className={`page-item ${
-                  currentPage === index + 1 ? "active" : ""
-                }`}
+                className={`page-item ${currentPage === index + 1 ? "active" : ""
+                  }`}
               >
                 <button
                   className="page-link"
@@ -363,9 +367,8 @@ const RestaurantList = () => {
               </li>
             ))}
             <li
-              className={`page-item ${
-                currentPage === totalPages ? "disabled" : ""
-              }`}
+              className={`page-item ${currentPage === totalPages ? "disabled" : ""
+                }`}
             >
               <button
                 className="page-link text-dark"

@@ -4,8 +4,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import {
   FaTachometerAlt,
   FaUsers,
-  FaUtensils,
-  FaCalendarCheck,
 } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import Card from "../../components/Card/AdminCard";
@@ -131,9 +129,8 @@ const Admin = () => {
               title="Weekly Table Bookings"
               value={
                 revenues.BookNumber && revenues.CanceledBook
-                  ? `${
-                      revenues.BookNumber - revenues.CanceledBook
-                    } reservations`
+                  ? `${revenues.BookNumber - revenues.CanceledBook
+                  } reservations`
                   : "0 reservation"
               }
               growth="+55% than last week"
@@ -163,7 +160,9 @@ const Admin = () => {
                     style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}
                   >
                     <div>
-                      <strong className="text-dark">{restaurant.Name}</strong>
+                      <strong className="text-dark text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>
+                        {restaurant.Name}
+                      </strong>
                       <p className="mb-0 text-muted">
                         {restaurant.TotalRevenue
                           ? restaurant.TotalRevenue.toLocaleString()
@@ -210,7 +209,9 @@ const Admin = () => {
                     style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}
                   >
                     <div>
-                      <strong className="text-dark">{restaurant.Name}</strong>
+                      <strong className="text-dark text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>
+                        {restaurant.Name}
+                      </strong>
                       <p className="mb-0 text-muted">
                         {restaurant.TotalRevenue
                           ? restaurant.TotalRevenue.toLocaleString()

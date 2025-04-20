@@ -157,11 +157,14 @@ const TableList = ({ restaurant_id }) => {
       <div className="col-9">
         <div className="">
           <div className="restaurant-details mt-1 pt-1 pb-0">
-            <h1 className="restaurant-name text-dark mb-2">
+            <h1 className="restaurant-name text-dark mb-2 text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>
               {restaurant.Name}
             </h1>
-            <p className="restaurant-description text-muted">
-              {restaurant.Description}
+            <p
+              className="restaurant-description text-muted text-truncate"
+              style={{ maxWidth: '100%' }}
+            >
+              {restaurant.Description || '\u00A0'}
             </p>
             <p className="restaurant-address-text">
               <FontAwesomeIcon
@@ -246,9 +249,8 @@ const TableList = ({ restaurant_id }) => {
               (number) => (
                 <button
                   key={number + 1}
-                  className={`btn ${
-                    currentPage === number + 1 ? "btn-dark" : "btn-outline-dark"
-                  } mx-1`}
+                  className={`btn ${currentPage === number + 1 ? "btn-dark" : "btn-outline-dark"
+                    } mx-1`}
                   onClick={() => paginate(number + 1)}
                 >
                   {number + 1}

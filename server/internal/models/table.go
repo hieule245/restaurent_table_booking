@@ -14,8 +14,10 @@ type Table struct {
 	Name         string `json:"name"`
 	Type         string `json:"type"`
 	Seats        int    `json:"seats"`
+	Status       string `json:"status"`
 	RestaurantID int    `json:"restaurant_id"`
-	Description  string
+	Description  string `json:"description"`
+	imageFile    string `json:"image_file"`
 }
 
 func SearchTables(name, tableType string, seats, restaurantID int) ([]Table, error) {
@@ -70,7 +72,7 @@ func IsRestaurantExist(restaurantID int) (bool, error) {
 
 // Lấy tất cả bàn ăn theo restaurant_id
 func GetAllTables(restaurantID int) ([]Table, error) {
-	rows, err := db.DB.Query("SELECT id, name, type, seats, description, restaurant_id FROM tables WHERE restaurant_id = ?", restaurantID)
+	rows, err := db.DB.Query("SELECT id, name, type, seats, description, restaurant_id FROM tables WHERE restaurant_id = ? AND status = 'active'", restaurantID)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +93,7 @@ func GetAllTables(restaurantID int) ([]Table, error) {
 // Lấy chi tiết một bàn ăn
 func GetTableByID(tableID int) (*Table, error) {
 	var table Table
-	err := db.DB.QueryRow("SELECT id, name, type, seats, restaurant_id FROM tables WHERE id = ?", tableID).
+	err := db.DB.QueryRow("SELECT id, name, type, seats, restaurant_id FROM tables WHERE id = ? AND status = 'active'", tableID).
 		Scan(&table.ID, &table.Name, &table.Type, &table.Seats, &table.RestaurantID)
 
 	if err != nil {
@@ -123,15 +125,15 @@ func (t *Table) CreateTable() error {
 		return errors.New("This table should have seat!!")
 	}
 
-	query := `INSERT INTO tables (name, type, seats, restaurant_id, description) VALUES (?, ?, ?, ?, ?)`
+	query := `INSERT INTO tables (name, type, seats, status, restaurant_id, description) VALUES (?, ?, ?, ?, ?, ?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		fmt.Println("table 3-", err)
 		return err
 	}
 	defer stmt.Close()
-
-	result, err := stmt.Exec(t.Name, t.Type, t.Seats, t.RestaurantID, t.Description)
+	t.Status = "active"
+	result, err := stmt.Exec(t.Name, t.Type, t.Seats, t.Status, t.RestaurantID, t.Description)
 	if err != nil {
 		fmt.Println("table 4-", err)
 		return err
@@ -156,7 +158,7 @@ func (t *Table) UpdateTable() error {
 
 // Xóa bàn ăn
 func DeleteTable(tableID int) error {
-	query := `DELETE FROM tables WHERE id = ?`
+	query := `UPDATE tables SET status = 'inactive' WHERE id = ?`
 	_, err := db.DB.Exec(query, tableID)
 	return err
 }
@@ -173,7 +175,7 @@ func SearchAvailableTables(restaurantID int, bookDate, desiredStart, desiredEnd 
 			  AND r.book_date = ?
 			  AND r.time_start < ?
 			  AND r.time_end > ?
-		  )
+		  ) AND t.status = 'active'
 	`
 	rows, err := db.DB.Query(query, restaurantID, bookDate, desiredEnd, desiredStart)
 	if err != nil {

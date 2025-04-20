@@ -178,7 +178,7 @@ const BookingHistory = () => {
                   <th>Time End</th>
                   <th>Seats</th>
                   <th>Table ID</th>
-                  <th>Price ($)</th>
+                  <th>Price (VND)</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>

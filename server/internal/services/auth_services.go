@@ -1,12 +1,15 @@
 package services
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/gin-gonic/gin"
 	"github.com/restaurent_table_booking/internal/models"
 	"github.com/restaurent_table_booking/internal/utils"
@@ -62,11 +65,13 @@ func ResetPassword(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
 		return
 	}
+	fmt.Println(err)
 	err = u.ResetPassword()
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't reset password"})
 		return
 	}
+	fmt.Println(err)
 	context.JSON(http.StatusOK, gin.H{"Message": "Reset password successfully !!"})
 }
 
@@ -117,20 +122,15 @@ func Logout(c *gin.Context) {
 }
 
 func Login(context *gin.Context) {
-	fmt.Println("Login--1")
 	_, err := context.Cookie("token")
-	fmt.Println("Login--2")
 	if err != nil {
 		var u models.Account
 		err = context.ShouldBindBodyWithJSON(&u)
-		fmt.Println("Login--aa", u.Email)
 		if err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
 			return
 		}
-		fmt.Println("Login--3")
 		err = u.Login()
-		fmt.Println("Login--4", err)
 		if err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -242,8 +242,17 @@ func CheckPin(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "PIN expired or email not found"})
 		return
 	}
+
 	acc.Email = input.Email
 	storedPin := value.(PinData)
+
+	// 👉 THÊM DÒNG NÀY: kiểm tra thời hạn mã PIN
+	if time.Now().After(storedPin.ExpireAt) {
+		pinStorage.Delete(input.Pin) // Xoá luôn nếu quá hạn
+		fmt.Println("PIN expired for email:", input.Email)
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Your PIN has expired. Please request a new one."})
+		return
+	}
 
 	_, _ = models.CheckAccount(&acc)
 
@@ -277,9 +286,15 @@ func CheckPin(context *gin.Context) {
 
 func ChangePassword(context *gin.Context) {
 	var pass models.NewPassword
+	fmt.Println("Change password")
 	err := context.ShouldBindBodyWithJSON(&pass)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid Input"})
+		return
+	}
+	if pass.NewPassword == pass.OldPassword {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "New password should not be the same as the old password."})
+		return
 	}
 	var acc models.Account
 	token, err := context.Cookie("token")
@@ -313,7 +328,10 @@ func UpdateProfile(context *gin.Context) {
 		err = acc.UpdateOwner()
 	} else if acc.Role == "customer" {
 		err = acc.UpdateCustomer()
+	} else if acc.Role == "admin" {
+		err = acc.UpdateAdmin()
 	}
+
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 	}
@@ -323,25 +341,50 @@ func UpdateProfile(context *gin.Context) {
 func UploadImage(context *gin.Context) {
 	file, _, err := context.Request.FormFile("file")
 	if err != nil {
+		fmt.Println("Error getting file 1:", err)
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't take any image"})
 		return
 	}
 
 	fileBytes, err := ioutil.ReadAll(file)
 	if err != nil {
+		fmt.Println("Error getting file 2:", err)
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Can't take any image"})
 		return
 	}
 
+	// Khởi tạo Cloudinary client
+	cld, err := cloudinary.NewFromParams("dmmglek23", "247447295367471", "q_QPeDsFCcgbGEEjP4_P3K_Xt9M")
+	if err != nil {
+		fmt.Println("Error getting file 3:", err)
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Cloudinary setup failed"})
+		return
+	}
+
+	// Upload ảnh lên Cloudinary
+	uploadResult, err := cld.Upload.Upload(context, bytes.NewReader(fileBytes), uploader.UploadParams{
+		Folder: "avatars",
+	})
+	if err != nil {
+		fmt.Println("Error getting file 4:", err)
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Upload failed", "error": err.Error()})
+		return
+	}
+
+	// Lấy URL ảnh từ Cloudinary
+	imageUrl := uploadResult.SecureURL
+
 	// id của người lưu
 	token, err := context.Cookie("token")
 	if err != nil {
+		fmt.Println("Error getting file 5:", err)
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
 		context.Abort()
 		return
 	}
 	claims, err := utils.ParseJWT(token)
 	if err != nil {
+		fmt.Println("Error getting file 6:", err)
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
 		context.Abort()
 		return
@@ -349,7 +392,7 @@ func UploadImage(context *gin.Context) {
 
 	var acc models.Account
 	acc.Email = claims.Gmail
-	imageId, err := models.SaveImage(fileBytes)
+	imageId, err := models.SaveImage(imageUrl)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -363,5 +406,5 @@ func UploadImage(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Upload image successfull!!!"})
+	context.JSON(http.StatusOK, gin.H{"message": "Upload image successfull!!!", "imageUrl": imageUrl})
 }

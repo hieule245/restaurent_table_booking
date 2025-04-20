@@ -100,6 +100,7 @@ const BookingCalendar = ({ table }) => {
         // Chuyển đổi mỗi reservation thành dạng "HH:MM - HH:MM"
         const format24To12 = (timeStr) => {
           const [hour, minute] = timeStr.split(":").map(Number);
+          console.log("minute", minute);
           const period = hour >= 12 ? "PM" : "AM";
           const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
           return `${formattedHour}:00 ${period}`;
@@ -301,17 +302,16 @@ const BookingCalendar = ({ table }) => {
           // Gửi request đặt bàn
           console.log("User object:", user);
           console.log("User role:", user?.Role);
-          {
-            user.Role === "staff"
-              ? await axios.post(
-                  `${process.env.REACT_APP_API_URL}/staff/${restaurant_id}/bookings`,
-                  bookingStaffData[0]
-                )
-              : await axios.post(
-                  `${process.env.REACT_APP_API_URL}/restaurants/${restaurant_id}/bookings`,
-                  bookingData[0]
-                );
-          }
+
+          user.Role === "staff"
+            ? await axios.post(
+              `${process.env.REACT_APP_API_URL}/staff/${restaurant_id}/bookings`,
+              bookingStaffData[0]
+            )
+            : await axios.post(
+              `${process.env.REACT_APP_API_URL}/restaurants/${restaurant_id}/bookings`,
+              bookingData[0]
+            );
 
           // Hiển thị thông báo thành công
           Swal.fire({
@@ -347,11 +347,10 @@ const BookingCalendar = ({ table }) => {
               {months.map((month) => (
                 <button
                   key={month}
-                  className={`btn btn-sm ${
-                    selectedMonth === month
-                      ? "btn-primary"
-                      : "btn-outline-secondary"
-                  }`}
+                  className={`btn btn-sm ${selectedMonth === month
+                    ? "btn-primary"
+                    : "btn-outline-secondary"
+                    }`}
                   onClick={() => setSelectedMonth(month)}
                   disabled={month < currentMonth} // Không cho chọn tháng trước
                 >
@@ -371,11 +370,10 @@ const BookingCalendar = ({ table }) => {
               {days.map((day) => (
                 <button
                   key={day}
-                  className={`btn btn-sm ${
-                    selectedDay === day
-                      ? "btn-success text-white"
-                      : "btn-outline-secondary"
-                  }`}
+                  className={`btn btn-sm ${selectedDay === day
+                    ? "btn-success text-white"
+                    : "btn-outline-secondary"
+                    }`}
                   onClick={() => setSelectedDay(day)}
                   disabled={selectedMonth === currentMonth && day < currentDay} // Không cho chọn ngày trước
                 >
@@ -402,13 +400,12 @@ const BookingCalendar = ({ table }) => {
                     const isPreBooked = preBookedForDay.includes(timeSlot);
                     const isSelected = selectedSlots.includes(timeSlot);
 
-                    const buttonClass = `btn btn-sm ${
-                      isPreBooked
-                        ? "btn-secondary text-white" // Đã đặt từ backend
-                        : isSelected
+                    const buttonClass = `btn btn-sm ${isPreBooked
+                      ? "btn-secondary text-white" // Đã đặt từ backend
+                      : isSelected
                         ? "btn-outline-danger bg-danger text-white" // Đang được chọn
                         : "btn-outline-secondary"
-                    }`;
+                      }`;
 
                     return (
                       <button

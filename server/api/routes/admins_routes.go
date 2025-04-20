@@ -32,14 +32,32 @@ func AdminRoutes(server *gin.Engine) {
 
 		// Danh sách nhà hàng
 		admin.GET("/restaurants", services.AdminGetRestaurants)
-		admin.GET("/restaurants/:restaurant_id", services.AdminGetRestaurant)
+		restaurant := admin.Group("/restaurants/:restaurant_id")
+		{
+			restaurant.GET("", services.AdminGetRestaurant)
+			restaurant.PUT("", services.AdminEditRestaurant)
+			restaurant.POST("", services.AdminDeleteRestaurant)
+			table := restaurant.Group("/tables")
+			{
+				table.GET("", services.AdminGetTables)
+				table.PUT("/:table_id", services.AdminEditTable)
+				table.POST("/:table_id", services.AdminDeleteTable)
+			}
+			staff := restaurant.Group("/staffs")
+			{
+				staff.GET("", services.AdminGetStaffs)
+				staff.PUT("/:staff_id", services.AdminEditStaff)
+				staff.POST("/:staff_id", services.AdminBanStaff)
+			}
+			reservation := restaurant.Group("/reservations")
+			{
+				reservation.GET("", services.ReservationEachRestaurant)
+				reservation.POST("/edit", services.AdminEditReservations)
+			}
+		}
 
 		// Danh sachs đặt bàn
 		admin.GET("/reservations", services.AdminGetReservation)
-
-		// Danh sách bàn
-		admin.GET("/tables", services.AdminGetTables)
-		admin.GET("/tables/:table_id", services.AdminGetTable)
 
 		// Tìm kiếm nhà hàng
 		admin.GET("/restaurants/search", services.SearchRestaurants)
