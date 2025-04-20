@@ -13,7 +13,8 @@ import Restaurants from "../../pages/Restaurant/RestaurantPage"
 import RestaurantDetailPage from "../../pages/Restaurant/Detail/DetailRestaurantPage";
 import TableDetailPage from "../../pages/Table/DetailPage";
 import OwnerControll from "../../pages/Owner/Owner"
-import RestaurantOwnerDetailPage from "../../components/Restaurants/Detail/DetailRestaurantPage"
+import RestaurantAdminDetail from "../Restaurants_Admin/Detail/DetailRestaurantPage"
+import RestaurantOwnerDetail from "../Restaurants_Owner/Detail/DetailRestaurantPage"
 import BookingHistory from "../BookingHistory/BookingHistory";
 import RestaurantPage from "../../pages/Staff/Restaurant/Staff";
 import Reservation from "../../pages/Staff/HistoryReservation/HistoryReservationPage";
@@ -36,17 +37,16 @@ const Main = () => {
         <Route path="/verify-pin" element={<CheckPin />} />
         <Route path="/reset-password" element={<ResetPassword />} />
       </Route>
-
-      <Route element={<PrivateRoute allowedRoles={["admin", "customer", "staff", "owner"]} />}>
-        <Route path="/personal" element={<PersonalPage />} />
-      </Route>
-
       {/* Admin */}
       <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
         <Route path="/admin/dashboard" element={<DashboardAdmin />} />
         <Route path="/admin/accounts" element={<AccountList />} />
         <Route path="/admin/restaurants" element={<RestaurantList />} />
+        <Route path="/admin/restaurants/:restaurant_id/detail" element={<RestaurantAdminDetail />} />
         <Route path="/admin/revenues" element={<Revenues />} />
+      </Route>
+      <Route element={<PrivateRoute allowedRoles={["admin", "customer", "staff", "owner"]} />}>
+        <Route path="/personal" element={<PersonalPage />} />
       </Route>
 
 
@@ -60,9 +60,8 @@ const Main = () => {
       {/* Owner */}
       <Route element={<PrivateRoute allowedRoles={["owner"]} />}>
         <Route path="/owner" element={<OwnerControll />} />
-        <Route path="/owner/restaurants/:restaurant_id/detail" element={<RestaurantOwnerDetailPage />} />
+        <Route path="/owner/restaurants/:restaurant_id/detail" element={<RestaurantOwnerDetail />} />
       </Route>
-
       {/* Staff */}
       <Route element={<PrivateRoute allowedRoles={["staff"]} />}>
         <Route path="/staff" element={<RestaurantPage />} />

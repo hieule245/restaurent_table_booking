@@ -304,7 +304,7 @@ func (res *Booking) Checkout() error {
 
 func (res *Booking) EditCheckout() error {
 	query := `
-	UPDATE reservations SET price = ?, 
+	UPDATE reservations SET price = ?
 	WHERE id = ?
 	`
 	_, err := db.DB.Exec(query, res.Price, res.ID)

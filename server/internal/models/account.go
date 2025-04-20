@@ -178,7 +178,6 @@ func (u *Account) Login() error {
 }
 
 func CheckAccount(a *Account) (string, bool) {
-	fmt.Println("CheckAccount 0-", a.Email)
 
 	// Queries for each role
 	queries := map[string]string{
@@ -506,10 +505,17 @@ func (acc *Account) GetAvatar() error {
 
 	row := db.DB.QueryRow(query, acc.Id)
 
-	err := row.Scan(&acc.ImageFile)
+	var url sql.NullString
+	err := row.Scan(&url)
 	if err != nil {
-		fmt.Println("get avatar 1- ", err)
+		fmt.Println("get avatar 1 - ", err)
 		return err
+	}
+
+	if url.Valid {
+		acc.ImageFile = url.String
+	} else {
+		acc.ImageFile = "" // hoặc gán default avatar URL
 	}
 	return nil
 }
