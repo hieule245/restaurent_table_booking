@@ -17,7 +17,7 @@ func WeeklyRevenue() {
 	if err != nil {
 		fmt.Println("1-", err)
 		return
-	}
+	} 
 	defer rows.Close()
 	for rows.Next() {
 		var ownerId int64

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 import {
   faCalendarAlt,
   faClock,
   faChair,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
 
 const ReservationList = ({ restaurant_id }) => {
   const [reservations, setReservations] = useState([]);
@@ -31,11 +31,7 @@ const ReservationList = ({ restaurant_id }) => {
     Price: 1,
   });
 
-  useEffect(() => {
-    fetch();
-  }, []);
-
-  const fetch = () => {
+  const fetch = useCallback(() => {
     try {
       axios
         .get(
@@ -69,7 +65,11 @@ const ReservationList = ({ restaurant_id }) => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [restaurant_id]);
+
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
 
   const handleUpdate = (e) => {
     e.preventDefault();
@@ -151,27 +151,27 @@ const ReservationList = ({ restaurant_id }) => {
                     res.Status === 0
                       ? "text-danger"
                       : res.Status === 1
-                      ? "text-secondary"
-                      : res.Status === 2
-                      ? "text-body"
-                      : res.Status === 3
-                      ? "text-primary"
-                      : res.Status === 4
-                      ? "text-success"
-                      : ""
+                        ? "text-secondary"
+                        : res.Status === 2
+                          ? "text-body"
+                          : res.Status === 3
+                            ? "text-primary"
+                            : res.Status === 4
+                              ? "text-success"
+                              : ""
                   }
                 >
                   {res.Status === 0
                     ? "Cancelled"
                     : res.Status === 1
-                    ? "Pending"
-                    : res.Status === 2
-                    ? "Confirm"
-                    : res.Status === 3
-                    ? "Occupied"
-                    : res.Status === 4
-                    ? "Done"
-                    : "Undefined"}
+                      ? "Pending"
+                      : res.Status === 2
+                        ? "Confirm"
+                        : res.Status === 3
+                          ? "Occupied"
+                          : res.Status === 4
+                            ? "Done"
+                            : "Undefined"}
                 </td>
                 <td>
                   <button
@@ -181,23 +181,23 @@ const ReservationList = ({ restaurant_id }) => {
                       res.Status === 4
                         ? "#myUpdateModal"
                         : res.Status === 0
-                        ? ""
-                        : "#myCompleteModal"
+                          ? ""
+                          : "#myCompleteModal"
                     }
                     onClick={() => handleOpen(res)}
                     className={
                       res.Status === 4
                         ? "btn btn-outline-danger"
                         : res.Status === 0
-                        ? "btn btn-outline-secondary disabled"
-                        : "btn btn-danger"
+                          ? "btn btn-outline-secondary disabled"
+                          : "btn btn-danger"
                     }
                   >
                     {res.Status === 4
                       ? "Edit"
                       : res.Status === 0
-                      ? "Cancel"
-                      : "Finish?"}
+                        ? "Cancel"
+                        : "Finish?"}
                   </button>
                 </td>
               </tr>
@@ -223,9 +223,8 @@ const ReservationList = ({ restaurant_id }) => {
           ].map((number) => (
             <button
               key={number + 1}
-              className={`btn ${
-                currentPage === number + 1 ? "btn-dark" : "btn-outline-dark"
-              } mx-1`}
+              className={`btn ${currentPage === number + 1 ? "btn-dark" : "btn-outline-dark"
+                } mx-1`}
               onClick={() => paginate(number + 1)}
             >
               {number + 1}

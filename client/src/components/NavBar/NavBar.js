@@ -31,7 +31,6 @@ const NavBar = () => {
       .then((res) => {
         if (res.data.user) {
           setUser(res.data.user); // lưu thông tin user
-          console.log(res.data.user);
         }
       })
       .catch(() => {
@@ -60,8 +59,7 @@ const NavBar = () => {
     }
   };
 
-  const imageUrl =
-    user && user.ImageFile ? `data:image/png;base64,${user.ImageFile}` : avatar;
+  const imageUrl = user && user.ImageFile ? user.ImageFile : avatar;
 
   // NAVBAR HIDE/ SHOW ON SCROLL
   useEffect(() => {
@@ -119,8 +117,8 @@ const NavBar = () => {
                   {user && user.Role === "staff"
                     ? "Serving restaurant"
                     : user && user.Role === "owner"
-                    ? ""
-                    : "Restaurants"}
+                      ? ""
+                      : "Restaurants"}
                 </button>
                 {user && user.Role === "staff" ? (
                   <button
@@ -166,14 +164,16 @@ const NavBar = () => {
                               My Profile
                             </a>
                           </li>
-                          <li>
-                            <button
-                              className="dropdown-item bg-transparent border-0 text-decoration-none"
-                              onClick={() => navigate("/booking-history")}
-                            >
-                              Booking History
-                            </button>
-                          </li>
+                          {user && user.Role === "admin" ? "" :
+                            <li>
+                              <button
+                                className="dropdown-item bg-transparent border-0 text-decoration-none"
+                                onClick={() => navigate("/booking-history")}
+                              >
+                                Booking History
+                              </button>
+
+                            </li>}
                           <li>
                             <button
                               className="dropdown-item"

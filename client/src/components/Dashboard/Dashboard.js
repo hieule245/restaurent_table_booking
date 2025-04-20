@@ -278,7 +278,7 @@ const Dashboard = () => {
                   style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}
                 >
                   <div>
-                    <strong className="text-dark">{restaurant.Name}</strong>
+                  <strong className="text-dark text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>{restaurant.Name}</strong>
                     <p className="mb-0 text-muted">
                       {restaurant.TotalRevenue
                         ? restaurant.TotalRevenue.toLocaleString()

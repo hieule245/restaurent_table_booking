@@ -98,6 +98,29 @@ func LockStaff(ownerId, id int64) error {
 	return nil
 }
 
+func BanStaff(gmail string, ownerId, id int64) error {
+	// Khóa nhân viên
+	acc := &Account{}
+	acc.Email = gmail
+	CheckAccount(acc)
+
+	if acc.Role != "admin" {
+		return errors.New("You do not have permission in here!")
+	}
+	query := `
+	UPDATE staffs SET status = 'ban'
+	WHERE id = ?
+	`
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id)
+	return nil
+}
+
 func UnlockStaff(ownerId, id int64) error {
 	// Check quyền
 	err := CheckPermissionsToLock(ownerId, id)

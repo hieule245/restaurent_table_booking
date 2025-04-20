@@ -58,7 +58,7 @@ func CreateStaff(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	userId := CurrentUser(context)
+	_, userId := CurrentUser(context)
 
 	err = staff.CreateStaff(userId)
 	if err != nil {
@@ -139,7 +139,7 @@ func GetStaffByRestaurantId(context *gin.Context) {
 
 func LockStaff(context *gin.Context) {
 	var staff models.Staff
-	userId := CurrentUser(context)
+	_, userId := CurrentUser(context)
 	err := context.ShouldBindBodyWithJSON(&staff)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't take input information"})
@@ -164,25 +164,26 @@ func LockStaff(context *gin.Context) {
 	}
 }
 
-func CurrentUser(context *gin.Context) int64 {
+func CurrentUser(context *gin.Context) (string, int64) {
 	token, err := context.Cookie("token")
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		context.Abort()
-		return 0
+		return "", 0
 	}
 	claims, err := utils.ParseJWT(token)
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
 		context.Abort()
-		return 0
+		return "", 0
 	}
+	userGmail := claims.Gmail
 	userId := claims.UserID
-	return userId
+	return userGmail, userId
 }
 
 func GetRestaurantByStaffID(context *gin.Context) {
-	staffId := CurrentUser(context)
+	_, staffId := CurrentUser(context)
 	res := &models.Restaurant{}
 	err := res.GetRestaurantByStaffID(staffId)
 	if err != nil {
@@ -209,7 +210,7 @@ func GetTablesByRestaurantID(context *gin.Context) {
 }
 
 func GetReservationByRestaurantID(context *gin.Context) {
-	staffId := CurrentUser(context)
+	_, staffId := CurrentUser(context)
 	res := &models.Restaurant{}
 	err := res.GetRestaurantByStaffID(staffId)
 	var reservation []models.Reservations

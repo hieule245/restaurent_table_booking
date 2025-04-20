@@ -19,7 +19,7 @@ type Revenues struct {
 	DiffTotal        float32 // Doanh thu tuần này - tuần trước
 	DiffBookNumber   int     // Số lượng đơn đặt bàn đã sử dụng trong tuần này - tuần trước
 	DiffCanceledBook int     // Số lượng đơn bị hủy trong tuần này - tuần trước
-}
+} 
 
 // Lấy doanh thu tuần hiện tại
 func (rev *Revenues) GetCurrentWeekRevenue(ownerId int64) error {

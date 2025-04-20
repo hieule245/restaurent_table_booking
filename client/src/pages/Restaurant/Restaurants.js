@@ -86,9 +86,14 @@ const RestaurantList = () => {
 
                   {/* Nội dung */}
                   <div className="card-body text-center">
-                    <h5 className="card-title">{restaurant.Name}</h5>
-                    <p className="card-text text-muted">
-                      {restaurant.Description}
+                    <h5 className="card-title text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>
+                      {restaurant.Name}
+                    </h5>
+                    <p
+                      className="card-text text-muted text-truncate"
+                      style={{ maxWidth: '100%' }}
+                    >
+                      {restaurant.Description || '\u00A0'}
                     </p>
 
                     {/* Giờ mở cửa */}
@@ -107,9 +112,8 @@ const RestaurantList = () => {
             <ul className="pagination justify-content-center">
               {Array.from({ length: totalPages }, (_, index) => (
                 <li
-                  className={`page-item ${
-                    currentPage === index + 1 ? "active" : ""
-                  }`}
+                  className={`page-item ${currentPage === index + 1 ? "active" : ""
+                    }`}
                   key={index}
                 >
                   <button

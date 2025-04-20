@@ -111,6 +111,7 @@ func EditRestaurant(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"message": "Restaurant updated successfully", "restaurant": updatedRestaurant})
 }
+
 func DeleteRestaurant(context *gin.Context) {
 	restaurantIDStr := context.Param("restaurant_id") // Lấy ID từ URL
 
@@ -265,7 +266,7 @@ func GetReservationsByRestaurants(context *gin.Context) {
 	user_id := claims.UserID
 	var restaurant_id int
 	restaurant_id, err = strconv.Atoi(context.Param("restaurant_id"))
-	reservation, err := models.GetBookingByRestaurantId(user_id, restaurant_id)
+	reservation, err := models.GetBookingByRestaurantId(claims.Gmail, user_id, restaurant_id)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		context.Abort()

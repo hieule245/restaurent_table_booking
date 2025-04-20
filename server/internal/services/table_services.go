@@ -20,7 +20,7 @@ func SearchTables(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
-	}
+	} 
 
 	c.JSON(http.StatusOK, tables)
 }

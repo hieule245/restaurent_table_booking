@@ -8,7 +8,7 @@ import {
   faChevronRight,
   faChevronLeft,
 } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   FaSortAlphaDown,
   FaSortAlphaUp,
@@ -23,7 +23,6 @@ const Admin = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
-  const { ownerId } = useParams();
 
   const fetchRestaurant = useCallback(async () => {
     axios
@@ -43,7 +42,7 @@ const Admin = () => {
         toast.error("Error fetching restaurants:", error);
         setRestaurants([]); // Đảm bảo `restaurants` luôn là mảng
       });
-  }, [ownerId]);
+  }, []);
 
   useEffect(() => {
     fetchRestaurant();
@@ -165,7 +164,7 @@ const Admin = () => {
 
                     {/* Nội dung */}
                     <div className="card-body text-center">
-                      <h5 className="card-title">{restaurant.Name}</h5>
+                      <h5 className="card-title text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>{restaurant.Name}</h5>
                       <div className="restaurant-hours">
                         <span className="open-time">
                           🕒 {restaurant.Started} - {restaurant.Ended}
