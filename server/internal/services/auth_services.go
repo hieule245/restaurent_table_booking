@@ -3,8 +3,9 @@ package services
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
@@ -345,66 +346,71 @@ func UploadImage(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't take any image"})
 		return
 	}
+	defer file.Close()
 
-	fileBytes, err := ioutil.ReadAll(file)
+	fileBytes, err := io.ReadAll(file)
 	if err != nil {
 		fmt.Println("Error getting file 2:", err)
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Can't take any image"})
 		return
 	}
 
-	// Khởi tạo Cloudinary client
-	cld, err := cloudinary.NewFromParams("dmmglek23", "247447295367471", "q_QPeDsFCcgbGEEjP4_P3K_Xt9M")
+	// Lấy config Cloudinary từ biến môi trường
+	cld, err := cloudinary.NewFromParams(
+		os.Getenv("CLOUDINARY_CLOUD_NAME"),
+		os.Getenv("CLOUDINARY_API_KEY"),
+		os.Getenv("CLOUDINARY_API_SECRET"),
+	)
 	if err != nil {
 		fmt.Println("Error getting file 3:", err)
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Cloudinary setup failed"})
 		return
 	}
 
-	// Upload ảnh lên Cloudinary
 	uploadResult, err := cld.Upload.Upload(context, bytes.NewReader(fileBytes), uploader.UploadParams{
 		Folder: "avatars",
 	})
 	if err != nil {
-		fmt.Println("Error getting file 4:", err)
+		fmt.Println("Error uploading file:", err)
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Upload failed", "error": err.Error()})
 		return
 	}
 
-	// Lấy URL ảnh từ Cloudinary
 	imageUrl := uploadResult.SecureURL
 
-	// id của người lưu
+	// Lấy thông tin người dùng từ JWT
 	token, err := context.Cookie("token")
 	if err != nil {
-		fmt.Println("Error getting file 5:", err)
+		fmt.Println("Error getting cookie:", err)
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
-		context.Abort()
 		return
 	}
+
 	claims, err := utils.ParseJWT(token)
 	if err != nil {
-		fmt.Println("Error getting file 6:", err)
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
-		context.Abort()
+		fmt.Println("Error parsing token:", err)
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failed"})
 		return
 	}
 
 	var acc models.Account
 	acc.Email = claims.Gmail
+
+	// Lưu URL ảnh vào DB
 	imageId, err := models.SaveImage(imageUrl)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
-	fmt.Println("imageId ", imageId)
-
-	err = models.SaveImageAvatar(imageId, &acc)
-	if err != nil {
+	if err := models.SaveImageAvatar(imageId, &acc); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Upload image successfull!!!", "imageUrl": imageUrl})
+	context.JSON(http.StatusOK, gin.H{
+		"message":  "Upload image successful!",
+		"imageUrl": imageUrl,
+		"imageId":  imageId,
+	})
 }
