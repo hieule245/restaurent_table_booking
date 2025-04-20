@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -36,5 +37,9 @@ func main() {
 	routes.Routes(server) // Các route chung
 	// Các route yêu cầu quyền Admin
 	go cronjobs.CronCalculation()
-	server.Run()
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	server.Run(":" + port)
 }
