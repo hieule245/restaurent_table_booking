@@ -5,7 +5,7 @@ import avatar from "../../assets/image/avatar.png";
 import axios from "axios";
 import { useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { profileSchema } from "../validations/AccountSchema";
+import { profileSchema } from "../../validations/AccountSchema";
 
 const Information = () => {
   const fileInputRef = useRef(null);
