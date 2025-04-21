@@ -11,7 +11,6 @@ import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import "./Login.style.css";
-import { loginSchema } from "../../../validations/AccountSchema";
 
 const LoginPage = () => {
   const navigate = useNavigate();
