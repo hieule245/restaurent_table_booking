@@ -11,8 +11,14 @@ import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import "./Login.style.css";
+import { loginSchema } from "../../../validations/AccountSchema";
+
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
+  let [email, setEmail] = useState("");
+  let [password, setPassword] = useState("");
+  let [showPassword, setShowPassword] = useState(false); // State for showing password
 
   const handleNavigation = useCallback(
     (Role) => {
@@ -30,16 +36,10 @@ const LoginPage = () => {
     [navigate]
   );
 
-  let [email, setEmail] = useState("");
-  let [password, setPassword] = useState("");
-  let [showPassword, setShowPassword] = useState(false); // State for showing password
-  const [errors, setErrors] = useState({});
-
   useEffect(() => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
       .then((res) => {
-        // console.log(res.data.user.Role)
         handleNavigation(res.data.user.Role);
       })
       .catch((err) => {
@@ -47,36 +47,11 @@ const LoginPage = () => {
       });
   }, [handleNavigation]);
 
-  const isValidPassword = (password) => {
-    const passwordRegex =
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
-    return passwordRegex.test(password);
-  };
-
-  const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
   const HandleLogin = async (e) => {
     e.preventDefault();
-    let validationErrors = {};
-    if (!email) {
-      validationErrors.email = "Email is required.";
-    } else if (!isValidEmail(email)) {
-      validationErrors.email = "Invalid email format.";
-    }
-    if (!password) {
-      validationErrors.password = "Password is required.";
-    } else if (!isValidPassword(password)) {
-      validationErrors.password =
-        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
-    }
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+
     try {
+      await loginSchema.validate({ email, password }, { abortEarly: false });
       let res = await axios.post(
         `${process.env.REACT_APP_API_URL}/login`,
         { Email: email, Password: password },
@@ -110,15 +85,31 @@ const LoginPage = () => {
           });
       }
     } catch (error) {
-      console.log(error);
+      // Nếu là lỗi từ Yup validation
+      if (error.name === "ValidationError") {
+        const formErrors = {};
+        error.inner.forEach((err) => {
+          if (err.path) {
+            formErrors[err.path] = err.message;
+          }
+        });
+        setErrors(formErrors);
+        return;
+      }
+
+      // Nếu là lỗi từ API
+      const errorMessage =
+        error.response?.data?.message || "Login failed. Please try again.";
+
       if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
+        errorMessage.toLowerCase().includes("gmail") ||
+        errorMessage.toLowerCase().includes("email")
       ) {
-        toast.error(error.response.data.message);
+        setErrors((prev) => ({ ...prev, email: errorMessage }));
+      } else if (errorMessage.toLowerCase().includes("password")) {
+        setErrors((prev) => ({ ...prev, password: errorMessage }));
       } else {
-        toast.error("Registration failed. Please try again.");
+        toast.error(errorMessage);
       }
     }
   };
@@ -152,12 +143,16 @@ const LoginPage = () => {
                     className="form-control"
                     placeholder="Email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setErrors((prev) => ({ ...prev, email: "" }));
+                    }}
                   />
                   {errors.email && (
                     <small className="text-danger">{errors.email}</small>
                   )}
                 </div>
+
                 <div className="form-group my-2">
                   <label className="form-label">Password</label>
                   <div className="input-group">
@@ -167,7 +162,10 @@ const LoginPage = () => {
                       placeholder="Password"
                       style={{ borderRight: 0 }}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setErrors((prev) => ({ ...prev, password: "" }));
+                      }}
                     />
                     <span
                       className="input-group-text bg-white"
@@ -183,20 +181,24 @@ const LoginPage = () => {
                     <small className="text-danger">{errors.password}</small>
                   )}
                 </div>
+
                 <div className="form-group my-2">
                   <a href="/forgot-password">
                     <label>Forgot Password?</label>
                   </a>
                 </div>
+
                 <div className="mt-4">
                   <button type="submit" className="btn btn-dark w-100 mb-2">
                     Login
                   </button>
+
                   <div className="d-flex align-items-center my-2">
                     <hr className="flex-grow-1" />
                     <span className="mx-2">or</span>
                     <hr className="flex-grow-1" />
-                  </div>{" "}
+                  </div>
+
                   {/* Added line dividers */}
                   <button
                     type="submit"

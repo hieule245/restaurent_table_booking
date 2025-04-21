@@ -143,7 +143,7 @@ func Login(context *gin.Context) {
 		}
 
 		// save token into cookie
-		context.SetCookie("token", token, 7200, "/", "localhost", false, true)
+		context.SetCookie("token", token, 7200, "/", "/", false, true)
 
 		context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!", "tokens": token, "role": u.Role})
 		// context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!"})
