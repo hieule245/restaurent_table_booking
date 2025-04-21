@@ -101,7 +101,10 @@ const LoginPage = () => {
       const errorMessage =
         error.response?.data?.message || "Login failed. Please try again.";
 
-      if (errorMessage.toLowerCase().includes("gmail") || errorMessage.toLowerCase().includes("email")) {
+      if (
+        errorMessage.toLowerCase().includes("gmail") ||
+        errorMessage.toLowerCase().includes("email")
+      ) {
         setErrors((prev) => ({ ...prev, email: errorMessage }));
       } else if (errorMessage.toLowerCase().includes("password")) {
         setErrors((prev) => ({ ...prev, password: errorMessage }));
@@ -132,7 +135,7 @@ const LoginPage = () => {
           <div className="col-md-6 col-sm-12">
             <div className="login-form">
               <form onSubmit={HandleLogin}>
-              <div className="form-group my-2">
+                <div className="form-group my-2">
                   <label className="form-label">Email</label>{" "}
                   {/* Added Bootstrap class "form-label" */}
                   <input

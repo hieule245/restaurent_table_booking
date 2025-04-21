@@ -117,8 +117,8 @@ const NavBar = () => {
                   {user && user.Role === "staff"
                     ? "Serving restaurant"
                     : user && user.Role === "owner"
-                      ? ""
-                      : "Restaurants"}
+                    ? ""
+                    : "Restaurants"}
                 </button>
                 {user && user.Role === "staff" ? (
                   <button
@@ -164,7 +164,9 @@ const NavBar = () => {
                               My Profile
                             </a>
                           </li>
-                          {user && user.Role === "admin" ? "" :
+                          {user && user.Role === "admin" ? (
+                            ""
+                          ) : (
                             <li>
                               <button
                                 className="dropdown-item bg-transparent border-0 text-decoration-none"
@@ -172,8 +174,8 @@ const NavBar = () => {
                               >
                                 Booking History
                               </button>
-
-                            </li>}
+                            </li>
+                          )}
                           <li>
                             <button
                               className="dropdown-item"
