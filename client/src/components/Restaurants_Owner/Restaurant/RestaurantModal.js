@@ -79,7 +79,6 @@ const RestaurantModal = ({
                         </div>
                         <div className="modal-footer">
                             <button type="submit" className="btn btn-outline-danger">Create</button>
-                            <button type="button" className="btn btn-danger border-0 p-2" data-bs-dismiss="modal">Close</button>
                         </div>
                     </form>
                 </div>

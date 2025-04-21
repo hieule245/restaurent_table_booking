@@ -15,55 +15,118 @@ const TableList = ({ restaurant_id }) => {
   const [tables, setTables] = useState([]);
   const [restaurant, setRestaurant] = useState({});
   const [formData, setFormData] = useState({});
-  const [newTable, setNewTable] = useState({ name: "", type: "", seats: tables.seats || 1, Description: "" });
+  const [newTable, setNewTable] = useState(
+    {
+      name: "",
+      type: "",
+      seats: tables.seats || 1,
+      Description: "",
+      image_file: "",
+      image_id: 1,
+    });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [validationErrors, setValidationErrors] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
   const modalRef = useRef(null);
   const addTableModalRef = useRef(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const tablesPerPage = 6;
-  const [validationErrors, setValidationErrors] = useState({});
-
+  const indexOfLastTable = currentPage * tablesPerPage;
+  const indexOfFirstTable = indexOfLastTable - tablesPerPage;
+  const currentTables = tables.slice(indexOfFirstTable, indexOfLastTable);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const resetFormData = () => {
+    setFormData(restaurant); // Reset lại dữ liệu form về giá trị ban đầu (restaurant)
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.name === "seats" ? Number(e.target.value) : e.target.value });
   };
 
+  // Lấy danh sách bàn trong nhà hàng
   const fetchTables = useCallback(async () => {
     try {
-      axios.get(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables`, { withCredentials: true })
-        .then((res) => setTables(res.data.tables || []))
-        .catch(() => toast.error("Error fetching table list!"));
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables`,
+        { withCredentials: true }
+      );
+      setTables(res.data.tables || []);
+      console.log(res.data.tables)
     } catch (error) {
+      const errorMessage =
+        error.response?.data?.error || "Error fetching table list from server!";
+      toast.error(errorMessage);
       console.error("Error fetching tables:", error);
     }
   }, [restaurant_id]);
+
+  const formatTime = (timeStr) => {
+    if (!timeStr) return "";
+
+    const [hour, minute] = timeStr.split(":");
+    const date = new Date();
+    date.setHours(parseInt(hour), parseInt(minute));
+
+    // Sử dụng Intl.DateTimeFormat để định dạng thời gian
+    const formatted = new Intl.DateTimeFormat("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(date);
+
+    // Chuyển ":" thành "h" và loại bỏ khoảng trắng dư thừa
+    return formatted.replace(":", "h").trim();
+  };
 
   useEffect(() => {
     fetchTables();
   }, [restaurant_id, fetchTables]);
 
+  // Lấy thông tin nhà hàng
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}`, { withCredentials: true })
       .then((res) => {
         setRestaurant(res.data.restaurant || {});
         setFormData(res.data.restaurant || {});
+        console.log(res.data.restaurant)
       })
       .catch(() => toast.error("Error fetching restaurant!"));
   }, [restaurant_id]);
 
+  useEffect(() => {
+    const modalElement = modalRef.current;
+
+    // Hàm reset dữ liệu
+    const resetFormData = () => {
+      setFormData(restaurant); // Reset dữ liệu về restaurant ban đầu
+    };
+
+    // Lắng nghe sự kiện đóng modal
+    modalElement?.addEventListener('hidden.bs.modal', resetFormData);
+
+    // Cleanup khi component unmount hoặc modalRef thay đổi
+    return () => {
+      modalElement?.removeEventListener('hidden.bs.modal', resetFormData);
+    };
+  }, [restaurant]); // Chạy lại khi restaurant thay đổi
+
+
+  // Chỉnh sửa thông tin nhà hàng
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setValidationErrors({}); // reset lỗi cũ nếu có
 
     try {
+      // Nếu dữ liệu sai, hàm này sẽ ném lỗi và đi vào `catch`
       await restaurantEditSchema.validate(formData, { abortEarly: false });
 
-      await axios.put(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}`, formData, { withCredentials: true })
-        .then(() => {
-          setRestaurant(formData);
-          toast.success("Restaurant updated successfully!");
-          modalRef.current.querySelector(".btn-close").click();
-        })
-        .catch(() => toast.error("Error updating restaurant!"));
+      // Nếu validate thành công mới đến đây
+      await axios.put(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}`, formData, { withCredentials: true });
+      setRestaurant(formData);
+      toast.success("Restaurant updated successfully!");
+      modalRef.current.querySelector(".btn-close").click();
+
     } catch (error) {
+      // Bắt lỗi validation của Yup
       if (error.name === "ValidationError") {
         const errors = {};
         error.inner.forEach((err) => {
@@ -71,29 +134,48 @@ const TableList = ({ restaurant_id }) => {
         });
         setValidationErrors(errors);
       } else {
+        // Lỗi khác như lỗi mạng, lỗi server
         toast.error(error.response?.data?.message || "An error occurred");
       }
     }
   };
 
-
   const handleNewTableChange = (e) => {
-    setNewTable({ ...newTable, [e.target.name]: e.target.name === "seats" ? Number(e.target.value) : e.target.value });
+    setNewTable({
+      ...newTable,
+      [e.target.name]: e.target.name === "seats" ? Number(e.target.value) : e.target.value
+    });
   };
 
+
+  // Tạo bàn mới
   const handleAddTable = async (e) => {
     e.preventDefault();
     setValidationErrors({}); // reset trước
 
     try {
       await tableSchema.validate(newTable, { abortEarly: false });
-
-      axios.post(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables`, newTable, { withCredentials: true })
+      let newTableWithImage = { ...newTable };
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("imageTable", selectedFile)
+        await axios.post(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables/image_upload`, formData, { withCredentials: true })
+          .then((res) => {
+            newTableWithImage.image_id = res.data.imageId;
+            console.log(newTableWithImage.image_id)
+          })
+          .catch((error) => {
+            console.error("Error uploading image:", error.response.data.message);
+            toast.error("Error uploading image!");
+            return; // Nếu upload ảnh thất bại, không tiếp tục tạo bàn
+          });
+      }
+      await axios.post(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables`, newTableWithImage, { withCredentials: true })
         .then((res) => {
-          setTables([...tables, newTable]);
+          setTables([...tables, res.data.table]);
           toast.success("Table added successfully!");
           addTableModalRef.current.querySelector(".btn-close").click();
-          setNewTable({ name: "", type: "", seats: 1, Description: "" });
+          setNewTable({ name: "", type: "", seats: 1, Description: "", image_id: 0 });
         })
         .catch((error) => {
           if (error.response?.data?.error) {
@@ -113,6 +195,7 @@ const TableList = ({ restaurant_id }) => {
     }
   };
 
+  // Xóa mềm nhà hàng
   const handleDeleteRestaurant = () => {
     axios.post(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}`, {}, { withCredentials: true, })
       .then(() => {
@@ -136,12 +219,12 @@ const TableList = ({ restaurant_id }) => {
       });
   };
 
-
-
-  const indexOfLastTable = currentPage * tablesPerPage;
-  const indexOfFirstTable = indexOfLastTable - tablesPerPage;
-  const currentTables = tables.slice(indexOfFirstTable, indexOfLastTable);
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const handleChangeFile = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setSelectedFile(selectedFile)
+    }
+  }
 
   return (
     <div className="container-fluid row align-items-center">
@@ -160,9 +243,9 @@ const TableList = ({ restaurant_id }) => {
             <p className="restaurant-hours d-flex align-items-center p-2 rounded-3 shadow-sm bg-light">
               <FontAwesomeIcon icon={faClock} className="text-danger me-2 fs-5" />
               <span className="fw-bold text-dark me-2">Hours:</span>
-              <span className="fw-bold text-success px-2 py-1 bg-white rounded-3 border border-success">{restaurant.Started}</span>
+              <span className="fw-bold text-success px-2 py-1 bg-white rounded-3 border border-success">{formatTime(restaurant.Started)}</span>
               <span className="mx-2 text-muted">to</span>
-              <span className="fw-bold text-danger px-2 py-1 bg-white rounded-3 border border-danger">{restaurant.Ended}</span>
+              <span className="fw-bold text-danger px-2 py-1 bg-white rounded-3 border border-danger">{formatTime(restaurant.Ended)}</span>
             </p>
 
           </div>
@@ -222,7 +305,7 @@ const TableList = ({ restaurant_id }) => {
           <div className="modal-content rounded-4 shadow-lg border-0">
             <div className="modal-header bg-dark text-white rounded-top-4">
               <h4 className="modal-title fw-bold" id="editRestaurantModalLabel">Edit Restaurant</h4>
-              <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" onClick={resetFormData}></button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body p-4 bg-white">
@@ -235,7 +318,6 @@ const TableList = ({ restaurant_id }) => {
                     value={formData.Name}
                     onChange={(e) => {
                       handleChange(e);
-
                       // Xóa lỗi nếu có khi người dùng sửa
                       if (validationErrors.Name) {
                         setValidationErrors(prev => {
@@ -255,7 +337,6 @@ const TableList = ({ restaurant_id }) => {
                     value={formData.Description}
                     onChange={(e) => {
                       handleChange(e);
-
                       // Xóa lỗi nếu có khi người dùng sửa
                       if (validationErrors.Description) {
                         setValidationErrors(prev => {
@@ -325,7 +406,7 @@ const TableList = ({ restaurant_id }) => {
                 </div>
               </div>
               <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
-                <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal">Close</button>
+                <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal" onClick={resetFormData}>Close</button>
                 <button type="submit" className="btn btn-danger fw-bold px-4">Save</button>
               </div>
             </form>
@@ -380,6 +461,15 @@ const TableList = ({ restaurant_id }) => {
                     }}
                   />
                   {validationErrors.name && <div className="invalid-feedback">{validationErrors.name}</div>}
+                </div>
+                <div className="form-group mb-3">
+                  <label className="form-label fw-bold text-dark">Picture</label>
+                  <input
+                    type="file"
+                    name="ImageFile"
+                    accept="image/*"
+                    onChange={handleChangeFile}
+                  />
                 </div>
                 <div className="form-group mb-3">
                   <label className="form-label fw-bold text-dark">Type</label>
@@ -440,8 +530,7 @@ const TableList = ({ restaurant_id }) => {
                   {validationErrors.Description && <div className="invalid-feedback">{validationErrors.Description}</div>}
                 </div>
               </div>
-              <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
-                <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal">Close</button>
+              <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-end">
                 <button type="submit" className="btn btn-success fw-bold px-4">Add</button>
               </div>
             </form>

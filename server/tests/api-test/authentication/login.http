@@ -1,7 +1,7 @@
-POST ${process.env.REACT_APP_API_URL}/login
+POST http://localhost:8080/login
 content-Type: application/json 
 
 {
-	"Email": "hieulee@gmail.com",
-	"Password":"Lengochieu@24"
+	"Email": "hieuln245@gmail.com",
+	"Password":"Lengochieu@245"
 }

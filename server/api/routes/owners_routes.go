@@ -5,7 +5,7 @@ import (
 	"github.com/restaurent_table_booking/internal/middlewares"
 	"github.com/restaurent_table_booking/internal/services"
 )
- 
+
 // OwnerRoutes định nghĩa các route dành cho chủ sở hữu (owner) với xác thực và kiểm tra quyền riêng.
 func OwnerRoutes(server *gin.Engine) {
 	owner := server.Group("/owners/:owner_id")
@@ -35,6 +35,7 @@ func OwnerRoutes(server *gin.Engine) {
 				table.GET("", services.GetAllTables)
 				table.GET("/:table_id", services.GetTableByID)
 				table.POST("", services.CreateTable)
+				table.POST("/image_upload", services.UploadImageTables)
 				table.PUT("/:table_id", services.EditTable)
 				table.POST("/:table_id", services.DeleteTable)
 				// Tìm kiếm bàn

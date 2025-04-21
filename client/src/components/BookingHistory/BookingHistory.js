@@ -191,6 +191,7 @@ const BookingHistory = () => {
                     index={index}
                     onEdit={handleEdit}
                     onCancel={handleCancel}
+                    formatTo12Hour={formatTo12Hour}
                   />
                 ))}
               </tbody>

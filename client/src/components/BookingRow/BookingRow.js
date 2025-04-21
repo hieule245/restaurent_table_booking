@@ -1,6 +1,6 @@
 import React from "react";
 
-const BookingRow = ({ booking, index, onEdit, onCancel }) => {
+const BookingRow = ({ booking, index, onEdit, onCancel, formatTo12Hour }) => {
   // Mapping trạng thái đặt bàn
   const statusMapping = {
     0: { label: "Cancelled", className: "badge bg-secondary" },
@@ -19,8 +19,8 @@ const BookingRow = ({ booking, index, onEdit, onCancel }) => {
     <tr>
       <td>{index + 1}</td>
       <td>{booking.book_date}</td>
-      <td>{booking.time_start}</td>
-      <td>{booking.time_end}</td>
+      <td>{formatTo12Hour(booking.time_start)}</td>
+      <td>{formatTo12Hour(booking.time_end)}</td>
       <td>{booking.numberOfCustomer}</td>
       <td>{booking.table_id}</td>
       <td>{booking.price}</td>

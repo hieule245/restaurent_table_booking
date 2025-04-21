@@ -1,6 +1,6 @@
 import React from "react";
 
-const EditTableModal = ({ formData, handleChange, setShowModal, setShowDeleteConfirm, setShowConfirmModal, validationErrors, onSubmit }) => {
+const EditTableModal = ({ formData, handleChange, setShowModal, setShowDeleteConfirm, setShowConfirmModal, validationErrors, onSubmit, setSelectedFile }) => {
   return (
     <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
       <div className="modal-dialog modal-dialog-centered">
@@ -10,7 +10,7 @@ const EditTableModal = ({ formData, handleChange, setShowModal, setShowDeleteCon
             <button type="button" className="btn-close btn-close-white" onClick={() => setShowModal(false)}></button>
           </div>
           <form
-            onSubmit={(e) => {onSubmit(e)}}
+            onSubmit={(e) => { onSubmit(e) }}
           >
             <div className="modal-body p-4 bg-white">
               <div className="form-group mb-3">
@@ -25,6 +25,15 @@ const EditTableModal = ({ formData, handleChange, setShowModal, setShowDeleteCon
                 {validationErrors.name && (
                   <div className="invalid-feedback">{validationErrors.name}</div>
                 )}
+              </div>
+              <div className="form-group mb-3">
+                <label className="form-label fw-bold text-dark">Image</label>
+                <input
+                  type="file"
+                  className="form-control"
+                  accept="image/*"
+                  onChange={(e) => setSelectedFile(e.target.files[0])}
+                />
               </div>
               <div className="form-group mb-3">
                 <label className="form-label fw-bold text-dark">Seats</label>
@@ -49,7 +58,7 @@ const EditTableModal = ({ formData, handleChange, setShowModal, setShowDeleteCon
                   placeholder="Table Type"
                   value={formData.type}
                   onChange={handleChange}
-                /> 
+                />
                 {validationErrors.type && (
                   <div className="invalid-feedback">{validationErrors.type}</div>
                 )}

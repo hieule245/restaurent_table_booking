@@ -3,7 +3,6 @@ import EditTableModal from "./EditTableModal.js";
 import DeleteConfirmationModal from "./DeleteConfirmationModal.js";
 import SaveConfirmationModal from "./SaveConfirmationModal.js";
 import "../TableCard.styles.css";
-import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import { tableSchema } from "../../../validations/TableSchema";
 
@@ -18,7 +17,13 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
     type: table.type || "",
     Description: table.Description || "",
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const handleImageChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
 
+  const imageUrl = table && table.image_file ? table.image_file : "https://images.squarespace-cdn.com/content/v1/5e1b73fb6eeb973ee1becfc4/1592675020070-2CPPWG2J34ZWURFKJC6P/custom-restaurant-tables-david-stine+4.jpg";
   const handleChange = (e) => {
     const { name, value } = e.target;
     const updatedValue = name === "seats" ? Number(value) : value;
@@ -55,11 +60,10 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
 
   return (
     <>
-      <ToastContainer />
       <div className="card table-card" onClick={() => setShowModal(true)}>
         <div className="position-relative">
           <img
-            src="https://images.squarespace-cdn.com/content/v1/5e1b73fb6eeb973ee1becfc4/1592675020070-2CPPWG2J34ZWURFKJC6P/custom-restaurant-tables-david-stine+4.jpg"
+            src={imageUrl}
             alt={table.name || "Table"}
           />
         </div>
@@ -82,6 +86,7 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
           setShowConfirmModal={setShowConfirmModal}
           validationErrors={validationErrors}
           onSubmit={handleSubmit}
+          setSelectedFile={setSelectedFile}
         />
       )}
 
@@ -109,6 +114,8 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
           }}
           link={`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables/${table.id}`}
           setValidationErrors={setValidationErrors}
+          selectedFile={selectedFile}
+          setSelectedFile={setSelectedFile}
         />
       )}
     </>

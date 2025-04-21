@@ -30,7 +30,7 @@ const Information = () => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  const handleUpdate = async () => {
+  const handleUpdate = async () => { 
     if (isEditing) {
       try {
         setIsLoading(true);

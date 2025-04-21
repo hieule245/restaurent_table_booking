@@ -1,13 +1,27 @@
 import React from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-const SaveConfirmationModal = ({ formData, setShowConfirmModal, onSave, link, setValidationErrors }) => {
+const SaveConfirmationModal = ({ formData, setShowConfirmModal, onSave, link, setValidationErrors, selectedFile, setSelectedFile }) => {
 
   const confirmSave = async () => {
     try {
+      let updatedData = { ...formData };
+      if (selectedFile) {
+        const imageForm = new FormData();
+        imageForm.append("imageTable", selectedFile);
+  
+        const uploadRes = await axios.post(
+          `${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/:restaurant_id/tables/image_upload`, // lấy endpoint upload
+          imageForm,
+          { withCredentials: true }
+        );
+        updatedData.image_id = uploadRes.data.imageId;
+        console.log(updatedData)
+      }
+
       await axios.put(
         link,
-        formData,
+        updatedData,
         { withCredentials: true }
       );
       onSave();

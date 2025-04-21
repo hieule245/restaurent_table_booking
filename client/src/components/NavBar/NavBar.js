@@ -164,7 +164,7 @@ const NavBar = () => {
                               My Profile
                             </a>
                           </li>
-                          {user && user.Role === "admin" ? "" :
+                          {(user && (user.Role === "owner" || user.Role === "admin")) ? "" :
                             <li>
                               <button
                                 className="dropdown-item bg-transparent border-0 text-decoration-none"

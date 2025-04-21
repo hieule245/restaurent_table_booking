@@ -1,0 +1,7 @@
+POST http://localhost:8080/owners/:owner_id/restaurants/:restaurant_id/tables/image_upload
+Content-Type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImdtYWlsIjoiaGlldWxuMjQ1QGdtYWlsLmNvbSIsInJvbGUiOiJvd25lciIsImV4cCI6MTc0NTIxODc0M30.RnXbEiwcPccc2P9INDhZj6gceojgMoDExZHACY8a8Jo
+
+{
+    "imageTable": "../../"
+}

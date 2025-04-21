@@ -13,6 +13,6 @@ export const tableSchema = Yup.object().shape({
     .min(1, "Seats must be at least 1")
     .integer("Seats must be an integer")
     .max(30, "Seats must be no more than 30"),
-  Description: Yup.string()
+  description: Yup.string()
     .max(200, "Max 200 characters"),
 }); 

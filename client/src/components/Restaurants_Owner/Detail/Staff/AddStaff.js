@@ -119,10 +119,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
                 {errors.phone && <small className="text-danger">{errors.phone}</small>}
               </div>
             </div>
-            <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
-              <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal" ref={closeBtnRef}>
-                Close
-              </button>
+            <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-end">
               <button type="submit" className="btn btn-danger fw-bold px-4" {...(Object.keys(errors).length === 0 ? { "data-bs-dismiss": "modal" } : "")}>
                 Create
               </button>
