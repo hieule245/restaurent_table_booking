@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarAlt, faClock, faChair, faUser } from "@fortawesome/free-solid-svg-icons";
@@ -23,7 +23,7 @@ const ReservationList = ({ restaurant_id }) => {
         Price: 1
     });
 
-    const fetch = () => {
+    const fetch = useCallback(() => {
         try {
             axios
                 .get(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/reservations`, { withCredentials: true })
@@ -53,7 +53,7 @@ const ReservationList = ({ restaurant_id }) => {
         } catch (err) {
             console.error(err);
         }
-    };
+    }, [restaurant_id]);
 
     useEffect(() => {
         fetch();

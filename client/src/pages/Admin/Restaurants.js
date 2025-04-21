@@ -12,7 +12,6 @@ import Pagination from "../../components/Pagination/Pagination.js";
 
 const Admin = () => {
   const [restaurants, setRestaurants] = useState([]); // Dùng để hiển thị danh sách
-  const [setSortType] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;

@@ -24,7 +24,7 @@ export default function StaffList({ restaurant_id }) {
                 toast.error("Error fetching staff list!");
                 console.error("Error:", err);
             });
-    });
+    }, [restaurant_id]);
 
     useEffect(() => {
         fetchStaff();

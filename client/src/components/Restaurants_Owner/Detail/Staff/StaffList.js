@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaLock, FaUnlock, FaPhone, FaEnvelope, FaSearch, FaSortAmountDown, FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { toast, ToastContainer } from "react-toastify";
@@ -16,7 +16,7 @@ export default function StaffList({ restaurant_id }) {
     const [sortType, setSortType] = useState(null);
     const itemsPerPage = 12;
 
-    const fetchStaff = () => {
+    const fetchStaff = useCallback(() => {
         axios.get(`${process.env.REACT_APP_API_URL}/owners/:owner_id/${restaurant_id}/staffs`, { withCredentials: true })
             .then((res) => {
                 setStaff(res.data.staff || []);
@@ -25,7 +25,7 @@ export default function StaffList({ restaurant_id }) {
                 toast.error("Error fetching staff list!");
                 console.error("Error:", err);
             });
-    };
+    }, [restaurant_id]);
 
     useEffect(() => {
         fetchStaff();
