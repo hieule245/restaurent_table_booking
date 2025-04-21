@@ -110,7 +110,7 @@ func GetUserProfile(c *gin.Context) {
 // LogoutHandler xử lý đăng xuất
 func Logout(c *gin.Context) {
 	// Xóa cookie bằng cách đặt giá trị rỗng và thời gian hết hạn đã qua
-	c.SetCookie("token", "", -1, "/", "localhost", false, true)
+	c.SetCookie("token", "", -1, "/", "/", false, true)
 
 	// Trả về phản hồi JSON
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
