@@ -3,3 +3,6 @@ Please check:
 
 .env => localhost:8080
 db in backend => localhost:3306
+
+docker-compose down --volumes --remove-orphans
+docker system prune -a --volumes -f
