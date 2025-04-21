@@ -14,8 +14,12 @@ func main() {
 	server := gin.Default()
 
 	server.Use(cors.New(cors.Config{
-		AllowAllOrigins: true,
-		AllowMethods:    []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		// AllowAllOrigins: true,
+		AllowOrigins: []string{
+			"https://giolang.cloud.runsystem.site",
+			"http://localhost:3000",
+		},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders: []string{
 			"Origin", "Content-Length", "Content-Type", "Authorization", "X-Requested-With",
 		},
