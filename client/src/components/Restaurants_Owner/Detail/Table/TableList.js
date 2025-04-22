@@ -159,7 +159,7 @@ const TableList = ({ restaurant_id }) => {
       if (selectedFile) {
         const formData = new FormData();
         formData.append("imageTable", selectedFile)
-        await axios.post(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables/image_upload`, formData, { withCredentials: true })
+        await axios.post(`${process.env.REACT_APP_API_URL}/image_upload`, formData, { withCredentials: true })
           .then((res) => {
             newTableWithImage.image_id = res.data.imageId;
             console.log(newTableWithImage.image_id)

@@ -1,8 +1,42 @@
 import React from "react";
-
-import TestApiAll from "./testAPI_all";
+import TestUser from "./TestUsers/TestUsers";
+import TestAdmin from "./TestAdmin/TestAdmin";
+import TestOwner from "./TestOwner/TestOwner";
+import TestCustomer from "./TestCustomer/TestCustomer";
+import axios from "axios";
+import { useState } from "react";
 // import TestBookTimeTable from "./test_book_time_table";
 const TestAPI = () => {
+  const [response, setResponse] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const baseURL = `${process.env.REACT_APP_API_URL}`; // Thay đổi thành URL backend của bạn
+
+  // Hàm gọi API với Axios
+  const callAPI = async (method, endpoint, data = null) => {
+    setLoading(true);
+    setError(null);
+    setResponse(null);
+
+    try {
+      const res = await axios({
+        method,
+        url: `${baseURL}${endpoint}`,
+        data,
+        withCredentials: true, // Bật gửi cookie nếu cần
+      });
+      setResponse(res.data);
+    } catch (err) {
+      console.log(
+        "Lỗi chi tiết:",
+        err.response ? err.response.data : err.message
+      );
+      setError(err.response ? err.response.data : err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div
       style={{
@@ -18,7 +52,7 @@ const TestAPI = () => {
 
         <h2>🔍 Test REST API bằng Axios</h2>
       </div>
-      <p>{REST_API_URL}</p>
+      <p>{process.env.REACT_APP_API_URL}</p>
       {/* Users */}
       <TestUser callAPI={callAPI} />
       <hr />
@@ -32,8 +66,8 @@ const TestAPI = () => {
       <TestCustomer callAPI={callAPI} />
       <hr />
 
-      <TestStaff callAPI={callAPI} />
-      <hr />
+      {/* <TestStaff callAPI={callAPI} />
+      <hr /> */}
 
       {/* Hiển thị trạng thái */}
       {loading && <p>⏳ Đang tải...</p>}

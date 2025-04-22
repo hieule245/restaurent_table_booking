@@ -33,9 +33,3 @@ func Routes(server *gin.Engine) {
 		// StaffRoutes(User)
 	}
 }
-
-func sayHi(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "Hello World",
-	})
-}

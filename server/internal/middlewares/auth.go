@@ -11,9 +11,11 @@ import (
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := c.Cookie("token")
+		fmt.Println("token:", token)
 		if err != nil || token == "" {
 			fmt.Println("Không có token hoặc token trống")
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not logged in"})
+			// c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not logged in"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.Abort()
 			return
 		}
@@ -84,4 +86,22 @@ func StaffOnly(c *gin.Context) {
 	}
 
 	c.Next() // Tiếp tục request nếu là staff
+}
+
+func CustomerOnly(c *gin.Context) {
+	role, exists := c.Get("role")
+	if !exists {
+		c.JSON(http.StatusForbidden, gin.H{"error": "No role found"})
+		c.Abort()
+		return
+	}
+
+	roleStr, ok := role.(string) // Ép kiểu về string
+	if !ok || roleStr != "customer" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Customer Access denied"})
+		c.Abort()
+		return
+	}
+
+	c.Next() // Tiếp tục request nếu là admin
 }

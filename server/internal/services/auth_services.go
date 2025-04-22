@@ -43,6 +43,7 @@ func Login(context *gin.Context) {
 		return
 	}
 
+	fmt.Println("in4", u.Id, u.Email, u.Role)
 	token, err := utils.GenerateToken(u.Id, u.Email, u.Role)
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"message": "Can't generate token"})
