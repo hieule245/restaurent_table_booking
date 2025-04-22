@@ -9,7 +9,6 @@ import axios from "axios";
 import avatar from "../../assets/image/avatar.png";
 
 const NavBar = () => {
-  // STATE FOR HAMBURGER MENU
   const [nav, setNav] = useState(false);
   const [user, setUser] = useState({
     Id: "",
@@ -117,8 +116,8 @@ const NavBar = () => {
                   {user && user.Role === "staff"
                     ? "Serving restaurant"
                     : user && user.Role === "owner"
-                      ? ""
-                      : "Restaurants"}
+                    ? ""
+                    : "Restaurants"}
                 </button>
                 {user && user.Role === "staff" ? (
                   <button
@@ -164,7 +163,7 @@ const NavBar = () => {
                               My Profile
                             </a>
                           </li>
-                          {(user && (user.Role === "owner" || user.Role === "admin")) ? "" :
+                          {(user && (user.Role === "owner" || user.Role === "admin")) ? "" : (
                             <li>
                               <button
                                 className="dropdown-item bg-transparent border-0 text-decoration-none"
@@ -172,8 +171,8 @@ const NavBar = () => {
                               >
                                 Booking History
                               </button>
-
-                            </li>}
+                            </li>
+                          )}
                           <li>
                             <button
                               className="dropdown-item"
