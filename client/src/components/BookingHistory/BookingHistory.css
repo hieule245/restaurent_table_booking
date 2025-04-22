@@ -181,3 +181,14 @@
 .table-responsive {
   height: 67vh;
 }
+
+/* Thêm hiệu ứng hover lên các dòng trong bảng */
+.booking-history-table tbody tr:hover {
+  background-color: #f1f1f1; /* Màu nền sáng hơn khi hover */
+  cursor: pointer; /* Đổi con trỏ chuột thành dạng pointer */
+}
+
+/* Thêm hiệu ứng làm đậm dòng khi hover */
+.booking-history-table tbody tr:hover td {
+  font-weight: bold; /* Làm đậm văn bản khi hover */
+}

@@ -18,13 +18,16 @@ const BookingRow = ({ booking, index, onEdit, onCancel, formatTo12Hour }) => {
   // Xử lý ngày tháng năm
   const dateObj = new Date(booking.book_date);
   const year = dateObj.getFullYear();
-  const month = String(dateObj.getMonth() + 1).padStart(2, "0"); // Tháng 0-11
-  const day = String(dateObj.getDate()).padStart(2, "0");
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0"); // Tháng 0-11 => Cộng 1
+  const day = String(dateObj.getDate()).padStart(2, "0"); // Thêm số 0 trước nếu ngày nhỏ hơn 10
 
   return (
     <tr>
       <td>{index + 1}</td>
-      <td>{booking.book_date}</td>
+      <td>{day}</td>
+      <td>{month}</td>
+      <td>{year}</td>
+      {/* Format ngày theo "DD/MM/YYYY" */}
       <td>{formatTo12Hour(booking.time_start)}</td>
       <td>{formatTo12Hour(booking.time_end)}</td>
       <td>{booking.numberOfCustomer}</td>
@@ -39,14 +42,16 @@ const BookingRow = ({ booking, index, onEdit, onCancel, formatTo12Hour }) => {
             <button
               className="action-button bg-success text-white me-2"
               onClick={() => onEdit(booking)}
+              title="Edit booking"
             >
-              Edit
+              ✏️ Edit
             </button>
             <button
               className="action-button bg-danger text-white"
               onClick={() => onCancel(booking)}
+              title="Cancel booking"
             >
-              Cancel
+              ❌ Cancel
             </button>
           </>
         )}

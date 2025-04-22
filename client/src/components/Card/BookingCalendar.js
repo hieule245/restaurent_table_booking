@@ -5,10 +5,6 @@ import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 const BookingCalendar = ({ table, restaurant }) => {
   const [isLoading, setIsLoading] = useState(false);
-<<<<<<< HEAD
-=======
-
->>>>>>> big_update
   // Lấy thông tin thời gian hiện tại
   const today = new Date();
   const currentYear = today.getFullYear();
@@ -131,10 +127,6 @@ const BookingCalendar = ({ table, restaurant }) => {
           const endLabel = format24To12(reservation.time_end.slice(0, 5));
           return `${startLabel} - ${endLabel}`;
         });
-<<<<<<< HEAD
-
-=======
->>>>>>> big_update
         // Lưu kết quả cho ngày được chọn
         setPreBooked((prev) => ({
           ...prev,
