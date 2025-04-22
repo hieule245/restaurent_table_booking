@@ -22,7 +22,7 @@ const Admin = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [modalInstance, setModalInstance] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [,setSortType] = useState(null);
+  const [, setSortType] = useState(null);
   const itemsPerPage = 12;
 
   useEffect(() => {
@@ -82,8 +82,7 @@ const Admin = () => {
         prevAccount.map((s) => (s.Id === Id ? { ...s, Status: newStatus } : s))
       );
       toast.success(
-        `Account ${
-          newStatus === "active" ? "unlocked" : "locked"
+        `Account ${newStatus === "active" ? "unlocked" : "locked"
         } successfully!`
       );
     } catch (error) {
@@ -102,7 +101,7 @@ const Admin = () => {
   return (
     <div className="bg-black">
       <ToastContainer />
-      <div className="p-4 text-white row vh-100">
+      <div className="p-4 text-white row h-100">
         <div className="col-2">
           <Sidebar />
         </div>
@@ -116,14 +115,14 @@ const Admin = () => {
           <hr className="border-secondary" />
           <div className="d-flex justify-content-between align-items-center mb-3">
             {/* Nút thêm nhân viên */}
-            <button
+            {/* <button
               type="button"
               className="btn btn-outline-danger fw-bold"
               data-bs-toggle="modal"
               data-bs-target="#myModal"
             >
               Add Account
-            </button>
+            </button> */}
 
             {/* Ô tìm kiếm và nút sắp xếp tách biệt */}
             <div className="d-flex gap-3 align-items-center">
@@ -148,7 +147,7 @@ const Admin = () => {
                   type="button"
                   className="btn btn-danger fw-bolder d-flex align-items-center px-3"
                   data-bs-toggle="dropdown"
-                  // Đảm bảo đồng bộ chiều cao
+                // Đảm bảo đồng bộ chiều cao
                 >
                   <FaSortAmountDown className="me-2" />
                   Sort
@@ -185,13 +184,12 @@ const Admin = () => {
                   <div className="card w-100 h-100 shadow-lg border-2 border-danger rounded-4 bg-light text-dark position-relative p-3">
                     <button
                       className={`btn btn-square position-absolute top-0 end-0 m-2 
-                                                    ${
-                                                      Status === "ban"
-                                                        ? "btn-secondary"
-                                                        : Status === "active"
-                                                        ? "btn-outline-danger"
-                                                        : "btn-danger"
-                                                    }`}
+                                                    ${Status === "ban"
+                          ? "btn-secondary"
+                          : Status === "active"
+                            ? "btn-outline-danger"
+                            : "btn-danger"
+                        }`}
                       onClick={() =>
                         Status !== "ban" &&
                         handleOpenModal({ Id, Name, Status })
@@ -291,7 +289,7 @@ const Admin = () => {
           {accounts.length > itemsPerPage && (
             <div className="pagination-container">
               <button
-                className="btn btn-outline-dark me-2"
+                className="btn btn-outline-secondary me-2"
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
               >
@@ -301,11 +299,10 @@ const Admin = () => {
                 (number) => (
                   <button
                     key={number + 1}
-                    className={`btn ${
-                      currentPage === number + 1
-                        ? "btn-dark"
-                        : "btn-outline-dark"
-                    } mx-1`}
+                    className={`btn ${currentPage === number + 1
+                        ? "btn-secondary"
+                        : "btn-outline-secondary"
+                      } mx-1`}
                     onClick={() => paginate(number + 1)}
                   >
                     {number + 1}
@@ -313,7 +310,7 @@ const Admin = () => {
                 )
               )}
               <button
-                className="btn btn-outline-dark ms-2"
+                className="btn btn-outline-secondary ms-2"
                 onClick={() => paginate(currentPage + 1)}
                 disabled={
                   currentPage === Math.ceil(accounts.length / itemsPerPage)

@@ -267,7 +267,7 @@ func EditTable(context *gin.Context) {
 	table.ID = tableID
 
 	if err := table.UpdateTable(); err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update table"})
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

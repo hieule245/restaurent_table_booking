@@ -16,13 +16,10 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
     seats: table.seats || "",
     type: table.type || "",
     Description: table.Description || "",
+    image_file: table.image_file || "",
   });
-  const [imageFile, setImageFile] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
-  const handleImageChange = (e) => {
-    setImageFile(e.target.files[0]);
-  };
-
+  const [previewUrl, setPreviewUrl] = useState(null);
   const imageUrl = table && table.image_file ? table.image_file : "https://images.squarespace-cdn.com/content/v1/5e1b73fb6eeb973ee1becfc4/1592675020070-2CPPWG2J34ZWURFKJC6P/custom-restaurant-tables-david-stine+4.jpg";
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -39,6 +36,14 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
       });
     }
   };
+
+  const handleFileChange = (file) => {
+    setSelectedFile(file);
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,18 +72,19 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
             alt={table.name || "Table"}
           />
         </div>
-        <div className="card-body table-card-body">
+        <div className="card-body table-card-body text-truncate">
           <h5>{table.name || "Table Name"}</h5>
           <div className="d-flex justify-content-around align-items-center">
-            <p className="text-muted">🪑 Seats: <span className="fw-semibold">{table.seats || "N/A"}</span></p>
-            <p className="text-muted">Type: <span className="fw-semibold">{table.type}</span></p>
+            <p className="text-muted text-truncate">🪑 Seats: <span className="fw-semibold">{table.seats || "N/A"}</span></p>
+            <p className="text-muted text-truncate">Type: <span className="fw-semibold">{table.type}</span></p>
           </div>
-          <p className="small">✨ {table.Description || "No description available"}</p>
+          <p className="small text-muted text-truncate">✨ {table.Description || "No description available"}</p>
         </div>
       </div>
 
       {showModal && (
         <EditTableModal
+          imageUrl={imageUrl}
           formData={formData}
           handleChange={handleChange}
           setShowModal={setShowModal}
@@ -86,7 +92,8 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
           setShowConfirmModal={setShowConfirmModal}
           validationErrors={validationErrors}
           onSubmit={handleSubmit}
-          setSelectedFile={setSelectedFile}
+          setSelectedFile={handleFileChange}
+          previewUrl = {previewUrl}
         />
       )}
 
@@ -105,6 +112,7 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
 
       {showConfirmModal && (
         <SaveConfirmationModal
+          imageUrl={imageUrl}
           formData={formData}
           setShowConfirmModal={setShowConfirmModal}
           onSave={() => {
@@ -116,6 +124,7 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
           setValidationErrors={setValidationErrors}
           selectedFile={selectedFile}
           setSelectedFile={setSelectedFile}
+          previewUrl = {previewUrl}
         />
       )}
     </>

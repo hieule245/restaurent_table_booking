@@ -35,7 +35,6 @@ func OwnerRoutes(server *gin.Engine) {
 				table.GET("", services.GetAllTables)
 				table.GET("/:table_id", services.GetTableByID)
 				table.POST("", services.CreateTable)
-				table.POST("/image_upload", services.UploadImageTables)
 				table.PUT("/:table_id", services.EditTable)
 				table.POST("/:table_id", services.DeleteTable)
 				// Tìm kiếm bàn

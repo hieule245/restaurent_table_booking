@@ -1,6 +1,6 @@
 import React from "react";
 
-const EditTableModal = ({ formData, handleChange, setShowModal, setShowDeleteConfirm, setShowConfirmModal, validationErrors, onSubmit, setSelectedFile }) => {
+const EditTableModal = ({ imageUrl, formData, handleChange, setShowModal, setShowDeleteConfirm, validationErrors, onSubmit, setSelectedFile, previewUrl }) => {
   return (
     <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
       <div className="modal-dialog modal-dialog-centered">
@@ -30,10 +30,22 @@ const EditTableModal = ({ formData, handleChange, setShowModal, setShowDeleteCon
                 <label className="form-label fw-bold text-dark">Image</label>
                 <input
                   type="file"
-                  className="form-control"
+                  className="form-control mb-2"
                   accept="image/*"
-                  onChange={(e) => setSelectedFile(e.target.files[0])}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setSelectedFile(e.target.files[0]); // 👈 gọi handleFileChange từ props
+                    }
+                  }}
                 />
+                {(previewUrl || imageUrl) && (
+                  <img
+                    src={previewUrl || imageUrl}
+                    alt="Current table"
+                    className="rounded mt-2"
+                    style={{ width: "100%", height: "auto", maxHeight: "100%", objectFit: "cover" }}
+                  />
+                )}
               </div>
               <div className="form-group mb-3">
                 <label className="form-label fw-bold text-dark">Seats</label>

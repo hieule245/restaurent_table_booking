@@ -1,17 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-const SaveConfirmationModal = ({ formData, setShowConfirmModal, onSave, link, setValidationErrors, selectedFile, setSelectedFile }) => {
-
+const SaveConfirmationModal = ({ imageUrl, formData, setShowConfirmModal, onSave, link, setValidationErrors, selectedFile, previewUrl }) => {
+  const [isSaving, setIsSaving] = useState(false);
   const confirmSave = async () => {
+    setIsSaving(true);
     try {
       let updatedData = { ...formData };
       if (selectedFile) {
         const imageForm = new FormData();
         imageForm.append("imageTable", selectedFile);
-  
+
         const uploadRes = await axios.post(
-          `${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/:restaurant_id/tables/image_upload`, // lấy endpoint upload
+          `${process.env.REACT_APP_API_URL}/image_upload`, // lấy endpoint upload
           imageForm,
           { withCredentials: true }
         );
@@ -25,7 +26,7 @@ const SaveConfirmationModal = ({ formData, setShowConfirmModal, onSave, link, se
         { withCredentials: true }
       );
       onSave();
-    } catch(err) {
+    } catch (err) {
       if (err.name === "ValidationError") {
         // Gom lỗi lại theo field
         const fieldErrors = {};
@@ -39,9 +40,12 @@ const SaveConfirmationModal = ({ formData, setShowConfirmModal, onSave, link, se
         toast.error("Please correct the highlighted errors.");
         setShowConfirmModal(false); // Tắt modal xác nhận, quay lại form
       } else {
-        toast.error("Error saving table");
-        console.error("Error saving table:", err.response?.data || err.message);
+        toast.error(err.response?.data.message || err.response.data.error);
+        console.error("Error saving table:", err.response?.data.message || err.response.data.error);
       }
+    } finally {
+      setIsSaving(false); // Dừng loading dù thành công hay lỗi
+      setShowConfirmModal(false); // Đóng modal
     }
   };
 
@@ -49,13 +53,19 @@ const SaveConfirmationModal = ({ formData, setShowConfirmModal, onSave, link, se
     <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content rounded-4 shadow-lg border-0">
-          <div className="modal-header bg-warning text-dark rounded-top-4">
-            <h4 className="modal-title fw-bold">Confirm Changes</h4>
+          <div className="modal-header text-dark rounded-top-4">
+            <h4 className="modal-title fw-bold">Are you sure want to save?</h4>
             <button type="button" className="btn-close" onClick={() => setShowConfirmModal(false)}></button>
           </div>
           <div className="modal-body p-4 bg-white">
-            <p>Are you sure you want to save these changes?</p>
-            <ul>
+            <ul className="p-0 m-0">
+              <li>
+                <img
+                  src={previewUrl || imageUrl}
+                  alt="Table Image"
+                  style={{ width: "100%", height: "100% ", objectFit: "cover", borderRadius: "0.5rem" }}
+                />
+              </li>
               <li><strong>Table Name:</strong> {formData.name}</li>
               <li><strong>Seats:</strong> {formData.seats}</li>
               <li><strong>Type:</strong> {formData.type}</li>
@@ -66,8 +76,20 @@ const SaveConfirmationModal = ({ formData, setShowConfirmModal, onSave, link, se
             <button type="button" className="btn btn-outline-dark fw-bold px-4" onClick={() => setShowConfirmModal(false)}>
               Cancel
             </button>
-            <button type="button" className="btn btn-success fw-bold px-4" onClick={confirmSave}>
-              Confirm
+            <button
+              type="button"
+              className="btn btn-success fw-bold px-4 d-flex align-items-center justify-content-center gap-2"
+              onClick={confirmSave}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <>
+                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  Saving...
+                </>
+              ) : (
+                "Confirm"
+              )}
             </button>
           </div>
         </div>

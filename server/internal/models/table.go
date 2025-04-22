@@ -159,9 +159,23 @@ func (t *Table) CreateTable() error {
 // Cập nhật bàn ăn
 func (t *Table) UpdateTable() error {
 	fmt.Println("image 3-", t.ImageId)
-	query := `UPDATE tables SET name = ?, type = ?, seats = ?, image_id = ? WHERE id = ?`
-	_, err := db.DB.Exec(query, t.Name, t.Type, t.Seats, t.ImageId, t.ID)
-	return err
+	var err error
+	var query string
+	// Nếu không có ảnh mới, lấy lại image_id hiện tại từ DB
+	if t.ImageId == 0 {
+		query = `UPDATE tables SET name = ?, type = ?, seats = ? WHERE id = ?`
+		_, err = db.DB.Exec(query, t.Name, t.Type, t.Seats, t.ID)
+	} else {
+		query = `UPDATE tables SET name = ?, type = ?, seats = ?, image_id = ? WHERE id = ?`
+		_, err = db.DB.Exec(query, t.Name, t.Type, t.Seats, t.ImageId, t.ID)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("image 4-", t.ImageId)
+	return nil
 }
 
 // Xóa bàn ăn
