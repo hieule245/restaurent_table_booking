@@ -59,7 +59,13 @@ func CreateStaff(context *gin.Context) {
 		return
 	}
 	_, userId := CurrentUser(context)
-
+	var acc models.Account
+	acc.Email = staff.Gmail
+	_, ok := models.CheckAccount(&acc)
+	if !ok {
+		context.JSON(http.StatusConflict, gin.H{"error": "This account was created before!"})
+		return
+	}
 	err = staff.CreateStaff(userId)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})

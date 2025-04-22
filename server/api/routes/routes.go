@@ -30,6 +30,6 @@ func Routes(server *gin.Engine) {
 		AdminRoutes(User)
 		OwnerRoutes(User)
 		CustomerRoutes(User)
-		// StaffRoutes(User)
+		StaffRoutes(User)
 	}
 }
