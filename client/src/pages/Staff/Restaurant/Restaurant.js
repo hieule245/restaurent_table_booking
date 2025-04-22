@@ -26,7 +26,7 @@ const Restaurant = () => {
 
         const restaurantId = responseRestaurant.data.restaurant.Id;
         const responseTables = await axios.get(
-          `${process.env.REACT_APP_API_URL}/staff/${restaurantId}/tables`
+          `${process.env.REACT_APP_API_URL}/staff/${restaurantId}/tables`, { withCredentials: true }
         );
         setTables(responseTables.data.tables || []);
         console.log("id ", responseTables.data.tables);
