@@ -10,6 +10,7 @@ RUN npm install
 
 # Copy toàn bộ mã nguồn frontend
 COPY . .
+COPY .env.prod .env
 
 # Mở cổng ứng dụng React 
 EXPOSE 3000
