@@ -1,8 +1,6 @@
 package routes
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/restaurent_table_booking/internal/middlewares"
 	"github.com/restaurent_table_booking/internal/services"
@@ -10,24 +8,8 @@ import (
 
 // Routes định nghĩa tất cả các route của ứng dụng.
 func Routes(server *gin.Engine) {
-	// Các route liên quan đến owner: Tìm kiếm bàn trống & thời gian đã đặt
-	server.GET("/restaurants/:restaurant_id/tables/available", services.SearchAvailableTablesHandler)
-
-	server.GET("/restaurants/:restaurant_id/tables/:table_id/booked-times", services.GetBookedTimesHandler)
-
-	// Các route công khai cho restaurant và table
-	server.GET("/restaurants", services.GetAllRestaurants)
-
-	// filter table with time start, time end, date
-	server.GET("/restaurant/:restaurant_id/available-tables", services.GetAvailableTables)
-
 	// router book table
 	server.GET("/booking-history", services.GetBookingHistoryByUserID)
-	// edit reservation for customer
-	server.PUT("/reservation/:reservation_id", services.EditReservation)
-	// delete reservation for customer
-	server.DELETE("/reservation/:reservation_id", services.CancelReservation)
-	server.GET("/", sayHi)
 
 	restaurant := server.Group("/restaurant")
 	{
@@ -50,10 +32,6 @@ func Routes(server *gin.Engine) {
 		CustomerRoutes(User)
 		// StaffRoutes(User)
 	}
-}
-
-func welcome(context *gin.Context) {
-	context.JSON(http.StatusOK, gin.H{"message": "Hello"})
 }
 
 func sayHi(c *gin.Context) {
