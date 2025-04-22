@@ -2,12 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-<<<<<<< HEAD
-import { REST_API_URL } from "../../../data";
-=======
 import Cookies from "js-cookie";
 
->>>>>>> big_update
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
