@@ -45,6 +45,7 @@ const ReservationList = () => {
         .then((res) => {
           if (res.data && Array.isArray(res.data.reservation)) {
             setReservations(res.data.reservation);
+            console.log(res.data.reservation)
           } else {
             setReservations([]); // fallback an toàn
             toast.info("No reservations found.");
@@ -124,7 +125,7 @@ const ReservationList = () => {
             <tbody>
               {currentRes.map((res, index) => (
                 <tr key={index} className="text-center">
-                  <td>{res.CustomerName}</td>
+                  <td>{res.UserBook}</td>
                   <td>{new Date(res.BookingDate).toLocaleDateString()}</td>
                   <td>{res.BookingTime}</td>
                   <td>{res.ActualTime}</td>

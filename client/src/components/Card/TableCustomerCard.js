@@ -34,11 +34,11 @@ const TableCard = ({ table }) => {
 
       {/* Nội dung */}
       <div className="card-body table-card-body">
-        <h5>{table.name || "Table Name"}</h5>
+        <h5 className="text-truncate" title={table.name}>{table.name || "Table Name"}</h5>
         <p className="text-muted">
           🪑 Seats: <span className="fw-semibold">{table.seats || "N/A"}</span>
         </p>
-        <p className="small">✨ {table.description}</p>
+        <p className="small">✨ {table.Description}</p>
       </div>
     </div>
   );

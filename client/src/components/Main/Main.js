@@ -66,7 +66,7 @@ const Main = () => {
         path="/restaurants/:restaurant_id/detail"
         element={<RestaurantDetailPage />}
       />
-      <Route element={<PrivateRoute allowedRoles={["customer"]} />}>
+      <Route element={<PrivateRoute allowedRoles={["customer", "staff"]} />}>
         <Route
           path="/restaurants/:restaurant_id/tables/:table_id/detail"
           element={<TableDetailPage />}
