@@ -7,11 +7,9 @@ import (
 )
 
 // AdminRoutes định nghĩa các route dành cho Admin, bắt buộc phải đăng nhập và có quyền Admin.
-func AdminRoutes(server *gin.Engine) {
-	admin := server.Group("/admin")
-	admin.Use(middlewares.AuthMiddleware()) // Xác thực user
-	admin.Use(middlewares.AdminOnly)        // Kiểm tra quyền Admin
-
+func AdminRoutes(User *gin.RouterGroup) {
+	admin := User.Group("/admin")
+	admin.Use(middlewares.AdminOnly) // Kiểm tra quyền Admin
 	{
 		// Dashboard
 		admin.GET("", services.StaticRevenueByAdmin)

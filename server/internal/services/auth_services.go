@@ -22,6 +22,39 @@ type PinData struct {
 // Bộ nhớ tạm lưu PIN (dùng sync.Map để thread-safe)
 var pinStorage = sync.Map{}
 
+func Login(context *gin.Context) {
+	if _, err := context.Cookie("token"); err == nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "You have already logged in"})
+		return
+	}
+
+	var u models.Account
+	if err := context.ShouldBindJSON(&u); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
+		return
+	}
+
+	if err := u.Login(); err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		return
+	}
+
+	token, err := utils.GenerateToken(u.Id, u.Email, u.Role)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Can't generate token"})
+		return
+	}
+
+	// Chỉ set 1 cookie
+	context.SetCookie("token", token, 7200, "/", "", false, true)
+
+	context.JSON(http.StatusOK, gin.H{
+		"message": "Login successfully !!",
+		"token":   token,
+		"role":    u.Role,
+	})
+}
+
 func ResendPin(context *gin.Context) {
 	var input struct {
 		Email string `json:"email"`
@@ -53,26 +86,6 @@ func ResendPin(context *gin.Context) {
 	pinStorage.Store(input.Email, newPinData)
 
 	context.JSON(http.StatusOK, gin.H{"message": "New PIN has been sent!"})
-}
-
-func ResetPassword(context *gin.Context) {
-	var u models.Account
-	err := context.ShouldBindBodyWithJSON(&u)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
-		return
-	}
-	err = u.ResetPassword()
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't reset password"})
-		return
-	}
-	context.JSON(http.StatusOK, gin.H{"Message": "Reset password successfully !!"})
-}
-
-func GetAllAccounts(context *gin.Context) {
-	u, _ := models.GetAllAccounts()
-	context.JSON(http.StatusOK, gin.H{"users": u})
 }
 
 func GetUserProfile(c *gin.Context) {
@@ -114,42 +127,6 @@ func Logout(c *gin.Context) {
 
 	// Trả về phản hồi JSON
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
-}
-
-func Login(context *gin.Context) {
-	fmt.Println("Login--1")
-	_, err := context.Cookie("token")
-	fmt.Println("Login--2")
-	if err != nil {
-		var u models.Account
-		err = context.ShouldBindBodyWithJSON(&u)
-		fmt.Println("Login--aa", u.Email)
-		if err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
-			return
-		}
-		fmt.Println("Login--3")
-		err = u.Login()
-		fmt.Println("Login--4", err)
-		if err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-		// create token
-		token, err := utils.GenerateToken(u.Id, u.Email, u.Role)
-		if err != nil {
-			context.JSON(http.StatusUnauthorized, gin.H{"message": "Can't generate token"})
-			return
-		}
-
-		// save token into cookie
-		context.SetCookie("token", token, 7200, "/", "/", false, true)
-
-		context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!", "tokens": token, "role": u.Role})
-		// context.JSON(http.StatusOK, gin.H{"Message": "Login successfully !!"})
-	} else {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "You have already logged in"})
-	}
 }
 
 func Register(context *gin.Context) {

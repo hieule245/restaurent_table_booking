@@ -5,18 +5,16 @@ import (
 	"github.com/restaurent_table_booking/internal/services"
 )
 
-// CustomerRoutes định nghĩa các route cho khách hàng (customer)
-// Các route này thường không cần middleware (hoặc có thể áp dụng AuthMiddleware nếu cần).
-func CustomerRoutes(r *gin.Engine) {
-	// Route tạo booking theo nhà hàng
-	restaurants := r.Group("/restaurants")
+func CustomerRoutes(User *gin.RouterGroup) {
+	customer := User.Group("/")
 	{
-		restaurants.POST("/:restaurant_id/bookings", services.CreateBooking)
+		customer.POST("/restaurants/:restaurant_id/bookings", services.CreateBooking)
+		// router book table
+		customer.GET("/booking-history", services.GetBookingHistoryByCustomerID)
+		// edit reservation for customer
+		customer.PUT("/reservation/:reservation_id", services.EditReservation)
+		// delete reservation for customer
+		customer.DELETE("/reservation/:reservation_id", services.CancelReservation)
 	}
 
-	// Route lấy danh sách booking của khách hàng
-	// customers := r.Group("/customers")
-	// {
-	// 	customers.GET("/:customer_id/bookings", services.GetBookingHistoryByCustomerID)
-	// }
 }

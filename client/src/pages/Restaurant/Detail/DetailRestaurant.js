@@ -5,7 +5,7 @@ import TableCard from "../../../components/Card/TableCustomerCard";
 import "./Detail.styles.css";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-
+import { REST_API_URL } from "../../../data";
 const DetailRestaurant = () => {
   // State cho thông tin form và dữ liệu
   const [startTime, setStartTime] = useState(""); // Mặc định trống

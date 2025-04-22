@@ -6,6 +6,7 @@ import { faSortAlphaDown, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import "../../components/Specials/Specials.styles.css";
 import "./Restaurant.styles.css";
+import { REST_API_URL } from "../../data";
 const RestaurantList = () => {
   const navigate = useNavigate();
   const [restaurants, setRestaurants] = useState([]);
@@ -25,6 +26,9 @@ const RestaurantList = () => {
       .catch((error) => console.error("Error fetching restaurants:", error));
   }, []);
 
+  if (restaurants.length === 0) {
+
+  }
   const filteredRestaurants = restaurants.filter((restaurant) => {
     return (
       restaurant.Name.toLowerCase().includes(searchTerm.toLowerCase()) &&

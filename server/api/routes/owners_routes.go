@@ -7,7 +7,7 @@ import (
 )
 
 // OwnerRoutes định nghĩa các route dành cho chủ sở hữu (owner) với xác thực và kiểm tra quyền riêng.
-func OwnerRoutes(server *gin.Engine) {
+func OwnerRoutes(server *gin.RouterGroup) {
 	owner := server.Group("/owners/:owner_id")
 	owner.Use(middlewares.AuthMiddleware()) // Yêu cầu đăng nhập
 	owner.Use(middlewares.OwnerOnly)        // Chỉ cho phép owner truy cập

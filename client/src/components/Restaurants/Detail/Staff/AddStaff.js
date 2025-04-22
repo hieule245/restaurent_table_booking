@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
-
+import { REST_API_URL } from "../../../../data";
 export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({

@@ -9,9 +9,8 @@ import BookingRow from "../BookingRow/BookingRow";
 import "react-toastify/dist/ReactToastify.css";
 import "./BookingHistory.css";
 import RestaurantLayout from "../../pages/Restaurant/restaurantLayout";
-
+import { REST_API_URL } from "../../data";
 const BookingHistory = () => {
-  const [user, setUser] = useState({});
   const [bookings, setBookings] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const navigate = useNavigate();
@@ -25,6 +24,7 @@ const BookingHistory = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Fetch user info
+  const [user, setUser] = useState({});
   useEffect(() => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
@@ -139,6 +139,14 @@ const BookingHistory = () => {
     });
   };
 
+  const [selectedMonth, setSelectedMonth] = useState("All");
+  const filteredBookings =
+    selectedMonth === "All"
+      ? bookings
+      : bookings.filter((booking) => {
+          const month = new Date(booking.book_date).getMonth() + 1;
+          return String(month).padStart(2, "0") === selectedMonth;
+        });
   return (
     <RestaurantLayout>
       <div className="booking-history-container mt-2">
@@ -146,6 +154,21 @@ const BookingHistory = () => {
         <h2 className="booking-history-title text-danger fs-1">
           Booking History
         </h2>
+        <div className="d-flex align-items-center mb-3 gap-2">
+          <label className="fw-bold">Filter theo tháng:</label>
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="form-select w-auto"
+          >
+            <option value="All">Tất cả</option>
+            {[...Array(12)].map((_, i) => (
+              <option key={i} value={String(i + 1).padStart(2, "0")}>
+                Tháng {i + 1}
+              </option>
+            ))}
+          </select>
+        </div>
 
         {user ? (
           <p className="booking-history-welcome">
@@ -173,10 +196,12 @@ const BookingHistory = () => {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Book Date</th>
+                  <th>Day</th>
+                  <th>Month</th>
+                  <th>Year</th>
                   <th>Time Start</th>
                   <th>Time End</th>
-                  <th>Seats</th>
+                  <th style={{ width: "10%" }}>Number of customer</th>
                   <th>Table ID</th>
                   <th>Price ($)</th>
                   <th>Status</th>
@@ -184,7 +209,7 @@ const BookingHistory = () => {
                 </tr>
               </thead>
               <tbody>
-                {currentItems?.map((booking, index) => (
+                {filteredBookings.map((booking, index) => (
                   <BookingRow
                     key={booking.id}
                     booking={booking}

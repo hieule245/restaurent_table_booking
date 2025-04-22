@@ -133,7 +133,8 @@ func DeleteRestaurant(context *gin.Context) {
 
 // TABLE HANDLER
 func GetAllTables(context *gin.Context) {
-	restaurantID, err := strconv.Atoi(context.Param("restaurant_id"))
+	var err error
+	restaurantID, err := strconv.ParseInt(context.Param("restaurant_id"), 10, 64)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid restaurant ID"})
 		return
@@ -144,6 +145,8 @@ func GetAllTables(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch tables"})
 		return
 	}
+
+	context.Set("tables", tables)
 
 	context.JSON(http.StatusOK, gin.H{"tables": tables})
 }

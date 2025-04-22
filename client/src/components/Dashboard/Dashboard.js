@@ -9,6 +9,18 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+const data = {
+  labels: ["Bàn do khách đặt", "Bàn do staff đặt", "Others"],
+  datasets: [
+    {
+      data: [236, 593, 371],
+      backgroundColor: ["#00D25B", "#FC424A", "#FBBF24"],
+      hoverBackgroundColor: ["#00FF80", "#FF5C6C", "#FFD966"],
+      borderWidth: 0,
+    },
+  ],
+};
+
 const options = {
   cutout: "70%",
   plugins: {

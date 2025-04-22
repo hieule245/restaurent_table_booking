@@ -13,6 +13,12 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import "./Login.style.css";
 import { loginSchema } from "../../../validations/AccountSchema";
 
+import {
+  faEye,
+  faEyeSlash,
+  faArrowLeft,
+} from "@fortawesome/free-solid-svg-icons";
+import "./Login.style.css";
 const LoginPage = () => {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
@@ -117,6 +123,15 @@ const LoginPage = () => {
   return (
     <div>
       <ToastContainer />
+
+      {/* Nút Quay Lại Trang Chủ */}
+      <button
+        className="btn btn-outline-light back-home-btn"
+        onClick={() => navigate("/")}
+      >
+        <FontAwesomeIcon icon={faArrowLeft} /> Back to Home
+      </button>
+
       <motion.div
         className="d-flex"
         initial={{ opacity: 0, x: 100 }} // Bắt đầu từ bên phải

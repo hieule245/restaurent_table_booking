@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion"; // Import animation
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-
+import { REST_API_URL } from "../../../data";
 const RegisterPage = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");

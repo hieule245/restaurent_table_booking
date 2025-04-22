@@ -1,4 +1,4 @@
-import Detail from "./Detail";
+import Detail from "./DetailRestaurant";
 import RestaurantLayout from "../restaurantLayout";
 
 const RestaurantPage = () => {

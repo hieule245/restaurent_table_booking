@@ -1,4 +1,5 @@
 import axios from "axios";
+import { REST_API_URL } from "../../../data";
 
 const HandleLogout = async () => {
   try {

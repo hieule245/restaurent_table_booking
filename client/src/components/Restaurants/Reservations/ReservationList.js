@@ -11,6 +11,8 @@ import {
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 
+import { REST_API_URL } from "../../../data";
+
 const ReservationList = () => {
   const [reservations, setReservations] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);

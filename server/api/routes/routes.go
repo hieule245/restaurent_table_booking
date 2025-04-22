@@ -1,7 +1,10 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/restaurent_table_booking/internal/middlewares"
 	"github.com/restaurent_table_booking/internal/services"
 )
 
@@ -24,6 +27,7 @@ func Routes(server *gin.Engine) {
 	server.PUT("/reservation/:reservation_id", services.EditReservation)
 	// delete reservation for customer
 	server.DELETE("/reservation/:reservation_id", services.CancelReservation)
+	server.GET("/", sayHi)
 
 	restaurant := server.Group("/restaurant")
 	{
@@ -35,9 +39,25 @@ func Routes(server *gin.Engine) {
 	// Các route xác thực
 	AuthRoutes(server)
 
+	Guest(server)
+
 	// Các route người dùng với quyền riêng
-	AdminRoutes(server)    // Các route Admin
-	OwnerRoutes(server)    // Các route Owner
-	CustomerRoutes(server) // Các route Customer
-	StaffRoutes(server)    // Các route Staff
+	User := server.Group("/")
+	User.Use(middlewares.AuthMiddleware())
+	{
+		AdminRoutes(User)
+		OwnerRoutes(User)
+		CustomerRoutes(User)
+		// StaffRoutes(User)
+	}
+}
+
+func welcome(context *gin.Context) {
+	context.JSON(http.StatusOK, gin.H{"message": "Hello"})
+}
+
+func sayHi(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"message": "Hello World",
+	})
 }

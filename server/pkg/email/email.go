@@ -96,19 +96,19 @@ func SendBookingConfirmation(email string, bookingDetails string) {
 	)
 
 	msg := fmt.Sprintf(`From: golangtraining2025@gmail.com
-To: %s
-Subject: Booking Confirmation
-MIME-Version: 1.0
-Content-Type: text/html; charset="UTF-8"
+	To: %s
+	Subject: Booking Confirmation
+	MIME-Version: 1.0
+	Content-Type: text/html; charset="UTF-8"
 
-<html>
-	<body style="font-family: Arial, sans-serif;">
-		<p>Dear %s,</p>
-		<p>Your booking has been confirmed with the following details:</p>
-		%s
-		<p>Thank you for choosing our service!</p>
-	</body>
-</html>`, email, email, bookingDetails)
+	<html>
+		<body style="font-family: Arial, sans-serif;">
+			<p>Dear %s,</p>
+			<p>Your booking has been confirmed with the following details:</p>
+			%s
+			<p>Thank you for choosing our service!</p>
+		</body>
+	</html>`, email, email, bookingDetails)
 
 	err := smtp.SendMail(
 		"smtp.gmail.com:587",

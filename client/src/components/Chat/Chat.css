@@ -1,0 +1,147 @@
+body {
+  font-family: "Roboto", sans-serif; /* Use a modern font */
+  font-size: 14px; /* Make text smaller */
+}
+
+.chat-container {
+  display: flex;
+  height: 100vh;
+  background-color: white;
+  color: black;
+}
+
+.chat-sidebar {
+  background-color: rgb(97, 50, 50); /* Sidebar color remains */
+  color: white;
+  padding: 0.5rem;
+  overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5); /* Add shadow to sidebar */
+}
+
+.chat-sidebar h2 {
+  margin-bottom: 1rem;
+}
+
+.chat-sidebar h5 {
+  margin-bottom: 0.5rem;
+}
+
+.chat-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.chat-sidebar li {
+  padding: 0.25rem;
+  cursor: pointer;
+}
+
+.chat-sidebar li.active-user {
+  background-color: red;
+  border-radius: 5px;
+}
+
+.chat-sidebar .active-user {
+  cursor: pointer;
+}
+
+.chat-sidebar button {
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 5px;
+  background-color: white;
+  color: black;
+  cursor: pointer;
+}
+
+.chat-sidebar button:hover {
+  background-color: #f8d7da;
+  color: black;
+}
+
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure it fills the full height */
+}
+
+.chat-header {
+  background-color: black; /* Header color remains black */
+  color: white;
+  padding: 0.5rem;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Add shadow to header */
+}
+
+.chat-messages {
+  flex-grow: 1; /* Ensure it grows to fill available space */
+  padding: 0.5rem;
+  overflow-y: auto; /* Enable vertical scrolling */
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: none; /* Remove unnecessary height restriction */
+}
+
+.chat-message {
+  max-width: 60%;
+  padding: 0.25rem 0.5rem;
+  border-radius: 50px;
+  word-wrap: break-word;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Add shadow to messages */
+}
+
+.chat-message.sent {
+  background-color: red;
+  color: white;
+  align-self: flex-start;
+}
+
+.chat-message.received {
+  background-color: black;
+  color: white;
+  align-self: flex-end;
+}
+
+.chat-footer {
+  flex-shrink: 0; /* Prevent the footer from resizing */
+  padding: 0.5rem;
+  background-color: black;
+  color: white;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5); /* Add shadow to footer */
+}
+
+.chat-footer input {
+  flex: 1;
+  padding: 0.25rem;
+  border: none;
+  border-radius: 20px;
+  margin-right: 0.25rem;
+}
+
+.chat-footer button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.toggle-sidebar-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  margin: 0 auto; /* Center the button horizontally */
+}
+
+.chat-sidebar.col-1 .toggle-sidebar-btn {
+  left: calc(2.5% - 15px); /* Adjusted position when sidebar is collapsed */
+}
