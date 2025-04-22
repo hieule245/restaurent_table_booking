@@ -1,15 +1,14 @@
 import CalendarRow from "../../components/Card/BookingCalendar";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import RestaurantLayout from "../Restaurant/restaurantLayout";
 import "./DetailRestaurant.css";
-import { REST_API_URL } from "../../data";
 
 const DetailRestaurant = () => {
-  const navigate = useNavigate();
-  const { table_id } = useParams();
+  const { table_id, restaurant_id } = useParams();
   console.log("table id", table_id);
+  const [restaurant, setRestaurant] = useState({});
   const [table, setTable] = useState({});
   const [bookings, setBookings] = useState({});
 
@@ -27,7 +26,7 @@ const DetailRestaurant = () => {
 
     // Lấy thông tin nhà hàng
     axios
-      .get(`${REST_API_URL}/restaurant/${restaurant_id}`)
+      .get(`${process.env.REACT_APP_API_URL}/restaurant/${restaurant_id}`)
       .then((responseRestaurant) => {
         setRestaurant(responseRestaurant.data.restaurant);
       })

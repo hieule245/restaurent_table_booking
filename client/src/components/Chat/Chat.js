@@ -32,7 +32,7 @@ function Chat() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`${REST_API_URL}/me`, {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/me`, {
           withCredentials: true,
         });
         const currentUser = res.data.user;

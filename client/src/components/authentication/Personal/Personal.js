@@ -10,7 +10,7 @@ const PersonalPage = () => {
 
   useEffect(() => {
     axios
-      .get(`${REST_API_URL}/me`, { withCredentials: true })
+      .get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
       .then((res) => {
         setUser(res.data);
       })

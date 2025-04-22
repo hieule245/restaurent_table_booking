@@ -1,24 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
-// import $ from "jquery";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useCallback } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import "./Login.style.css";
-import { loginSchema } from "../../../validations/AccountSchema";
-
 import {
   faEye,
   faEyeSlash,
   faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Login.style.css";
+import { loginSchema } from "../../../validations/AccountSchema";
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});

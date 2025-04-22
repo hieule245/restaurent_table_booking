@@ -25,7 +25,7 @@ const Admin = () => {
 
     // Fetch users from the server
     axios
-      .get(`${REST_API_URL}/user_list`)
+      .get(`${process.env.REACT_APP_API_URL}/user_list`)
       .then((response) => {
         setUsers(response.data.users);
       })
@@ -36,7 +36,7 @@ const Admin = () => {
 
     // Fetch restaurants owned by the admin
     // axios
-    //   .get(`${REST_API_URL}/restaurants")
+    //   .get(`${process.env.REACT_APP_API_URL}/restaurants")
     //   .then((response) => {
     //     setRestaurants(response.data.restaurants);
     //   })

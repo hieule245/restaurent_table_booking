@@ -20,17 +20,11 @@ import AccountList from "../../pages/Admin/AccountList";
 import RestaurantList from "../../pages/Admin/Restaurants";
 import Revenues from "../../pages/Admin/Revenues";
 import Chat from "../Chat/Chat";
-import OwnerControll from "../../pages/Owner/Owner";
 import RestaurantAdminDetail from "../Restaurants_Admin/Detail/DetailRestaurantPage";
 import RestaurantOwnerDetail from "../Restaurants_Owner/Detail/DetailRestaurantPage";
-import BookingHistory from "../BookingHistory/BookingHistory";
-import RestaurantPage from "../../pages/Staff/Restaurant/Staff";
-import Reservation from "../../pages/Staff/HistoryReservation/HistoryReservationPage";
-import AccountList from "../../pages/Admin/AccountList";
-import RestaurantList from "../../pages/Admin/Restaurants";
-import Revenues from "../../pages/Admin/Revenues";
 import PrivateRoute from "./Permission/PrivateRoute";
 import PublicRoute from "./Permission/PublicRoute";
+
 const Main = () => {
   return (
     <Routes future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>

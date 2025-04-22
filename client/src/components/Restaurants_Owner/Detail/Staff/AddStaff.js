@@ -3,17 +3,19 @@ import { toast, ToastContainer } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
-<<<<<<< HEAD:client/src/components/Restaurants/Detail/Staff/AddStaff.js
-import { REST_API_URL } from "../../../../data";
-=======
 import { staffValidationSchema } from "../../../../validations/AccountSchema";
 import { useRef } from "react";
 
->>>>>>> big_update:client/src/components/Restaurants_Owner/Detail/Staff/AddStaff.js
 export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
   const closeBtnRef = useRef();
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ name: "", gmail: "", password: "", phone: "", restaurant_id: 0 });
+  const [formData, setFormData] = useState({
+    name: "",
+    gmail: "",
+    password: "",
+    phone: "",
+    restaurant_id: 0,
+  });
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
@@ -36,7 +38,13 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
 
       toast.success("Staff created successfully!");
       onStaffAdded(formData);
-      setFormData({ name: "", gmail: "", password: "", phone: "", restaurant_id: 0 });
+      setFormData({
+        name: "",
+        gmail: "",
+        password: "",
+        phone: "",
+        restaurant_id: 0,
+      });
 
       closeBtnRef.current?.click(); // 👉 đóng modal bằng ref
     } catch (err) {
@@ -53,13 +61,25 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
   };
 
   return (
-    <div className="modal fade" id="myModal" tabIndex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div
+      className="modal fade"
+      id="myModal"
+      tabIndex="-1"
+      aria-labelledby="myModalLabel"
+      aria-hidden="true"
+    >
       <ToastContainer />
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content rounded-4 shadow-lg border-0">
           <div className="modal-header bg-dark text-white rounded-top-4">
-            <h4 className="modal-title fw-bold" id="myModalLabel">Create New Staff</h4>
-            <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <h4 className="modal-title fw-bold" id="myModalLabel">
+              Create New Staff
+            </h4>
+            <button
+              type="button"
+              className="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
           <form onSubmit={handleSubmit}>
             <div className="modal-body p-4 bg-white">
@@ -73,7 +93,9 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
                   value={formData.name}
                   onChange={handleChange}
                 />
-                {errors.name && <small className="text-danger">{errors.name}</small>}
+                {errors.name && (
+                  <small className="text-danger">{errors.name}</small>
+                )}
               </div>
               <div className="form-group mb-3">
                 <label className="form-label fw-bold text-dark">Gmail</label>
@@ -85,7 +107,9 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
                   value={formData.gmail}
                   onChange={handleChange}
                 />
-                {errors.gmail && <small className="text-danger">{errors.gmail}</small>}
+                {errors.gmail && (
+                  <small className="text-danger">{errors.gmail}</small>
+                )}
               </div>
               <div className="form-group mb-3">
                 <label className="form-label fw-bold text-dark">Password</label>
@@ -103,12 +127,12 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
                     style={{ cursor: "pointer", borderLeft: 0 }}
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    <FontAwesomeIcon
-                      icon={showPassword ? faEye : faEyeSlash}
-                    />
+                    <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
                   </span>
                 </div>
-                {errors.password && <small className="text-danger">{errors.password}</small>}
+                {errors.password && (
+                  <small className="text-danger">{errors.password}</small>
+                )}
               </div>
               <div className="form-group mb-3">
                 <label className="form-label fw-bold text-dark">Phone</label>
@@ -120,11 +144,19 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
                   value={formData.phone}
                   onChange={handleChange}
                 />
-                {errors.phone && <small className="text-danger">{errors.phone}</small>}
+                {errors.phone && (
+                  <small className="text-danger">{errors.phone}</small>
+                )}
               </div>
             </div>
             <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-end">
-              <button type="submit" className="btn btn-danger fw-bold px-4" {...(Object.keys(errors).length === 0 ? { "data-bs-dismiss": "modal" } : "")}>
+              <button
+                type="submit"
+                className="btn btn-danger fw-bold px-4"
+                {...(Object.keys(errors).length === 0
+                  ? { "data-bs-dismiss": "modal" }
+                  : "")}
+              >
                 Create
               </button>
             </div>
@@ -134,4 +166,3 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
     </div>
   );
 }
-

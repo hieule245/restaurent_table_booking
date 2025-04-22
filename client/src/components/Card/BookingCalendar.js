@@ -341,7 +341,7 @@ const BookingCalendar = ({ table, restaurant }) => {
           // Gửi request đặt bàn
           setIsLoading(true);
           await axios.post(
-            `${REST_API_URL}/restaurants/${restaurant_id}/bookings`,
+            `${process.env.REACT_APP_API_URL}/restaurants/${restaurant_id}/bookings`,
             bookingData[0],
             { withCredentials: true }
           );
