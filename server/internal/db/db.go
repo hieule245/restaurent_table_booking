@@ -12,22 +12,33 @@ var IsDBConnected = false
 
 func InitDB() {
 	// time.Sleep(5 * time.Second) // Đợi 5 giây trước khi kết nối đến DB
-	var err error = nil
-	// DB, err = sql.Open("mysql", "root:123@tcp(localhost:3306)/restaurant_bookings?parseTime=true")
-	DB, err = sql.Open("mysql", "root:123@tcp(db:3306)/restaurant_bookings?parseTime=true")
-	if err != nil {
-		IsDBConnected = false
-		fmt.Println("Cannot connect to database", err)
+	var err error
+	dsnList := []string{
+		"root:123@tcp(db:3306)/restaurant_bookings?parseTime=true",
+		"root:123@tcp(localhost:3306)/restaurant_bookings?parseTime=true",
 	}
 
-	fmt.Println("Connected to database")
-	err = DB.Ping()
-	if err != nil {
-		fmt.Println("Cannot ping database", err)
-		IsDBConnected = false
+	for _, dsn := range dsnList {
+		DB, err = sql.Open("mysql", dsn)
+		if err != nil {
+			fmt.Println("Error opening DB with DSN:", dsn, err)
+			continue
+		}
+
+		err = DB.Ping()
+		if err != nil {
+			fmt.Println("Cannot ping DB with DSN:", dsn, err)
+			continue
+		}
+
+		IsDBConnected = true
+		fmt.Println("Connected and pinged DB successfully with DSN:", dsn)
+		break
 	}
-	IsDBConnected = true
-	fmt.Println("Ping database successfully")
+
+	if !IsDBConnected {
+		fmt.Println("Failed to connect to any DB instance")
+	}
 
 	DB.SetMaxOpenConns(10)
 	DB.SetMaxIdleConns(5)
