@@ -102,22 +102,6 @@ func RandomPin() int {
 func SendBookingConfirmation(email string, bookingDetails string) {
 	auth := getSMTPAuth()
 
-<<<<<<< HEAD
-	msg := fmt.Sprintf(`From: golangtraining2025@gmail.com
-	To: %s
-	Subject: Booking Confirmation
-	MIME-Version: 1.0
-	Content-Type: text/html; charset="UTF-8"
-
-	<html>
-		<body style="font-family: Arial, sans-serif;">
-			<p>Dear %s,</p>
-			<p>Your booking has been confirmed with the following details:</p>
-			%s
-			<p>Thank you for choosing our service!</p>
-		</body>
-	</html>`, email, email, bookingDetails)
-=======
 	msg := fmt.Sprintf(`From: %s
 To: %s
 Subject: Booking Confirmation
@@ -137,7 +121,6 @@ Content-Type: text/html; charset="UTF-8"
 		email,
 		bookingDetails,
 	)
->>>>>>> big_update
 
 	err := smtp.SendMail(
 		getSMTPAddr(),

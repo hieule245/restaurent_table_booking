@@ -113,7 +113,7 @@ func AdminEditRestaurant(context *gin.Context) {
 }
 
 func AdminGetTables(context *gin.Context) {
-	restaurantID, err := strconv.Atoi(context.Param("restaurant_id"))
+	restaurantID, err := strconv.ParseInt(context.Param("restaurant_id"), 10, 64)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid restaurant ID"})
 		return
@@ -273,7 +273,6 @@ func ReservationEachRestaurant(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"booking": reservation})
 }
 
-
 func AdminEditReservations(context *gin.Context) {
 	var res *models.Booking
 	err := context.ShouldBindBodyWithJSON(&res)
@@ -281,7 +280,7 @@ func AdminEditReservations(context *gin.Context) {
 		fmt.Println("1", err)
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
-	} 
+	}
 
 	err = res.EditCheckout()
 	if err != nil {
