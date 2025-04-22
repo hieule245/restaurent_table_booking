@@ -3,7 +3,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-import { REST_API_URL } from "../../data";
 const BookingCalendar = ({ table, restaurant }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -21,7 +20,7 @@ const BookingCalendar = ({ table, restaurant }) => {
   const [hasBooking, setHasBooking] = useState(false);
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-
+  const [numberOfCustomer, setNumberOfCustomer] = useState(table.seats);
   // Lấy tham số từ URL
   const { table_id, restaurant_id } = useParams();
   // Khởi tạo state cho tháng và ngày được chọn
@@ -306,6 +305,7 @@ const BookingCalendar = ({ table, restaurant }) => {
       cancelButtonText: "Hủy",
     }).then(async (result) => {
       if (result.isConfirmed) {
+        const numInput = document.getElementById("numCustomerInput");
         try {
           // Gửi request đặt bàn
           console.log("User object:", user);
