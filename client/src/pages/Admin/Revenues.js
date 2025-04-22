@@ -76,20 +76,6 @@ const Admin = () => {
       });
   };
 
-  const handleOpen = (reservation) => {
-    const currentTime = new Date().toLocaleTimeString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-
-    setFinish({
-      Id: reservation.Id,
-      Price: parseFloat(reservation.Price) || 0,
-      ActualEnd: currentTime,
-    });
-  };
-
   return (
     <div className="bg-black">
       <ToastContainer />

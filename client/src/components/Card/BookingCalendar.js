@@ -101,6 +101,7 @@ const BookingCalendar = ({ table, restaurant }) => {
         // Chuyển đổi mỗi reservation thành dạng "HH:MM - HH:MM"
         const format24To12 = (timeStr) => {
           const [hour, minute] = timeStr.split(":").map(Number);
+          console.log("minute", minute);
           const period = hour >= 12 ? "PM" : "AM";
           const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
           return `${formattedHour}:00 ${period}`;
@@ -309,17 +310,16 @@ const BookingCalendar = ({ table, restaurant }) => {
           // Gửi request đặt bàn
           console.log("User object:", user);
           console.log("User role:", user?.Role);
-          {
-            user.Role === "staff"
-              ? await axios.post(
-                  `${process.env.REACT_APP_API_URL}/staff/${restaurant_id}/bookings`,
-                  bookingStaffData[0]
-                )
-              : await axios.post(
-                  `${process.env.REACT_APP_API_URL}/restaurants/${restaurant_id}/bookings`,
-                  bookingData[0]
-                );
-          }
+
+          user.Role === "staff"
+            ? await axios.post(
+                `${process.env.REACT_APP_API_URL}/staff/${restaurant_id}/bookings`,
+                bookingStaffData[0]
+              )
+            : await axios.post(
+                `${process.env.REACT_APP_API_URL}/restaurants/${restaurant_id}/bookings`,
+                bookingData[0]
+              );
 
           const newNum = parseInt(numInput?.value);
 

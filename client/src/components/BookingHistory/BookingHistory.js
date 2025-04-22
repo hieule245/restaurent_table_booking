@@ -203,7 +203,7 @@ const BookingHistory = () => {
                   <th>Time End</th>
                   <th style={{ width: "10%" }}>Number of customer</th>
                   <th>Table ID</th>
-                  <th>Price ($)</th>
+                  <th>Price (VND)</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -216,6 +216,7 @@ const BookingHistory = () => {
                     index={index}
                     onEdit={handleEdit}
                     onCancel={handleCancel}
+                    formatTo12Hour={formatTo12Hour}
                   />
                 ))}
               </tbody>

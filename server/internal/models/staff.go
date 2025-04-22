@@ -98,6 +98,29 @@ func LockStaff(ownerId, id int64) error {
 	return nil
 }
 
+func BanStaff(gmail string, ownerId, id int64) error {
+	// Khóa nhân viên
+	acc := &Account{}
+	acc.Email = gmail
+	CheckAccount(acc)
+
+	if acc.Role != "admin" {
+		return errors.New("You do not have permission in here!")
+	}
+	query := `
+	UPDATE staffs SET status = 'ban'
+	WHERE id = ?
+	`
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id)
+	return nil
+}
+
 func UnlockStaff(ownerId, id int64) error {
 	// Check quyền
 	err := CheckPermissionsToLock(ownerId, id)
@@ -151,6 +174,24 @@ func (staff *Staff) CreateStaff(userId int64) error {
 			return errors.New("This staff has already work in another place!")
 		} else if err == nil && st.Status == "ban" {
 			return errors.New("This staff was blocked for working elsewhere!")
+		} else if err == nil && staff.RestaurantID != st.RestaurantID && st.Status == "inactive" {
+			stmt, err := db.DB.Prepare(`UPDATE staffs SET name = ?, status = 'active', password = ?, restaurant_id = ?, phone = ? WHERE id = ?`)
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+			hashPassword, err := utils.HashPassword(staff.Password)
+			if err != nil {
+				return err
+			}
+			_, err = stmt.Exec(staff.Name, hashPassword, staff.RestaurantID, staff.Phone, st.ID)
+			if err != nil {
+				return err
+			}
+			err = pkg.SendMailStaff(staff.Gmail, staff.Name, staff.Password)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

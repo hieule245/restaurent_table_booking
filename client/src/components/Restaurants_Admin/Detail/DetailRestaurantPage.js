@@ -1,16 +1,15 @@
 import { FaUtensils } from "react-icons/fa";
 import { FaArrowLeft } from "react-icons/fa";
-
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-
 import TableList from "./Table/TableList";
 import StaffList from "./Staff/StaffList";
 import HistoryReservation from "./History/HistoryReservation"
+
 const RestaurantPage = () => {
   const navigate = useNavigate();
   const { restaurant_id } = useParams();
-  console.log(restaurant_id);
+  console.log("restaurant",restaurant_id);
   const [activeComponent, setActiveComponent] = useState(() => {
     return sessionStorage.getItem("activeComponent") || "Detail";
   });
@@ -30,7 +29,7 @@ const RestaurantPage = () => {
       default:
         return <TableList restaurant_id={restaurant_id} />
     }
-  };
+  }; 
 
   return (
     <div className="row">
@@ -45,7 +44,7 @@ const RestaurantPage = () => {
             <button className="btn btn-danger w-75 fw-bolder fs-5 mb-3" onClick={() => setActiveComponent("StaffList")}>Staff list</button>
             <button className="btn btn-danger w-75 fw-bolder fs-5" onClick={() => setActiveComponent("Reservation")}>History reservation</button>
           </div>
-          <button className="btn btn-outline-danger w-75 fw-bolder fs-5 my-4" onClick={() => { navigate("/owner") }}><FaArrowLeft /> Back</button>
+          <button className="btn btn-outline-danger w-75 fw-bolder fs-5 my-4" onClick={() => { navigate(-1) }}><FaArrowLeft /> Back</button>
         </div>
       </div>
       <div className="col-10">

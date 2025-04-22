@@ -51,7 +51,7 @@ func createTable() {
 	ImageQuery := `
 	CREATE TABLE IF NOT EXISTS images (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    file_data LONGBLOB NOT NULL
+    url VARCHAR(1024) NOT NULL
 	);
 	`
 	_, err := DB.Exec(ImageQuery)

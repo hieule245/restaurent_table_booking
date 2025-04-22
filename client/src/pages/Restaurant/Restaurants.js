@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSortAlphaDown, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import "../../components/Specials/Specials.styles.css";
 import "./Restaurant.styles.css";
-import { REST_API_URL } from "../../data";
+import SortDropdown from "../../components/Sort/SortDropdown";
+import SearchBar from "../../components/SearchBar/SearchBar";
 const RestaurantList = () => {
   const navigate = useNavigate();
   const [restaurants, setRestaurants] = useState([]);
@@ -27,7 +26,6 @@ const RestaurantList = () => {
   }, []);
 
   if (restaurants.length === 0) {
-
   }
   const filteredRestaurants = restaurants.filter((restaurant) => {
     return (
@@ -37,11 +35,46 @@ const RestaurantList = () => {
     );
   });
 
+  const formatTime = (timeStr) => {
+    if (!timeStr) return "";
+    const [hour, minute] = timeStr.split(":");
+    const date = new Date();
+    date.setHours(parseInt(hour), parseInt(minute));
+    const formatted = date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+    return formatted
+      .replace(" ", "")
+      .replace("AM", "AM")
+      .replace("PM", "PM")
+      .replace(":", "h");
+  };
+
   const totalPages = Math.ceil(filteredRestaurants.length / itemsPerPage);
   const paginatedRestaurants = filteredRestaurants.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  const handleSort = (type) => {
+    let sortedRes = [...restaurants];
+    if (type === "name-asc") {
+      sortedRes.sort((a, b) => (a.Name || "").localeCompare(b.Name || ""));
+    } else if (type === "name-desc") {
+      sortedRes.sort((a, b) => (b.Name || "").localeCompare(a.Name || ""));
+    } else if (type === "started-asc") {
+      sortedRes.sort((a, b) =>
+        (a.Started || "").localeCompare(b.Started || "")
+      );
+    } else if (type === "started-desc") {
+      sortedRes.sort((a, b) =>
+        (b.Started || "").localeCompare(a.Started || "")
+      );
+    }
+    setRestaurants(sortedRes);
+  };
 
   return (
     <div className="bg-light">
@@ -50,23 +83,15 @@ const RestaurantList = () => {
           <h2 className="text-center my-4 fs-1 fw-bold">Restaurant List</h2>
           <hr />
           <div className="row mb-3 justify-content-end">
-            <div className="col-md-3">
-              <div className="input-group">
-                <span className="input-group-text">
-                  <FontAwesomeIcon icon={faSearch} />
-                </span>
-                <input
-                  type="text"
-                  className="form-control h-100"
-                  placeholder="Search by name"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+            <div className="col-2 flex-grow-1">
+              <SearchBar
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+              />
             </div>
             <div className="col-md-1">
-              <div className="btn btn-danger h-75 w-75 p-1 d-flex justify-content-center align-items-center">
-                <FontAwesomeIcon icon={faSortAlphaDown} className="h-75 w-75" />
+              <div className="col-md-2 position-relative">
+                <SortDropdown handleSort={handleSort} />
               </div>
             </div>
           </div>
@@ -75,7 +100,7 @@ const RestaurantList = () => {
             {paginatedRestaurants.map((restaurant) => (
               <div
                 key={restaurant.Id}
-                className="col-md-3 mb-4"
+                className="col-md-3 mb-2"
                 onClick={() => navigate(`/restaurants/${restaurant.Id}/detail`)}
               >
                 <div className="card restaurant-card ">
@@ -90,15 +115,25 @@ const RestaurantList = () => {
 
                   {/* Nội dung */}
                   <div className="card-body text-center">
-                    <h5 className="card-title">{restaurant.Name}</h5>
-                    <p className="card-text text-muted">
-                      {restaurant.Description}
+                    <h5
+                      className="card-title text-muted text-truncate"
+                      title={restaurant.Name}
+                      style={{ maxWidth: "100%" }}
+                    >
+                      {restaurant.Name}
+                    </h5>
+                    <p
+                      className="card-text text-muted text-truncate"
+                      style={{ maxWidth: "100%" }}
+                    >
+                      {restaurant.Description || "\u00A0"}
                     </p>
 
                     {/* Giờ mở cửa */}
                     <div className="restaurant-hours">
                       <span className="open-time">
-                        🕒 {restaurant.Started} - {restaurant.Ended}
+                        🕒 {formatTime(restaurant.Started)} -{" "}
+                        {formatTime(restaurant.Ended)}
                       </span>
                     </div>
                   </div>
@@ -107,25 +142,37 @@ const RestaurantList = () => {
             ))}
           </div>
 
-          <nav>
-            <ul className="pagination justify-content-center">
+          {totalPages > 1 && (
+            <div className="pagination-container d-flex justify-content-center mt-3">
+              <button
+                className="btn btn-outline-secondary me-2"
+                onClick={() => setCurrentPage(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                &laquo;
+              </button>
               {Array.from({ length: totalPages }, (_, index) => (
-                <li
-                  className={`page-item ${
-                    currentPage === index + 1 ? "active" : ""
-                  }`}
-                  key={index}
+                <button
+                  key={index + 1}
+                  className={`btn ${
+                    currentPage === index + 1
+                      ? "btn-secondary"
+                      : "btn-outline-secondary"
+                  } mx-1`}
+                  onClick={() => setCurrentPage(index + 1)}
                 >
-                  <button
-                    className="page-link"
-                    onClick={() => setCurrentPage(index + 1)}
-                  >
-                    {index + 1}
-                  </button>
-                </li>
+                  {index + 1}
+                </button>
               ))}
-            </ul>
-          </nav>
+              <button
+                className="btn btn-outline-secondary ms-2"
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                &raquo;
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

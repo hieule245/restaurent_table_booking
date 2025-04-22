@@ -26,7 +26,7 @@ func OwnerRoutes(server *gin.RouterGroup) {
 			restaurant.GET("/:restaurant_id", services.GetRestaurantByID)
 			restaurant.POST("", services.CreateRestaurant)
 			restaurant.PUT("/:restaurant_id", services.EditRestaurant)
-			restaurant.DELETE("/:restaurant_id", services.DeleteRestaurant)
+			restaurant.POST("/:restaurant_id", services.DeleteRestaurant)
 			restaurant.GET("/:restaurant_id/reservations", services.GetReservationsByRestaurants)
 
 			// Các route liên quan đến bàn
@@ -36,7 +36,7 @@ func OwnerRoutes(server *gin.RouterGroup) {
 				table.GET("/:table_id", services.GetTableByID)
 				table.POST("", services.CreateTable)
 				table.PUT("/:table_id", services.EditTable)
-				table.DELETE("/:table_id", services.DeleteTable)
+				table.POST("/:table_id", services.DeleteTable)
 				// Tìm kiếm bàn
 				table.GET("/search", services.SearchTables)
 			}

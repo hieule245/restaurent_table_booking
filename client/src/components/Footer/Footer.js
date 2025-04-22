@@ -35,7 +35,8 @@ const Footer = () => {
 
   return (
     <div className="bg-light">
-      <footer name="contact mt-2 ">
+      <footer name="contact">
+        <hr className="border-secondary" />
         <nav className="footer-container">
           <div className="footer-photo-container">
             <img src={restaurant} className="footer-photo" alt="logo" />

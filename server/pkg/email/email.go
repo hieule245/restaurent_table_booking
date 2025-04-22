@@ -4,18 +4,27 @@ import (
 	"fmt"
 	"math/rand"
 	"net/smtp"
+	"os"
 	"time"
 )
 
-func SendMailSimple(email string, pin int) {
-	auth := smtp.PlainAuth(
+func getSMTPAuth() smtp.Auth {
+	return smtp.PlainAuth(
 		"",
-		"golangtraining2025@gmail.com",
-		"vowhfgfectpvypos",
-		"smtp.gmail.com",
+		os.Getenv("MAIL_USERNAME"),
+		os.Getenv("MAIL_PASSWORD"),
+		os.Getenv("MAIL_HOST"),
 	)
+}
 
-	msg := fmt.Sprintf(`From: golangtraining2025@gmail.com
+func getSMTPAddr() string {
+	return fmt.Sprintf("%s:%s", os.Getenv("MAIL_HOST"), os.Getenv("MAIL_PORT"))
+}
+
+func SendMailSimple(email string, pin int) {
+	auth := getSMTPAuth()
+
+	msg := fmt.Sprintf(`From: %s
 To: %s
 Subject: Mã PIN xác nhận đặt lại mật khẩu
 MIME-Version: 1.0
@@ -29,30 +38,30 @@ Content-Type: text/html; charset="UTF-8"
 		<p>Mã PIN này sẽ hết hạn sau <strong>2 phút</strong>. Vui lòng không chia sẻ mã PIN này với bất kỳ ai.</p>
 		<p>Trân trọng</p>
 	</body>
-</html>`, email, email, pin)
+</html>`,
+		os.Getenv("MAIL_USERNAME"),
+		email,
+		email,
+		pin,
+	)
 
 	err := smtp.SendMail(
-		"smtp.gmail.com:587",
+		getSMTPAddr(),
 		auth,
-		"golangtraining2025@gmail.com",
+		os.Getenv("MAIL_USERNAME"),
 		[]string{email},
 		[]byte(msg),
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("SendMailSimple error:", err)
 	}
 }
 
 func SendMailWarning(email string) {
-	auth := smtp.PlainAuth(
-		"",
-		"golangtraining2025@gmail.com",
-		"vowhfgfectpvypos",
-		"smtp.gmail.com",
-	)
+	auth := getSMTPAuth()
 
-	msg := fmt.Sprintf(`From: golangtraining2025@gmail.com
+	msg := fmt.Sprintf(`From: %s
 To: %s
 Subject: Cảnh báo: Nhập mã PIN sai quá 5 lần
 MIME-Version: 1.0
@@ -66,18 +75,22 @@ Content-Type: text/html; charset="UTF-8"
 		<p style="font-size: 16px; font-weight: bold; color: #ff0000;">Reply mail này và liên hệ hoặc liên hệ với admin để có thể được cấp lại mail</p>
 		<p>Nếu cần hỗ trợ, vui lòng truy cập <strong>web chúng tôi</strong>.</p>
 	</body>
-</html>`, email, email)
+</html>`,
+		os.Getenv("MAIL_USERNAME"),
+		email,
+		email,
+	)
 
 	err := smtp.SendMail(
-		"smtp.gmail.com:587",
+		getSMTPAddr(),
 		auth,
-		"golangtraining2025@gmail.com",
+		os.Getenv("MAIL_USERNAME"),
 		[]string{email},
 		[]byte(msg),
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("SendMailWarning error:", err)
 	}
 }
 
@@ -86,15 +99,10 @@ func RandomPin() int {
 	return rand.Intn(900000) + 100000
 }
 
-// SendBookingConfirmation gửi email xác nhận booking với thông tin đặt bàn
 func SendBookingConfirmation(email string, bookingDetails string) {
-	auth := smtp.PlainAuth(
-		"",
-		"golangtraining2025@gmail.com",
-		"vowhfgfectpvypos",
-		"smtp.gmail.com",
-	)
+	auth := getSMTPAuth()
 
+<<<<<<< HEAD
 	msg := fmt.Sprintf(`From: golangtraining2025@gmail.com
 	To: %s
 	Subject: Booking Confirmation
@@ -109,16 +117,37 @@ func SendBookingConfirmation(email string, bookingDetails string) {
 			<p>Thank you for choosing our service!</p>
 		</body>
 	</html>`, email, email, bookingDetails)
+=======
+	msg := fmt.Sprintf(`From: %s
+To: %s
+Subject: Booking Confirmation
+MIME-Version: 1.0
+Content-Type: text/html; charset="UTF-8"
+
+<html>
+	<body style="font-family: Arial, sans-serif;">
+		<p>Dear %s,</p>
+		<p>Your booking has been confirmed with the following details:</p>
+		%s
+		<p>Thank you for choosing our service!</p>
+	</body>
+</html>`,
+		os.Getenv("MAIL_USERNAME"),
+		email,
+		email,
+		bookingDetails,
+	)
+>>>>>>> big_update
 
 	err := smtp.SendMail(
-		"smtp.gmail.com:587",
+		getSMTPAddr(),
 		auth,
-		"golangtraining2025@gmail.com",
+		os.Getenv("MAIL_USERNAME"),
 		[]string{email},
 		[]byte(msg),
 	)
 
 	if err != nil {
-		fmt.Println("Error sending booking confirmation email:", err)
+		fmt.Println("SendBookingConfirmation error:", err)
 	}
 }

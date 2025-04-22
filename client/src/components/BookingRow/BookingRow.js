@@ -1,6 +1,6 @@
 import React from "react";
 
-const BookingRow = ({ booking, index, onEdit, onCancel }) => {
+const BookingRow = ({ booking, index, onEdit, onCancel, formatTo12Hour }) => {
   // Mapping trạng thái đặt bàn
   const statusMapping = {
     0: { label: "Cancelled", className: "badge bg-secondary" },
@@ -20,16 +20,12 @@ const BookingRow = ({ booking, index, onEdit, onCancel }) => {
   const month = String(dateObj.getMonth() + 1).padStart(2, "0"); // Tháng 0-11
   const day = String(dateObj.getDate()).padStart(2, "0");
 
-
-  
   return (
     <tr>
       <td>{index + 1}</td>
-      <td>{day}</td>
-      <td>{month}</td>
-      <td>{year}</td>
-      <td>{booking.time_start.slice(0, 5)}</td>
-      <td>{booking.time_end.slice(0, 5)}</td>
+      <td>{booking.book_date}</td>
+      <td>{formatTo12Hour(booking.time_start)}</td>
+      <td>{formatTo12Hour(booking.time_end)}</td>
       <td>{booking.numberOfCustomer}</td>
       <td>{booking.table_id}</td>
       <td>{booking.price}</td>
