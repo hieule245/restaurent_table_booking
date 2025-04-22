@@ -88,6 +88,23 @@ func ResendPin(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"message": "New PIN has been sent!"})
 }
 
+func ResetPassword(context *gin.Context) {
+	var u models.Account
+	err := context.ShouldBindBodyWithJSON(&u)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
+		return
+	}
+	fmt.Println(err)
+	err = u.ResetPassword()
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't reset password"})
+		return
+	}
+	fmt.Println(err)
+	context.JSON(http.StatusOK, gin.H{"Message": "Reset password successfully !!"})
+}
+
 func GetUserProfile(c *gin.Context) {
 	c.GetString("role")
 	role := c.GetString("role")
