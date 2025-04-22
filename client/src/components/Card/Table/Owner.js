@@ -72,13 +72,13 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
             alt={table.name || "Table"}
           />
         </div>
-        <div className="card-body table-card-body text-truncate">
+        <div className="card-body table-card-body text-truncate w-100 ps-0" title={table.name}>
           <h5>{table.name || "Table Name"}</h5>
-          <div className="d-flex justify-content-around align-items-center">
-            <p className="text-muted text-truncate">🪑 Seats: <span className="fw-semibold">{table.seats || "N/A"}</span></p>
-            <p className="text-muted text-truncate">Type: <span className="fw-semibold">{table.type}</span></p>
+          <div className="justify-content-around align-items-center row">
+            <p className="text-muted text-truncate col-6 w-50">🪑 Seats: <span className="fw-semibold">{table.seats || "N/A"}</span></p>
+            <p className="text-muted text-truncate col-6 w-50"  title={table.type}>Type: <span className="fw-semibold">{table.type}</span></p>
           </div>
-          <p className="small text-muted text-truncate">✨ {table.Description || "No description available"}</p>
+          <p className="small text-muted text-truncate" title={table.Description}>✨ {table.Description || "No description available"}</p>
         </div>
       </div>
 
