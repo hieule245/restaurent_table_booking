@@ -1,11 +1,16 @@
 package services
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/gin-gonic/gin"
 	"github.com/restaurent_table_booking/internal/models"
 	"github.com/restaurent_table_booking/internal/utils"
@@ -142,12 +147,13 @@ func GetAllTables(context *gin.Context) {
 
 	tables, err := models.GetAllTables(restaurantID)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch tables"})
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	context.JSON(http.StatusOK, gin.H{"tables": tables})
 }
+
 func GetTableByID(context *gin.Context) {
 	tableID, err := strconv.Atoi(context.Param("table_id"))
 	if err != nil {
@@ -167,6 +173,60 @@ func GetTableByID(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"table": table})
 }
+
+func UploadImageTables(context *gin.Context) {
+	file, _, err := context.Request.FormFile("imageTable")
+	if err != nil {
+		fmt.Println("Error getting file 1:", err)
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't take any image"})
+		return
+	}
+	defer file.Close()
+
+	fileBytes, err := io.ReadAll(file)
+	if err != nil {
+		fmt.Println("Error getting file 2:", err)
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Can't take any image"})
+		return
+	}
+
+	// Lấy config Cloudinary từ biến môi trường
+	cld, err := cloudinary.NewFromParams(
+		os.Getenv("CLOUDINARY_CLOUD_NAME"),
+		os.Getenv("CLOUDINARY_API_KEY"),
+		os.Getenv("CLOUDINARY_API_SECRET"),
+	)
+	if err != nil {
+		fmt.Println("Error getting file 3:", err)
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Cloudinary setup failed"})
+		return
+	}
+
+	uploadResult, err := cld.Upload.Upload(context, bytes.NewReader(fileBytes), uploader.UploadParams{
+		Folder: "tables",
+	})
+	if err != nil {
+		fmt.Println("Error uploading file:", err)
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Upload failed", "error": err.Error()})
+		return
+	}
+
+	imageUrl := uploadResult.SecureURL
+
+	// Lưu URL ảnh vào DB
+	imageId, err := models.SaveImage(imageUrl)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Error saving image to database", "error": err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{
+		"message":  "Upload image successful!",
+		"imageUrl": imageUrl,
+		"imageId":  imageId,
+	})
+}
+
 func CreateTable(context *gin.Context) {
 	restaurantID, err := strconv.Atoi(context.Param("restaurant_id"))
 	if err != nil {
@@ -175,13 +235,13 @@ func CreateTable(context *gin.Context) {
 	}
 
 	var table models.Table
-	if err := context.ShouldBindJSON(&table); err != nil {
+	if err := context.ShouldBindBodyWithJSON(&table); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	table.RestaurantID = restaurantID
-
+	fmt.Println("table", table)
 	if err := table.CreateTable(); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -189,6 +249,7 @@ func CreateTable(context *gin.Context) {
 
 	context.JSON(http.StatusCreated, gin.H{"message": "Table created", "table": table})
 }
+
 func EditTable(context *gin.Context) {
 	tableID, err := strconv.Atoi(context.Param("table_id"))
 	if err != nil {
@@ -196,7 +257,8 @@ func EditTable(context *gin.Context) {
 		return
 	}
 	var table models.Table
-	err = context.ShouldBindJSON(&table)
+	err = context.ShouldBindBodyWithJSON(&table)
+	fmt.Println("table -2", table)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
@@ -205,7 +267,7 @@ func EditTable(context *gin.Context) {
 	table.ID = tableID
 
 	if err := table.UpdateTable(); err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update table"})
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

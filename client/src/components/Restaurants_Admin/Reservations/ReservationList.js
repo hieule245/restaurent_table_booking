@@ -192,7 +192,6 @@ const ReservationList = () => {
                 </div>
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
                 <button type="submit" className="btn btn-danger" data-bs-dismiss="modal">Save</button>
               </div>
             </form>
@@ -222,7 +221,6 @@ const ReservationList = () => {
                 </div>
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
                 <button type="submit" className="btn btn-danger" data-bs-dismiss="modal">Save</button>
               </div>
             </form>

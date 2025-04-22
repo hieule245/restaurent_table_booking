@@ -223,8 +223,8 @@ const Dashboard = () => {
             <h5 className="text-primary">Transaction History</h5>
 
             {/* Biểu đồ Doughnut */}
-            <div className="position-relative d-flex justify-content-center align-items-center flex-grow-1">
-              <Doughnut data={data} options={options} className="w-25 h-75" />
+            <div className="position-relative d-flex justify-content-center align-items-center flex-grow-1 mb-3">
+              <Doughnut data={data} options={options} className="w-25 h-100" />
               <div
                 className="position-absolute d-flex flex-column align-items-center"
                 style={{ top: "42%" }}
@@ -249,7 +249,7 @@ const Dashboard = () => {
                   className="d-flex justify-content-between p-3 rounded shadow-sm"
                   style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}
                 >
-                  <span className="text-dark">Transfer to {service.name}</span>
+                  <span className="text-dark">{service.name}</span>
                   <strong className="text-dark">{service.amount}</strong>
                 </div>
               ))}

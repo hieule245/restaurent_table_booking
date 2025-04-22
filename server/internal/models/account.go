@@ -127,7 +127,7 @@ func (u *Account) Login() error {
 	// Check if the user exists
 	retrievedPassword, ok := CheckAccount(u)
 	if ok {
-		return errors.New("email does not exist")
+		return errors.New("Email does not exist")
 	}
 
 	if u.Status == "inactive" {

@@ -16,8 +16,9 @@ type Table struct {
 	Seats        int    `json:"seats"`
 	Status       string `json:"status"`
 	RestaurantID int    `json:"restaurant_id"`
-	Description  string `json:"description"`
-	imageFile    string `json:"image_file"`
+	Description  string
+	ImageFile    string `json:"image_file"`
+	ImageId      int    `json:"image_id"`
 }
 
 func SearchTables(name, tableType string, seats, restaurantID int) ([]Table, error) {
@@ -72,7 +73,7 @@ func IsRestaurantExist(restaurantID int) (bool, error) {
 
 // Lấy tất cả bàn ăn theo restaurant_id
 func GetAllTables(restaurantID int) ([]Table, error) {
-	rows, err := db.DB.Query("SELECT id, name, type, seats, description, restaurant_id FROM tables WHERE restaurant_id = ? AND status = 'active'", restaurantID)
+	rows, err := db.DB.Query("SELECT id, name, type, seats, description, restaurant_id, image_id FROM tables WHERE restaurant_id = ? AND status = 'active'", restaurantID)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +82,13 @@ func GetAllTables(restaurantID int) ([]Table, error) {
 	var tables []Table
 	for rows.Next() {
 		var table Table
-		if err := rows.Scan(&table.ID, &table.Name, &table.Type, &table.Seats, &table.Description, &table.RestaurantID); err != nil {
+		err := rows.Scan(&table.ID, &table.Name, &table.Type, &table.Seats, &table.Description, &table.RestaurantID, &table.ImageId)
+		if err != nil {
+			return nil, err
+		}
+		row := db.DB.QueryRow("SELECT url FROM images WHERE id = ?", table.ImageId)
+		err = row.Scan(&table.ImageFile)
+		if err != nil {
 			return nil, err
 		}
 		tables = append(tables, table)
@@ -125,7 +132,7 @@ func (t *Table) CreateTable() error {
 		return errors.New("This table should have seat!!")
 	}
 
-	query := `INSERT INTO tables (name, type, seats, status, restaurant_id, description) VALUES (?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO tables (name, type, seats, status, restaurant_id, description, image_id) VALUES (?, ?, ?, ?, ?, ?, ?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		fmt.Println("table 3-", err)
@@ -133,7 +140,7 @@ func (t *Table) CreateTable() error {
 	}
 	defer stmt.Close()
 	t.Status = "active"
-	result, err := stmt.Exec(t.Name, t.Type, t.Seats, t.Status, t.RestaurantID, t.Description)
+	result, err := stmt.Exec(t.Name, t.Type, t.Seats, t.Status, t.RestaurantID, t.Description, t.ImageId)
 	if err != nil {
 		fmt.Println("table 4-", err)
 		return err
@@ -151,9 +158,24 @@ func (t *Table) CreateTable() error {
 
 // Cập nhật bàn ăn
 func (t *Table) UpdateTable() error {
-	query := `UPDATE tables SET name = ?, type = ?, seats = ? WHERE id = ?`
-	_, err := db.DB.Exec(query, t.Name, t.Type, t.Seats, t.ID)
-	return err
+	fmt.Println("image 3-", t.ImageId)
+	var err error
+	var query string
+	// Nếu không có ảnh mới, lấy lại image_id hiện tại từ DB
+	if t.ImageId == 0 {
+		query = `UPDATE tables SET name = ?, type = ?, seats = ? WHERE id = ?`
+		_, err = db.DB.Exec(query, t.Name, t.Type, t.Seats, t.ID)
+	} else {
+		query = `UPDATE tables SET name = ?, type = ?, seats = ?, image_id = ? WHERE id = ?`
+		_, err = db.DB.Exec(query, t.Name, t.Type, t.Seats, t.ImageId, t.ID)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("image 4-", t.ImageId)
+	return nil
 }
 
 // Xóa bàn ăn

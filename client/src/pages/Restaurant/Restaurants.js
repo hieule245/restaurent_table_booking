@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSortAlphaDown, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import "../../components/Specials/Specials.styles.css";
 import "./Restaurant.styles.css";
@@ -34,6 +32,19 @@ const RestaurantList = () => {
       (Ended ? restaurant.Ended <= Ended : true)
     );
   });
+
+  const formatTime = (timeStr) => {
+    if (!timeStr) return "";
+    const [hour, minute] = timeStr.split(":");
+    const date = new Date();
+    date.setHours(parseInt(hour), parseInt(minute));
+    const formatted = date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+    return formatted.replace(" ", "").replace("AM", "AM").replace("PM", "PM").replace(":", "h");
+  };
 
   const totalPages = Math.ceil(filteredRestaurants.length / itemsPerPage);
   const paginatedRestaurants = filteredRestaurants.slice(
@@ -96,13 +107,13 @@ const RestaurantList = () => {
                       {restaurant.Name}
                     </h5>
                     <p className="card-text text-muted text-truncate" style={{ maxWidth: "100%" }}>
-                      {restaurant.Description}
+                      {restaurant.Description || '\u00A0'}
                     </p>
 
                     {/* Giờ mở cửa */}
                     <div className="restaurant-hours">
                       <span className="open-time">
-                        🕒 {restaurant.Started} - {restaurant.Ended}
+                        🕒 {formatTime(restaurant.Started)} - {formatTime(restaurant.Ended)}
                       </span>
                     </div>
                   </div>

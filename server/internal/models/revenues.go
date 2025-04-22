@@ -19,7 +19,7 @@ type Revenues struct {
 	DiffTotal        float32 // Doanh thu tuần này - tuần trước
 	DiffBookNumber   int     // Số lượng đơn đặt bàn đã sử dụng trong tuần này - tuần trước
 	DiffCanceledBook int     // Số lượng đơn bị hủy trong tuần này - tuần trước
-} 
+}
 
 // Lấy doanh thu tuần hiện tại
 func (rev *Revenues) GetCurrentWeekRevenue(ownerId int64) error {
@@ -185,11 +185,11 @@ func (rev *Revenues) SaveNewCurrentRevenues(ownerId int64) error {
 func (rev *Revenues) GetCurrentWeekRevenueAdmin() error {
 	query := `   
 	SELECT 
-    SUM(b.price), 
-    COUNT(DISTINCT CASE WHEN b.status = 0 THEN b.id ELSE NULL END) , 
+    IFNULL(SUM(b.price), 0),
+    COUNT(DISTINCT CASE WHEN b.status = 0 THEN b.id ELSE NULL END), 
     COUNT(DISTINCT CASE WHEN b.status != 0 THEN b.id ELSE NULL END),
     COUNT(DISTINCT b.customer_id),
-    SUM(b.numberOfCustomer),
+    IFNULL(SUM(b.numberOfCustomer), 0),
     (
         SELECT COUNT(*) FROM (
             SELECT gmail FROM (
@@ -219,7 +219,8 @@ func (rev *Revenues) GetCurrentWeekRevenueAdmin() error {
 	FROM reservations b 
 	INNER JOIN tables t ON b.table_id = t.id 
 	INNER JOIN restaurants r ON t.restaurant_id = r.id 
-	WHERE YEARWEEK(b.book_date, 1) = YEARWEEK(CURRENT_DATE(), 1);
+	WHERE YEARWEEK(b.book_date, 1) = YEARWEEK(CURRENT_DATE(), 1)
+	AND b.price IS NOT NULL;
 	`
 	row := db.DB.QueryRow(query)
 	err := row.Scan(&rev.WeeklyRevenue, &rev.CanceledBook, &rev.BookNumber, &rev.OrderCustomer, &rev.UsingCustomer, &rev.ActiveStaff, &rev.OutStaff)

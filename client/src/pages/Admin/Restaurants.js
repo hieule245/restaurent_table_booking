@@ -12,7 +12,6 @@ import Pagination from "../../components/Pagination/Pagination.js";
 
 const Admin = () => {
   const [restaurants, setRestaurants] = useState([]); // Dùng để hiển thị danh sách
-  const [setSortType] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
@@ -24,15 +23,20 @@ const Admin = () => {
 
   const formatTime = (timeStr) => {
     if (!timeStr) return "";
+
     const [hour, minute] = timeStr.split(":");
     const date = new Date();
     date.setHours(parseInt(hour), parseInt(minute));
-    const formatted = date.toLocaleTimeString("en-US", {
+
+    // Sử dụng Intl.DateTimeFormat để định dạng thời gian
+    const formatted = new Intl.DateTimeFormat("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
-    });
-    return formatted.replace(" ", "").replace("AM", "AM").replace("PM", "PM").replace(":", "h");
+    }).format(date);
+
+    // Chuyển ":" thành "h" và loại bỏ khoảng trắng dư thừa
+    return formatted.replace(":", "h").trim();
   };
 
   const fetchRestaurant = useCallback(async () => {

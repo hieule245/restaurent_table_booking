@@ -53,7 +53,7 @@ const ReservationList = ({ restaurant_id }) => {
         } catch (err) {
             console.error(err);
         }
-    });
+    }, [restaurant_id]);
 
     useEffect(() => {
         fetch();

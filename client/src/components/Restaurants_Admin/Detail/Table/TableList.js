@@ -281,8 +281,7 @@ const TableList = ({ restaurant_id }) => {
                   {validationErrors.Ended && <div className="invalid-feedback">{validationErrors.Ended}</div>}
                 </div>
               </div>
-              <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
-                <button type="button" className="btn btn-outline-dark fw-bold px-4" data-bs-dismiss="modal">Close</button>
+              <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-end">
                 <button type="submit" className="btn btn-danger fw-bold px-4">Save</button>
               </div>
             </form>
