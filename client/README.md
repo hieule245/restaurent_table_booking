@@ -1,6 +1,6 @@
 # Restaurant Table Booking System
 
-A table-booking system using React. It's a fully responsive web app that allows users to reserve a table for the Little Lemon restaurant. 
+A table-booking system using React. It's a fully responsive web app that allows users to reserve a table for the Little Lemon restaurant.
 
 ## Table of contents
 
@@ -20,7 +20,6 @@ A table-booking system using React. It's a fully responsive web app that allows 
 ![restaurantBookingSystem](https://user-images.githubusercontent.com/108392678/212535689-5cc6ef5c-b4d4-413f-9cf6-873a17562cc7.jpg)
 ![restaurantBookingSystem](https://user-images.githubusercontent.com/108392678/212537315-e0cd8592-a3f3-48b9-bae7-784107307581.jpg)
 
-
 ### Links
 
 - Live : [Demo](https://little-lemon-booking-website.vercel.app/)
@@ -29,7 +28,7 @@ A table-booking system using React. It's a fully responsive web app that allows 
 
 ### Built with
 
-- [React](https://beta.reactjs.org/) - React 
+- [React](https://beta.reactjs.org/) - React
 - [React Router v6+](https://reactrouter.com/en/main) - For routes
 - [React Scroll](https://www.npmjs.com/package/react-scroll) - For smooth scroll
 - [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) - For unit testing
@@ -55,7 +54,7 @@ A table-booking system using React. It's a fully responsive web app that allows 
 - Styling React App with Pure CSS
 - Adding Open Graph Protocol meta tags to improve SEO
 
-Here is a code snippet: 
+Here is a code snippet:
 
 ```jsx
 const BookingForm = ({ availableTimes, dispatch }) => {
@@ -75,9 +74,10 @@ const BookingForm = ({ availableTimes, dispatch }) => {
 
 ### Useful resources
 
-- [React Docs (Rendering Lists) ](https://reactnative.dev/docs/stylesheet) - This helped me for rendering lists in the navbar. I really liked their documentation and will use it going forward.  
+- [React Docs (Rendering Lists) ](https://reactnative.dev/docs/stylesheet) - This helped me for rendering lists in the navbar. I really liked their documentation and will use it going forward.
 - [React Testing Library ](https://testing-library.com/docs/react-testing-library/intro/) - This helped me for creating unit tests in React.
 - [React Router (useNavigate)](https://reactrouter.com/en/6.5.0/hooks/use-navigate) - This helped me for redirecting user to a confirmed booking page.
+
 ## Author
 
 - Website - [Marvin Morales Pacis](https://marvin-morales-pacis.vercel.app/)
