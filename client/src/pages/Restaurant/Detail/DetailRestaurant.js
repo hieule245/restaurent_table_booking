@@ -5,7 +5,6 @@ import TableCard from "../../../components/Card/TableCustomerCard";
 import "./Detail.styles.css";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-
 const DetailRestaurant = () => {
   // State cho thông tin form và dữ liệu
   const [startTime, setStartTime] = useState(""); // Mặc định trống
@@ -15,6 +14,19 @@ const DetailRestaurant = () => {
   const { restaurant_id } = useParams();
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const tablesPerPage = 8;
+  const totalPages = Math.ceil(tables.length / tablesPerPage);
+
+  const paginatedTables = tables.slice(
+    (currentPage - 1) * tablesPerPage,
+    currentPage * tablesPerPage
+  );
+
+  const handlePageClick = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // Lấy thông tin nhà hàng và danh sách tất cả bàn khi component mount
   useEffect(() => {
@@ -97,6 +109,44 @@ const DetailRestaurant = () => {
     setLoading(false);
   };
 
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [tables]);
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+    return (
+      <div className="pagination-container d-flex justify-content-center">
+        <button
+          className="btn btn-outline-dark me-2"
+          onClick={() => handlePageClick(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          &laquo;
+        </button>
+
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+          <button
+            key={pageNum}
+            className={`btn ${currentPage === pageNum ? "btn-dark" : "btn-outline-dark"} mx-1`}
+            onClick={() => handlePageClick(pageNum)}
+          >
+            {pageNum}
+          </button>
+        ))}
+
+        <button
+          className="btn btn-outline-dark ms-2"
+          onClick={() => handlePageClick(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          &raquo;
+        </button>
+      </div>
+    );
+  };
+
   // Render danh sách bàn
   function renderTables() {
     if (loading) {
@@ -110,13 +160,16 @@ const DetailRestaurant = () => {
       );
     }
     return (
-      <div className="row mt-4">
-        {tables.map((table, index) => (
-          <div className="col-md-3 mb-3" key={index}>
-            <TableCard table={table} />
-          </div>
-        ))}
-      </div>
+      <>
+        <div className="row table-list-container">
+          {paginatedTables.map((table, index) => (
+            <div className="col-md-3 mb-3" key={index}>
+              <TableCard table={table} />
+            </div>
+          ))}
+        </div>
+        {renderPagination()}
+      </>
     );
   }
 
@@ -200,13 +253,16 @@ const DetailRestaurant = () => {
         </div>
 
         {/* Nội dung chính */}
-        <div className="col-md-9 p-4">
+        <div className="col-md-9 px-4 pt-3 pb-0">
           <div className="restaurant-details">
-            <h1 className="restaurant-name text-dark mb-2">
+            <h1 className="restaurant-name text-dark mb-0 text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>
               {restaurant.Name + " #" + restaurant.Id}
             </h1>
-            <p className="restaurant-description text-muted">
-              {restaurant.Description}
+            <p
+              className="restaurant-description text-muted text-truncate"
+              style={{ maxWidth: '100%' }}
+            >
+              {restaurant.Description || '\u00A0'}
             </p>
             <p className="restaurant-address-text">
               <FontAwesomeIcon

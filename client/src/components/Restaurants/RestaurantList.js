@@ -17,7 +17,6 @@ import {
   FaSortAmountDown,
 } from "react-icons/fa";
 import "./RestaurantList.styles.css";
-
 const RestaurantList = () => {
   const navigate = useNavigate();
   const [restaurants, setRestaurants] = useState([]); // Dùng để hiển thị danh sách

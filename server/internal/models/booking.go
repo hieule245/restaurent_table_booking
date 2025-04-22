@@ -230,7 +230,7 @@ func GetBookingByOwner(ownerId int64) ([]Reservations, error) {
 	return reservation, nil
 }
 
-func GetBookingByRestaurantId(ownerId int64, restaurant_id int) ([]Reservations, error) {
+func GetBookingByRestaurantId(user_gmail string, ownerId int64, restaurant_id int) ([]Reservations, error) {
 	var reservation []Reservations
 	query := `
 	SELECT
@@ -273,7 +273,16 @@ func GetBookingByRestaurantId(ownerId int64, restaurant_id int) ([]Reservations,
 			panic(err)
 			return nil, err
 		}
-		fmt.Println(book.Owner_id == ownerId)
+		acc := &Account{}
+		acc.Email = user_gmail
+		CheckAccount(acc)
+		if acc.Role == "owner" {
+			if book.Owner_id == ownerId {
+				return nil, errors.New("not your restaurant")
+			}
+		} else if acc.Role == "staff" || acc.Role == "customer" {
+			return nil, errors.New("You can't be here")
+		}
 		reservation = append(reservation, book)
 	}
 	return reservation, nil
@@ -295,10 +304,10 @@ func (res *Booking) Checkout() error {
 
 func (res *Booking) EditCheckout() error {
 	query := `
-	UPDATE reservations SET price = ?, 
+	UPDATE reservations SET price = ?
 	WHERE id = ?
 	`
-	_, err := db.DB.Exec(query, res.Price)
+	_, err := db.DB.Exec(query, res.Price, res.ID)
 	if err != nil {
 		return err
 	}
@@ -339,7 +348,7 @@ func GetTopRestaurantRevenues(ownerId int64) ([]TopRestaurant, error) {
 	FROM reservations r
 	INNER JOIN tables t ON r.table_id = t.id
 	INNER JOIN restaurants re ON re.id = t.restaurant_id
-	WHERE re.owner_id = ?
+	WHERE re.owner_id = ? AND re.status = 'active'
 	GROUP BY re.name
 	ORDER BY total_revenue DESC
 	LIMIT 5;
@@ -370,6 +379,7 @@ func GetTopRestaurantRevenuesByAdmin() ([]TopRestaurant, error) {
 	FROM reservations r
 	INNER JOIN tables t ON r.table_id = t.id
 	INNER JOIN restaurants re ON re.id = t.restaurant_id
+	WHERE re.status = 'active'
 	GROUP BY re.name
 	ORDER BY total_revenue DESC
 	LIMIT 5;

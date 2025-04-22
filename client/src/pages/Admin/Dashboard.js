@@ -4,8 +4,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import {
   FaTachometerAlt,
   FaUsers,
-  FaUtensils,
-  FaCalendarCheck,
 } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import Card from "../../components/Card/AdminCard";
@@ -131,9 +129,8 @@ const Admin = () => {
               title="Weekly Table Bookings"
               value={
                 revenues.BookNumber && revenues.CanceledBook
-                  ? `${
-                      revenues.BookNumber - revenues.CanceledBook
-                    } reservations`
+                  ? `${revenues.BookNumber - revenues.CanceledBook
+                  } reservations`
                   : "0 reservation"
               }
               growth="+55% than last week"
@@ -142,9 +139,9 @@ const Admin = () => {
           </div>
 
           <h3 className="mt-3">Revenues</h3>
-          <div className="row d-flex align-items-stretch">
+          <div className="d-flex align-items-stretch">
             {/* Transaction History */}
-            <div className="col-md-6 mb-4 d-flex">
+            <div className="w-100 d-flex">
               <div
                 className="p-3 rounded shadow-sm w-100 h-100"
                 style={{
@@ -163,54 +160,9 @@ const Admin = () => {
                     style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}
                   >
                     <div>
-                      <strong className="text-dark">{restaurant.Name}</strong>
-                      <p className="mb-0 text-muted">
-                        {restaurant.TotalRevenue
-                          ? restaurant.TotalRevenue.toLocaleString()
-                          : 0}{" "}
-                        VND
-                      </p>
-                    </div>
-                    <div className="text-end">
-                      <small className="text-muted">
-                        {restaurant.TotalCustomer
-                          ? restaurant.TotalCustomer
-                          : 0}{" "}
-                        customers
-                      </small>
-                      <p className="mb-0 text-dark">
-                        {restaurant.TotalReservation
-                          ? restaurant.TotalReservation
-                          : 0}{" "}
-                        reservations
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Open Projects */}
-            <div className="col-md-6 mb-4 d-flex">
-              <div
-                className="p-3 rounded shadow-sm w-100 h-100"
-                style={{
-                  backgroundColor: "#FFFFFF",
-                  borderRadius: "12px",
-                  border: "2px solid #D1E7FF",
-                }}
-              >
-                <h5 className="pb-2 text-primary">
-                  Top {top.length} Performing Restaurants
-                </h5>
-                {top.map((restaurant, index) => (
-                  <div
-                    key={index}
-                    className="d-flex justify-content-between p-2 mt-2 rounded shadow-sm"
-                    style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}
-                  >
-                    <div>
-                      <strong className="text-dark">{restaurant.Name}</strong>
+                      <strong className="text-dark text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>
+                        {restaurant.Name}
+                      </strong>
                       <p className="mb-0 text-muted">
                         {restaurant.TotalRevenue
                           ? restaurant.TotalRevenue.toLocaleString()

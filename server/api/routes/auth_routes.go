@@ -19,4 +19,5 @@ func AuthRoutes(server *gin.Engine) {
 	server.POST("/me", middlewares.AuthMiddleware(), services.UpdateProfile)
 	server.POST("/me/image-upload", middlewares.AuthMiddleware(), services.UploadImage)
 	server.POST("/change-password", middlewares.AuthMiddleware(), services.ChangePassword)
+	server.POST("/image_upload", services.UploadImageTables)
 }

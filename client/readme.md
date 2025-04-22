@@ -21,3 +21,9 @@ npm install js-cookie
 npm install jwt-decode
 
 npm install sweetalert2
+
+npm install yup formik
+
+npm install bootstrap-icons
+
+npm install react-toastify@latest

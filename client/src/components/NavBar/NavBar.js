@@ -7,9 +7,9 @@ import "./NavBar.styles.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import avatar from "../../assets/image/avatar.png";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 const NavBar = () => {
-  // STATE FOR HAMBURGER MENU
   const [nav, setNav] = useState(false);
   const [user, setUser] = useState({
     Id: "",
@@ -31,7 +31,6 @@ const NavBar = () => {
       .then((res) => {
         if (res.data.user) {
           setUser(res.data.user); // lưu thông tin user
-          console.log(res.data.user);
         }
       })
       .catch(() => {
@@ -60,8 +59,7 @@ const NavBar = () => {
     }
   };
 
-  const imageUrl =
-    user && user.ImageFile ? `data:image/png;base64,${user.ImageFile}` : avatar;
+  const imageUrl = user && user.ImageFile ? user.ImageFile : avatar;
 
   // NAVBAR HIDE/ SHOW ON SCROLL
   useEffect(() => {
@@ -88,9 +86,19 @@ const NavBar = () => {
 
   return (
     <>
-      <header className="shadow-sm" ref={navRef}>
-        <nav className="container">
+      <header className="shadow-sm p-0" ref={navRef}>
+        <nav className="container-fluid px-4 py-3">
           <div className="row justify-content-between align-items-center">
+            <div className="col-1 back-icon">
+              <div className="border p-2 border-0 d-flex justify-content-center align-items-center">
+                <FontAwesomeIcon
+                  onClick={() => navigate(-1)}
+                  icon={faArrowLeft}
+                  className="arrow-icon"
+                />
+              </div>
+            </div>
+            <div className="col-1"></div>
             <div className="col-3 row">
               <FaUtensils className="nav-icon text-white fs-1 col-2" />
               <span className="fw-bolder text-white  fs-3 col-10 ">
@@ -104,7 +112,7 @@ const NavBar = () => {
                 </button>
               </span>
             </div>
-            <div className="col-7 row">
+            <div className="col row">
               <div className="d-flex justify-content-start align-items-center">
                 <button
                   className="mt-1 fw-bold text-white fs-5 text-decoration-none p-0 m-0 border-0"
@@ -136,13 +144,13 @@ const NavBar = () => {
                 )}
               </div>
             </div>
-            <div className="pt-3 col-2">
-              <ul className="d-flex align-items-center">
+            <div className="pt-3 col">
+              <ul className="d-flex align-items-center justify-content-center">
                 {/* Authorize */}
                 {user ? (
                   <div>
                     <li className="d-flex justify-content-end align-items-center">
-                      <div class="dropdown d-flex justify-content-end">
+                      <div className="dropdown d-flex justify-content-end">
                         <button
                           type="button"
                           className="rounded-circle p-0 m-0 border-0"
@@ -166,14 +174,19 @@ const NavBar = () => {
                               My Profile
                             </a>
                           </li>
-                          <li>
-                            <button
-                              className="dropdown-item bg-transparent border-0 text-decoration-none"
-                              onClick={() => navigate("/booking-history")}
-                            >
-                              Booking History
-                            </button>
-                          </li>
+                          {user &&
+                          (user.Role === "owner" || user.Role === "admin") ? (
+                            ""
+                          ) : (
+                            <li>
+                              <button
+                                className="dropdown-item bg-transparent border-0 text-decoration-none"
+                                onClick={() => navigate("/booking-history")}
+                              >
+                                Booking History
+                              </button>
+                            </li>
+                          )}
                           <li>
                             <button
                               className="dropdown-item"

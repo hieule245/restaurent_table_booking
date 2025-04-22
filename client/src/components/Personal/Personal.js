@@ -12,7 +12,7 @@ import axios from "axios";
 
 const Personal = () => {
   const navigate = useNavigate();
-  const [userRole, setUserRole] = useState(null);
+  const [, setUserRole] = useState(null);
 
   useEffect(() => {
     axios
@@ -26,11 +26,7 @@ const Personal = () => {
   }, []);
 
   const handleBack = () => {
-    if (userRole === "owner") {
-      navigate("/owner");
-    } else {
-      navigate("/");
-    }
+    navigate(-1);
   };
 
   return (

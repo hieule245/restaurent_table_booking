@@ -1,425 +1,214 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Swal from "sweetalert2";
-import { Modal } from "bootstrap";
-import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import { motion } from "framer-motion";
-import BookingRow from "../BookingRow/BookingRow";
-import "react-toastify/dist/ReactToastify.css";
-import "./BookingHistory.css";
-import RestaurantLayout from "../../pages/Restaurant/restaurantLayout";
+import { Modal, Button } from "react-bootstrap";
 
-const BookingHistory = () => {
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  const [user, setUser] = useState({});
+function BookingHistory() {
   const [bookings, setBookings] = useState([]);
+  const [filteredBookings, setFilteredBookings] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState("");
   const [selectedBooking, setSelectedBooking] = useState(null);
-  const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-  // phân trang
-  const itemsPerPage = 10;
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = bookings.slice(indexOfFirstItem, indexOfLastItem);
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  // cập nhật thời gian mỗi 5 giây và kiểm tra trạng thái
   useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date();
-      setCurrentTime(now);
-
-      // Cập nhật trạng thái đặt bàn
-      setBookings((prevBookings) =>
-        prevBookings.map((booking) => {
-          const bookDate = new Date(`${booking.book_date}`);
-          const today = new Date();
-          if (
-            bookDate.getFullYear() !== today.getFullYear() ||
-            bookDate.getMonth() !== today.getMonth() ||
-            bookDate.getDate() !== today.getDate()
-          ) {
-            return booking; // Không phải hôm nay => giữ nguyên
-          }
-
-          const timeNow =
-            now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-          const startSeconds = convertTimeToSeconds(booking.time_start);
-          const endSeconds = convertTimeToSeconds(booking.time_end);
-
-          // Pending => Cancelled nếu quá giờ
-          if (booking.status === 1 && timeNow >= startSeconds) {
-            updateStatusOnServer(booking.id, 0);
-            return { ...booking, status: 0 };
-          }
-          // Confirmed => Occupied hoặc Done
-          if (booking.status === 2) {
-            if (timeNow >= startSeconds && timeNow < endSeconds) {
-              updateStatusOnServer(booking.id, 3);
-              return { ...booking, status: 3 };
-            } else if (timeNow >= endSeconds) {
-              updateStatusOnServer(booking.id, 4);
-              return { ...booking, status: 4 };
-            }
-          }
-
-          return booking;
-        })
-      );
-    }, 1000);
-
-    return () => clearInterval(interval);
+    fetchBookings();
+    fetchUser();
   }, []);
 
-  // Fetch user info
-  useEffect(() => {
-    axios
-      .get(`${process.env.REACT_APP_API_URL}/me`, { withCredentials: true })
-      .then((res) => setUser(res.data.user))
-      .catch(() => navigate("/login"));
-  }, [navigate]);
-
-  // Fetch booking history
-  useEffect(() => {
-    if (!user?.Id) return;
-    axios
-      .get(
-        `${process.env.REACT_APP_API_URL}/booking-history?user_gmail=${user.Email}`,
-        {
-          withCredentials: true,
-        }
-      )
-      .then((res) => setBookings(res.data.bookings))
-      .catch((err) => {
-        console.error(err);
-        toast.error("Error fetching booking history");
+  const fetchBookings = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get("http://localhost:8080/api/bookings", {
+        withCredentials: true,
       });
-  }, [user]);
-
-  const updateStatusOnServer = (id, newStatus) => {
-    axios
-      .put(
-        `${process.env.REACT_APP_API_URL}/reservation/${id}/server`,
-        { status: newStatus },
-        { withCredentials: true }
-      )
-      .then(() => {
-        console.log(`✅ Booking ${id} updated to status ${newStatus}`);
-      })
-      .catch((err) => {
-        console.error(`❌ Failed to update booking ${id}`, err);
-      });
-  };
-
-  const convertTimeToSeconds = (timeStr) => {
-    const [h, m, s] = timeStr.split(":").map(Number);
-    return h * 3600 + m * 60 + s;
-  };
-
-  const timeSlots = Array.from({ length: 9 }, (_, i) => {
-    const hour = 7 + i * 2;
-    return `${hour.toString().padStart(2, "0")}:00:00`;
-  });
-
-  const formatTo12Hour = (time24) => {
-    const [hourStr, minuteStr] = time24.split(":");
-    let hour = parseInt(hourStr, 10);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    hour = hour % 12 || 12;
-    return `${hour.toString().padStart(2, "0")}:${minuteStr} ${ampm}`;
-  };
-  // Mở modal chỉnh sửa
-  const handleEdit = (booking) => {
-    setSelectedBooking(booking);
-    const modalElement = document.getElementById("editBookingModal");
-    if (modalElement) {
-      const modal = new Modal(modalElement);
-      modal.show();
+      setBookings(response.data);
+      setFilteredBookings(response.data);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSaveChanges = () => {
-    if (!selectedBooking) return;
-    const updatedBooking = {
-      numberOfCustomer: selectedBooking.numberOfCustomer,
-      book_date: selectedBooking.book_date,
-      time_start: selectedBooking.time_start,
-      time_end: selectedBooking.time_end,
-      status: selectedBooking.status,
-    };
-
-    axios
-      .put(
-        `${process.env.REACT_APP_API_URL}/reservation/${selectedBooking.id}`,
-        updatedBooking,
-        { withCredentials: true }
-      )
-      .then(() => {
-        setBookings((prev) =>
-          prev.map((b) => (b.id === selectedBooking.id ? selectedBooking : b))
-        );
-        Swal.fire("Success", "Booking updated successfully!", "success");
-      })
-      .catch((err) =>
-        Swal.fire(
-          "Error",
-          err.response?.data?.error || "Update failed",
-          "error"
-        )
-      );
+  const fetchUser = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/user", {
+        withCredentials: true,
+      });
+      setUser(response.data);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
   };
 
-  const handleCancel = (booking) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to cancel this booking?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, cancel it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        axios
-          .delete(
-            `${process.env.REACT_APP_API_URL}/reservation/${booking.id}`,
-            {
-              withCredentials: true,
-            }
-          )
-          .then(() => {
-            setBookings((prev) => prev.filter((b) => b.id !== booking.id));
-            Swal.fire(
-              "Cancelled!",
-              "Your booking has been cancelled.",
-              "success"
-            );
-          })
-          .catch((err) =>
-            Swal.fire(
-              "Error",
-              err.response?.data?.error || "Cancellation failed",
-              "error"
-            )
-          );
-      }
-    });
+  const handleMonthChange = (e) => {
+    const selectedMonthValue = e.target.value;
+    setSelectedMonth(selectedMonthValue);
+
+    if (selectedMonthValue === "") {
+      setFilteredBookings(bookings);
+    } else {
+      const filtered = bookings.filter((booking) => {
+        const bookingMonth = new Date(booking.date).getMonth() + 1;
+        return bookingMonth === parseInt(selectedMonthValue);
+      });
+      setFilteredBookings(filtered);
+    }
+    setCurrentPage(1);
   };
+
+  const handleEdit = (booking) => {
+    setSelectedBooking(booking);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedBooking(null);
+  };
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredBookings.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   return (
-    <RestaurantLayout>
-      <div className="booking-history-container mt-2">
-        <ToastContainer position="top-right" autoClose={3000} />
-        <h2 className="booking-history-title text-danger fs-1">
-          Booking History
-        </h2>
+    <div className="container mt-5 text-light">
+      <h2 className="mb-4">Lịch Sử Đặt Bàn</h2>
 
-        <h5 className="text-muted">Current: {currentTime.toLocaleString()}</h5>
-
-        {user ? (
-          <p className="booking-history-welcome">
-            <hr />
-            Welcome,<strong> {user.Name}! </strong>
-            <p> Here is your booking history:</p>
-          </p>
-        ) : (
-          <p className="booking-history-loading">Loading user info...</p>
-        )}
-
-        <div className="container-fluid shadow">
-          {Array.isArray(bookings) && bookings.length === 0 ? (
-            <p className="booking-history-no">No bookings found.</p>
-          ) : bookings === null ||
-            bookings === undefined ||
-            (Array.isArray(bookings) && bookings.length === 0) ? (
-            <p className="booking-history-no">No bookings found.</p>
-          ) : (
-            <motion.div
-              className="table-responsive"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
+      {user?.Name ? (
+        <>
+          {/* Month Filter */}
+          <div className="mb-3">
+            <label className="form-label">Chọn tháng:</label>
+            <select
+              className="form-select w-auto d-inline-block ms-2"
+              value={selectedMonth}
+              onChange={handleMonthChange}
             >
-              <table className="booking-history-table border mt-4">
+              <option value="">Tất cả</option>
+              {Array.from({ length: 12 }, (_, index) => (
+                <option key={index + 1} value={index + 1}>
+                  Tháng {index + 1}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Spinner */}
+          {loading ? (
+            <div className="text-center my-5">
+              <div className="spinner-border text-light" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Booking Table */}
+              <table className="table table-dark table-striped border mt-4">
                 <thead>
                   <tr>
-                    <th>#</th>
-                    <th>Book Date</th>
-                    <th>Time Start</th>
-                    <th>Time End</th>
-                    <th>Seats</th>
-                    <th>Table ID</th>
-                    <th>Price ($)</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>Ngày</th>
+                    <th>Giờ</th>
+                    <th>Bàn</th>
+                    <th>Ghi chú</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentItems?.map((booking, index) => (
-                    <BookingRow
-                      key={booking.id}
-                      booking={booking}
-                      index={index}
-                      onEdit={handleEdit}
-                      onCancel={handleCancel}
-                    />
+                  {currentItems.map((booking) => (
+                    <tr key={booking.id}>
+                      <td>{booking.date}</td>
+                      <td>{booking.time}</td>
+                      <td>{booking.table_number}</td>
+                      <td>{booking.note}</td>
+                      <td>{booking.status}</td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-outline-light"
+                          onClick={() => handleEdit(booking)}
+                        >
+                          Chỉnh sửa
+                        </button>
+                      </td>
+                    </tr>
                   ))}
                 </tbody>
               </table>
-            </motion.div>
-          )}
-          {bookings.length > itemsPerPage && (
-            <div className="pagination-container">
-              <button
-                className="btn btn-outline-secondary me-2"
-                onClick={() => paginate(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                &laquo;
-              </button>
-              {[...Array(Math.ceil(bookings.length / itemsPerPage)).keys()].map(
-                (number) => (
+
+              {/* Pagination */}
+              {filteredBookings.length > itemsPerPage && (
+                <div className="pagination-container mt-4">
                   <button
-                    key={number + 1}
-                    className={`btn ${
-                      currentPage === number + 1
-                        ? "btn-dark"
-                        : "btn-outline-dark"
-                    } mx-1`}
-                    onClick={() => paginate(number + 1)}
+                    className="btn btn-outline-secondary me-2"
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
                   >
-                    {number + 1}
+                    &laquo;
                   </button>
-                )
+                  {Array.from({
+                    length: Math.ceil(filteredBookings.length / itemsPerPage),
+                  }).map((_, index) => (
+                    <button
+                      key={index + 1}
+                      className={`btn ${
+                        currentPage === index + 1
+                          ? "btn-light"
+                          : "btn-outline-light"
+                      } mx-1`}
+                      onClick={() => paginate(index + 1)}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                  <button
+                    className="btn btn-outline-secondary ms-2"
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={
+                      currentPage ===
+                      Math.ceil(filteredBookings.length / itemsPerPage)
+                    }
+                  >
+                    &raquo;
+                  </button>
+                </div>
               )}
-              <button
-                className="btn btn-outline-secondary ms-2"
-                onClick={() => paginate(currentPage + 1)}
-                disabled={
-                  currentPage === Math.ceil(bookings.length / itemsPerPage)
-                }
-              >
-                &raquo;
-              </button>
-            </div>
+            </>
           )}
-        </div>
+        </>
+      ) : (
+        <p>Bạn chưa đăng nhập.</p>
+      )}
 
-        {/* Modal chỉnh sửa booking */}
-        <div
-          className="modal fade"
-          id="editBookingModal"
-          tabIndex="-1"
-          aria-hidden="true"
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content booking-modal-content">
-              <div className="modal-header booking-modal-header">
-                <h5 className="modal-title">Edit Booking</h5>
-                <button
-                  type="button"
-                  className="btn-close booking-modal-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div className="modal-body booking-modal-body">
-                {selectedBooking && (
-                  <>
-                    <label>Book Date:</label>
-                    <input
-                      disabled
-                      type="date"
-                      className="form-control bg-secondary"
-                      value={selectedBooking.book_date?.split("T")[0] || ""}
-                      onChange={(e) =>
-                        setSelectedBooking({
-                          ...selectedBooking,
-                          book_date: e.target.value,
-                        })
-                      }
-                    />
-                    <small className="text-secondary p-0 mb-3">
-                      * Can't change another day.
-                    </small>
-                    <br />
-
-                    {/* Time slots select */}
-                    <label>Time Start:</label>
-                    <select
-                      className="form-control"
-                      value={selectedBooking.time_start}
-                      onChange={(e) =>
-                        setSelectedBooking({
-                          ...selectedBooking,
-                          time_start: e.target.value,
-                        })
-                      }
-                    >
-                      {timeSlots.map((slot) => (
-                        <option key={slot} value={slot}>
-                          {formatTo12Hour(slot)}
-                        </option>
-                      ))}
-                    </select>
-
-                    <label className="mt-1">Time End:</label>
-                    <select
-                      className="form-control"
-                      value={selectedBooking.time_end}
-                      onChange={(e) =>
-                        setSelectedBooking({
-                          ...selectedBooking,
-                          time_end: e.target.value,
-                        })
-                      }
-                    >
-                      {timeSlots.map((slot) => (
-                        <option key={slot} value={slot}>
-                          {formatTo12Hour(slot)}
-                        </option>
-                      ))}
-                    </select>
-
-                    <small className="text-secondary p-0">
-                      * Please update the end time first if you want to
-                      reschedule.
-                    </small>
-                    <br />
-
-                    <label className="mt-1">Seats:</label>
-                    <input
-                      disabled
-                      type="number"
-                      className="form-control bg-secondary"
-                      value={selectedBooking.numberOfCustomer}
-                    />
-                  </>
-                )}
-              </div>
-              <div className="modal-footer booking-modal-footer">
-                <button
-                  type="button"
-                  className="btn booking-modal-btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  className="btn booking-modal-btn-primary"
-                  onClick={handleSaveChanges}
-                >
-                  Save changes
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </RestaurantLayout>
+      {/* Modal */}
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Chỉnh sửa đặt bàn</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Bàn số: {selectedBooking?.table_number} <br />
+            Ngày: {selectedBooking?.date} <br />
+            Giờ: {selectedBooking?.time}
+          </p>
+          {/* Có thể thêm form chỉnh sửa ở đây */}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Đóng
+          </Button>
+          <Button variant="primary">Lưu thay đổi</Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
   );
-};
+}
 
 export default BookingHistory;

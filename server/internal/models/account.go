@@ -19,7 +19,7 @@ type Account struct {
 	Role      string
 	Status    string
 	Orther_id int64
-	ImageFile []byte
+	ImageFile string
 }
 
 type NewPassword struct {
@@ -123,13 +123,54 @@ func (u *Account) RegisterAdmin() error {
 	return nil
 }
 
+func (u *Account) RegisterStaff() error {
+	// Check if the account already exists
+	fmt.Println(u.Orther_id)
+	_, check := CheckAccount(u)
+	if !check {
+		return errors.New("this email is already associated with an existing account")
+	}
+
+	// Prepare the SQL query
+	query := `INSERT INTO staffs(gmail, name, phone, status, password, restaurant_id) 
+        VALUES (?,?,?,?,?,?)`
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		return errors.New("failed to prepare the SQL statement for registering staff")
+	}
+	defer stmt.Close()
+
+	// Hash the password
+	hashPassword, err := utils.HashPassword(u.Password)
+	if err != nil {
+		return errors.New("failed to hash the password")
+	}
+
+	// Set the account status to active
+	u.Status = "active"
+
+	// Execute the SQL query
+	result, err := stmt.Exec(u.Email, u.Name, u.Phone, u.Status, hashPassword, u.Orther_id)
+	if err != nil {
+		// return errors.New("failed to execute the SQL statement for registering staff")
+		return errors.New(err.Error())
+	}
+
+	// Retrieve the last inserted ID
+	id, err := result.LastInsertId()
+	if err != nil {
+		return errors.New("failed to retrieve the last inserted ID for the new staff account")
+	}
+
+	// Set the ID of the newly created account
+	u.Id = id
+	return nil
+}
 func (u *Account) Login() error {
-	fmt.Println("Login", u.Email)
 	// Check if the user exists
 	retrievedPassword, ok := CheckAccount(u)
-	fmt.Println("Login--1", retrievedPassword)
 	if ok {
-		return errors.New("email does not exist")
+		return errors.New("Email does not exist")
 	}
 
 	if u.Status == "inactive" {
@@ -140,10 +181,11 @@ func (u *Account) Login() error {
 		return errors.New("this account is locked for violation. Check your email and contact us")
 	}
 	loginData, exists := failedAttempts.Load(u.Email)
-	fmt.Println("Login--2", loginData)
 	if exists {
 		data := loginData.(CheckPassword)
-		if data.Attempt >= 5 {
+		if data.Attempt == 5 {
+			data.Attempt = 0
+			failedAttempts.Delete(u.Email)
 			return errors.New("This account is locked due to too many failed attempts. Check your email and contact us")
 		}
 	}
@@ -162,11 +204,12 @@ func (u *Account) Login() error {
 		failedAttempts.Store(u.Email, check)
 
 		remainingAttempts := 5 - check.Attempt
-		fmt.Println("Login--3", remainingAttempts)
-		if check.Attempt >= 5 {
+		if check.Attempt == 5 {
 			err := SetAccountStatusInactive(u.Email, u.Role)
+			check.Attempt = 0
+			failedAttempts.Delete(u.Email)
 			if err != nil {
-				return errors.New("failed to set account status to inactive: " + err.Error())
+				return errors.New("Failed to set account status to inactive: " + err.Error())
 			}
 			return errors.New("This account is locked for security. Check your email and contact us")
 		}
@@ -178,7 +221,6 @@ func (u *Account) Login() error {
 }
 
 func CheckAccount(a *Account) (string, bool) {
-	fmt.Println("CheckAccount 0-", a.Email)
 
 	// Queries for each role
 	queries := map[string]string{
@@ -214,25 +256,36 @@ func CheckAccount(a *Account) (string, bool) {
 			return retrievedPassword, false
 		}
 	}
-
-	// If no account found in any of the roles, return error
-	fmt.Printf("Don't have any account like this for email: %s\n", a.Email)
 	return "", true
 }
 
 func (u *Account) ResetPassword() error {
-	query := `UPDATE customers SET password = ? WHERE gmail = ?`
+	fmt.Println("ResetPassword", u.Email, u.Password)
+	CheckAccount(u)
+	var query string
+	switch u.Role {
+	case "customer":
+		query = `UPDATE customers SET password = ? WHERE gmail = ?`
+	case "staff":
+		query = `UPDATE staffs SET password = ? WHERE gmail = ?`
+	case "admin":
+		query = `UPDATE admin SET password = ? WHERE gmail = ?`
+	case "owner":
+		query = `UPDATE owners SET password = ? WHERE gmail = ?`
+	default:
+		return errors.New("invalid role provided")
+	}
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		return errors.New("failed to prepare the SQL statement for resetting password: " + err.Error())
 	}
 	defer stmt.Close()
-
+	fmt.Println("ResetPassword", u.Email, u.Password)
 	hashPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
 		return errors.New("failed to hash the password: " + err.Error())
 	}
-
+	fmt.Println(hashPassword)
 	_, err = stmt.Exec(hashPassword, u.Email)
 	if err != nil {
 		return errors.New("failed to execute the SQL statement for resetting password: " + err.Error())
@@ -279,7 +332,7 @@ func GetUserInformationById(userId int64, role string) (Account, error) {
 	case "customer":
 		query = `SELECT id, name, gmail, phone FROM customers WHERE id = ?`
 	case "staff":
-		query = `SELECT id, name, gmail, phone FROM staffs WHERE id = ?`
+		query = `SELECT id, name, gmail, phone, restaurant_id FROM staffs WHERE id = ?`
 	case "admin":
 		query = `SELECT id, name, gmail, phone FROM admin WHERE id = ?`
 	case "owner":
@@ -289,7 +342,13 @@ func GetUserInformationById(userId int64, role string) (Account, error) {
 	}
 
 	row := db.DB.QueryRow(query, userId)
-	err := row.Scan(&user.Id, &user.Name, &user.Email, &user.Phone)
+	var err error
+	if role == "staff" {
+		err = row.Scan(&user.Id, &user.Name, &user.Email, &user.Phone, &user.Orther_id)
+	} else {
+		err = row.Scan(&user.Id, &user.Name, &user.Email, &user.Phone)
+	}
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return user, errors.New("user not found with the provided ID")
@@ -372,7 +431,28 @@ func (u *Account) UpdateStaff() error {
 	}
 	defer stmt.Close()
 
-	// _, err = stmt.Exec(email)
+	_, err = stmt.Exec(u.Name, u.Phone, u.Email)
+	if err != nil {
+		panic(err)
+		return err
+	}
+	return err
+}
+
+func (u *Account) UpdateAdmin() error {
+	query := `UPDATE admin SET name = ?, phone = ?
+    WHERE gmail = ?`
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		return errors.New("failed to prepare the SQL statement for setting account status: " + err.Error())
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(u.Name, u.Phone, u.Email)
+	if err != nil {
+		panic(err)
+		return err
+	}
 	return err
 }
 
@@ -406,10 +486,10 @@ func (acc *Account) ChangePassword(pass NewPassword) error {
 	return nil
 }
 
-func SaveImage(fileBytes []byte) (int64, error) {
+func SaveImage(imageUrl string) (int64, error) {
 	// Lưu ảnh dưới dạng BLOB
 	query := `
-	INSERT INTO images (file_data) VALUES (?)
+	INSERT INTO images (url) VALUES (?)
 	`
 
 	stmt, err := db.DB.Prepare(query)
@@ -420,7 +500,7 @@ func SaveImage(fileBytes []byte) (int64, error) {
 
 	defer stmt.Close()
 
-	result, err := stmt.Exec(fileBytes)
+	result, err := stmt.Exec(imageUrl)
 	if err != nil {
 		fmt.Print("save image 2- ", err)
 		return 0, nil
@@ -443,8 +523,6 @@ func SaveImageAvatar(imageId int64, acc *Account) error {
 		query = `UPDATE customers SET image_id = ? WHERE id = ?`
 	case "staff":
 		query = `UPDATE staffs SET image_id = ? WHERE id = ?`
-	case "admin":
-		query = `UPDATE admin SET image_id = ? WHERE id = ?`
 	case "owner":
 		query = `UPDATE owners SET image_id = ? WHERE id = ?`
 	default:
@@ -465,21 +543,28 @@ func (acc *Account) GetAvatar() error {
 	var query string
 	switch acc.Role {
 	case "customer":
-		query = `SELECT file_data FROM customers c LEFT JOIN images i ON c.image_id = i.id WHERE c.id = ?`
+		query = `SELECT url FROM customers c LEFT JOIN images i ON c.image_id = i.id WHERE c.id = ?`
 	case "staff":
-		query = `SELECT file_data FROM staffs s LEFT JOIN images i ON s.image_id = i.id WHERE s.id = ?`
+		query = `SELECT url FROM staffs s LEFT JOIN images i ON s.image_id = i.id WHERE s.id = ?`
 	case "owner":
-		query = `SELECT file_data FROM owners o LEFT JOIN images i ON o.image_id = i.id WHERE o.id = ?`
+		query = `SELECT url FROM owners o LEFT JOIN images i ON o.image_id = i.id WHERE o.id = ?`
 	default:
 		return errors.New("invalid role provided")
 	}
 
 	row := db.DB.QueryRow(query, acc.Id)
 
-	err := row.Scan(&acc.ImageFile)
+	var url sql.NullString
+	err := row.Scan(&url)
 	if err != nil {
-		fmt.Println("get avatar 1- ", err)
+		fmt.Println("get avatar 1 - ", err)
 		return err
+	}
+
+	if url.Valid {
+		acc.ImageFile = url.String
+	} else {
+		acc.ImageFile = "" // hoặc gán default avatar URL
 	}
 	return nil
 }

@@ -14,8 +14,9 @@ type Restaurant struct {
 	Started     string
 	Ended       string
 	Owner_id    int64
+	Status      string
 	Location    string
-	imageFile   []byte
+	imageFile   string
 }
 
 func SearchRestaurants(id int64, name, location string, ownerID int) ([]Restaurant, error) {
@@ -62,7 +63,7 @@ func SearchRestaurants(id int64, name, location string, ownerID int) ([]Restaura
 
 func GetAllRestaurants() ([]Restaurant, error) {
 	var res []Restaurant
-	query := `SELECT id, name, description, time_start, time_end, location, owner_id FROM restaurants`
+	query := `SELECT id, name, description, time_start, time_end, location, owner_id FROM restaurants WHERE status = 'active'`
 	rows, err := db.DB.Query(query)
 	if err != nil {
 		return res, errors.New("can't catch any information")
@@ -82,14 +83,15 @@ func GetAllRestaurants() ([]Restaurant, error) {
 
 func (r *Restaurant) CreateRestaurant() error {
 	query := `
-	INSERT INTO restaurants(name, description, time_start, time_end, location, owner_id)
-	VALUES (?, ?, ?, ?, ?, ?)`
+	INSERT INTO restaurants(name, description, status, time_start, time_end, location, owner_id)
+	VALUES (?, ?, ?, ?, ?, ?, ?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	result, err := stmt.Exec(r.Name, r.Description, r.Started, r.Ended, r.Location, r.Owner_id)
+	r.Status = "active"
+	result, err := stmt.Exec(r.Name, r.Description, r.Status, r.Started, r.Ended, r.Location, r.Owner_id)
 	fmt.Print(r.Owner_id)
 	if err != nil {
 		return err
@@ -135,7 +137,9 @@ func (r *Restaurant) UpdateRestaurant() error {
 }
 
 func DeleteRestaurantByID(id int64) error {
-	query := `DELETE FROM restaurants WHERE id = ?`
+	query := `UPDATE restaurants 
+		SET status = 'inactive'
+		WHERE id = ?`
 	result, err := db.DB.Exec(query, id)
 	if err != nil {
 		return err
@@ -159,7 +163,7 @@ func GetRestaurantByOwnerID(id int64) (error, []Restaurant) {
 	// var image_id int64
 	query := `
 	SELECT id, name, description, time_start, time_end, location, owner_id FROM restaurants
-	WHERE owner_id = ?
+	WHERE owner_id = ? AND status = 'active'
 	`
 	rows, err := db.DB.Query(query, id)
 	if err != nil {
@@ -177,11 +181,6 @@ func GetRestaurantByOwnerID(id int64) (error, []Restaurant) {
 			return err, nil
 		}
 		query = ` SELECT image FROM images WHERE id = ?`
-		// err = db.DB.QueryRow(query, image_id).Scan(&e.imageFile)
-		// if err != nil {
-		// 	fmt.Println("Error scanning row 3:", err)
-		// 	return err, nil
-		// }
 		res = append(res, e)
 	}
 	return nil, res

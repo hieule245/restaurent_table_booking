@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { changePasswordSchema } from "../../validations/AccountSchema";
 import axios from "axios";
-
 const ChangePassword = () => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -13,38 +13,21 @@ const ChangePassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // Kiểm tra mật khẩu có ít nhất 8 ký tự, 1 chữ hoa, 1 chữ thường, 1 số, 1 ký tự đặc biệt
-  const isValidPassword = (password) => {
-    const passwordRegex =
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
-    return passwordRegex.test(password);
-  };
-
   const handleChangePassword = async (e) => {
     e.preventDefault();
-    let validationErrors = {};
-
-    if (!oldPassword) {
-      validationErrors.oldPassword = "Old password is required.";
-    }
-    if (!newPassword) {
-      validationErrors.newPassword = "New password is required.";
-    } else if (!isValidPassword(newPassword)) {
-      validationErrors.newPassword =
-        "Password must be at least 8 characters, include uppercase, lowercase, number, and special character (@$!%*?&_).";
-    }
-    if (!confirmPassword) {
-      validationErrors.confirmPassword = "Confirm password is required.";
-    } else if (newPassword !== confirmPassword) {
-      validationErrors.confirmPassword = "Passwords do not match.";
-    }
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
 
     try {
+      await changePasswordSchema.validate(
+        {
+          oldPassword,
+          newPassword,
+          confirmPassword,
+        },
+        { abortEarly: false }
+      );
+
+      setErrors({}); // Clear all errors nếu validate thành công
+
       const token = document.cookie
         .split("; ")
         .find((row) => row.startsWith("token="))
@@ -74,13 +57,28 @@ const ChangePassword = () => {
         toast.error(`Unexpected response: ${res.status}`);
       }
     } catch (error) {
-      // Nếu backend trả về lỗi, hiển thị thông báo từ backend lên giao diện
-      if (error.response && error.response.data.error) {
-        toast.error(error.response.data.error);
-      } else if (error.response && error.response.data.message) {
-        toast.error(error.response.data.message);
+      // Bắt lỗi từ Yup
+      if (error.name === "ValidationError") {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err.message;
+        });
+        setErrors(validationErrors);
       } else {
-        toast.error("Failed to change password.");
+        // Các lỗi khác (API)
+        const errorMessage =
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Failed to change password.";
+
+        if (
+          errorMessage.toLowerCase().includes("old password") ||
+          errorMessage.toLowerCase().includes("not true")
+        ) {
+          setErrors((prev) => ({ ...prev, oldPassword: errorMessage }));
+        } else {
+          toast.error(errorMessage);
+        }
       }
     }
   };
@@ -96,10 +94,13 @@ const ChangePassword = () => {
           <div className="mb-3 input-group">
             <input
               type={showOldPassword ? "text" : "password"}
-              className="form-control"
+              className={`form-control ${errors.oldPassword ? "is-invalid" : ""}`}
               placeholder="Old password"
               value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
+              onChange={(e) => {
+                setOldPassword(e.target.value);
+                setErrors((prev) => ({ ...prev, oldPassword: "" }));
+              }}
             />
             <span
               className="input-group-text bg-white"
@@ -115,10 +116,13 @@ const ChangePassword = () => {
           <div className="mb-3 input-group">
             <input
               type={showNewPassword ? "text" : "password"}
-              className="form-control"
+              className={`form-control ${errors.newPassword ? "is-invalid" : ""}`}
               placeholder="New password"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                setErrors((prev) => ({ ...prev, newPassword: "" }));
+              }}
             />
             <span
               className="input-group-text bg-white"
@@ -134,10 +138,13 @@ const ChangePassword = () => {
           <div className="mb-3 input-group">
             <input
               type={showConfirmPassword ? "text" : "password"}
-              className="form-control"
+              className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
               placeholder="Confirm password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setErrors((prev) => ({ ...prev, confirmPassword: "" }));
+              }}
             />
             <span
               className="input-group-text bg-white"

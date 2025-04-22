@@ -9,6 +9,18 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+const data = {
+  labels: ["Bàn do khách đặt", "Bàn do staff đặt", "Others"],
+  datasets: [
+    {
+      data: [236, 593, 371],
+      backgroundColor: ["#00D25B", "#FC424A", "#FBBF24"],
+      hoverBackgroundColor: ["#00FF80", "#FF5C6C", "#FFD966"],
+      borderWidth: 0,
+    },
+  ],
+};
+
 const options = {
   cutout: "70%",
   plugins: {
@@ -223,8 +235,8 @@ const Dashboard = () => {
             <h5 className="text-primary">Transaction History</h5>
 
             {/* Biểu đồ Doughnut */}
-            <div className="position-relative d-flex justify-content-center align-items-center flex-grow-1">
-              <Doughnut data={data} options={options} className="w-25 h-75" />
+            <div className="position-relative d-flex justify-content-center align-items-center flex-grow-1 mb-3">
+              <Doughnut data={data} options={options} className="w-25 h-100" />
               <div
                 className="position-absolute d-flex flex-column align-items-center"
                 style={{ top: "42%" }}
@@ -249,7 +261,7 @@ const Dashboard = () => {
                   className="d-flex justify-content-between p-3 rounded shadow-sm"
                   style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}
                 >
-                  <span className="text-dark">Transfer to {service.name}</span>
+                  <span className="text-dark">{service.name}</span>
                   <strong className="text-dark">{service.amount}</strong>
                 </div>
               ))}
@@ -278,7 +290,7 @@ const Dashboard = () => {
                   style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}
                 >
                   <div>
-                    <strong className="text-dark">{restaurant.Name}</strong>
+                  <strong className="text-dark text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>{restaurant.Name}</strong>
                     <p className="mb-0 text-muted">
                       {restaurant.TotalRevenue
                         ? restaurant.TotalRevenue.toLocaleString()

@@ -3,11 +3,45 @@ import React from "react";
 import { FaTachometerAlt, FaUsers, FaUtensils, FaCalendarCheck, FaStoreAlt } from "react-icons/fa";
 import HandleLogout from "../../components/authentication/Logout/Logout";
 import { useNavigate } from "react-router-dom";
-
+import { useState, useEffect } from "react";
+import axios from "axios";
+import avatar from "../../assets/image/avatar.png";
 const Sidebar = () => {
     const navigate = useNavigate();
+    const [user, setUser] = useState({
+        Id: "",
+        Name: "",
+        Email: "",
+        Phone: "",
+        Role: "",
+        Status: "",
+        Orther_id: 0,
+        ImageFile: null,
+    });
+
+    const fetchUser = async () => {
+        try {
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/me`, {
+                withCredentials: true,
+            });
+            if (res.data.user) {
+                setUser(res.data.user);
+            }
+        } catch (err) {
+            console.log("User chưa đăng nhập hoặc token hết hạn");
+            setUser(null); // Có thể show UI guest ở đây
+        }
+    };
+
+    // Lưu thông tin từ cookie
+    useEffect(() => {
+        fetchUser();
+    }, []);
+
+    const imageUrl = user.ImageFile ? user.ImageFile : avatar;
+
     return (
-        <div className="position-sticky top-0 start-0 bg-dark rounded-4 d-flex flex-column justify-content-between py-4 align-items-center h-100" style={{ position: "sticky"}}>
+        <div className="position-sticky top-0 start-0 bg-dark rounded-4 d-flex flex-column justify-content-between py-4 align-items-center h-100" style={{ position: "sticky" }}>
             <div className="d-flex flex-column align-items-center gap-3">
                 <button className="text-white text-decoration-none cursor-pointer fs-2 fw-bolder border-0 bg-transparent d-flex align-items-center">
                     <FaUtensils className="me-1" /> TableBooker
@@ -27,9 +61,24 @@ const Sidebar = () => {
                     <FaCalendarCheck /> Revenues
                 </button>
             </div>
-            <button className="btn btn-outline-danger me-2" onClick={() => HandleLogout()}>
-                Logout
-            </button>
+            <div className="d-flex flex-column align-items-center gap-3">
+                <h5 className="text-white text-center mb-0">{user?.Name}</h5>
+                <button
+                    type="button"
+                    onClick={() => navigate("/personal")}
+                    className="rounded-circle p-0 border-0 overflow-hidden"
+                    style={{ width: "48px", height: "48px" }}
+                >
+                    <img
+                        src={user && imageUrl ? imageUrl : avatar}
+                        alt="User Avatar"
+                        className="w-100 h-100 rounded-circle object-fit-cover"
+                    />
+                </button>
+                <button className="btn btn-outline-danger" onClick={HandleLogout}>
+                    Logout
+                </button>
+            </div>
         </div>
     );
 };

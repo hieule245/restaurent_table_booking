@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
+import { staffValidationSchema } from "../../../../validations/AccountSchema";
+import { useRef } from "react";
 
 export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
+  const closeBtnRef = useRef();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -15,12 +18,6 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
   });
   const [errors, setErrors] = useState({});
 
-  const isValidGmail = (gmail) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(gmail);
-  const isValidPassword = (password) =>
-    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/.test(
-      password
-    );
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
@@ -28,24 +25,11 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let validationErrors = {};
-
-    if (!formData.name) validationErrors.name = "Name is required.";
-    if (!formData.gmail) validationErrors.gmail = "Gmail is required.";
-    else if (!isValidGmail(formData.gmail))
-      validationErrors.gmail = "Invalid gmail format.";
-    if (!formData.password) validationErrors.password = "Password is required.";
-    else if (!isValidPassword(formData.password))
-      validationErrors.password =
-        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.";
-    if (!formData.phone) validationErrors.phone = "Phone number is required.";
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
 
     try {
+      await staffValidationSchema.validate(formData, { abortEarly: false });
+      setErrors({});
+
       await axios.post(
         `${process.env.REACT_APP_API_URL}/owners/:owner_id/${restaurant_id}/staffs`,
         { ...formData, restaurant_id: restaurant_id },
@@ -53,10 +37,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
       );
 
       toast.success("Staff created successfully!");
-
       onStaffAdded(formData);
-
-      // Reset form
       setFormData({
         name: "",
         gmail: "",
@@ -64,8 +45,18 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
         phone: "",
         restaurant_id: 0,
       });
+
+      closeBtnRef.current?.click(); // 👉 đóng modal bằng ref
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to create staff.");
+      if (err.name === "ValidationError") {
+        const validationErrors = {};
+        err.inner.forEach((error) => {
+          validationErrors[error.path] = error.message;
+        });
+        setErrors(validationErrors);
+      } else {
+        toast.error(err.response?.data?.message || "Failed to create staff.");
+      }
     }
   };
 
@@ -77,6 +68,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
       aria-labelledby="myModalLabel"
       aria-hidden="true"
     >
+      <ToastContainer />
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content rounded-4 shadow-lg border-0">
           <div className="modal-header bg-dark text-white rounded-top-4">
@@ -108,7 +100,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
               <div className="form-group mb-3">
                 <label className="form-label fw-bold text-dark">Gmail</label>
                 <input
-                  type="email"
+                  type="text"
                   name="gmail"
                   className="form-control border-secondary rounded-3"
                   placeholder="Gmail"
@@ -135,7 +127,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
                     style={{ cursor: "pointer", borderLeft: 0 }}
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    <FontAwesomeIcon icon={showPassword ? FaEye : FaEyeSlash} />
+                    <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
                   </span>
                 </div>
                 {errors.password && (
@@ -157,14 +149,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
                 )}
               </div>
             </div>
-            <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
-              <button
-                type="button"
-                className="btn btn-outline-dark fw-bold px-4"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
+            <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-end">
               <button
                 type="submit"
                 className="btn btn-danger fw-bold px-4"

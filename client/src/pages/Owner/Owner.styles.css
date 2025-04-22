@@ -3,7 +3,10 @@
   height: 100vh;
   color: white;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> big_update
 .react-tabs__tab:focus {
   outline: none !important;
   box-shadow: none !important;

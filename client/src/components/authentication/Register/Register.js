@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import axios from "axios";
@@ -8,6 +8,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion"; // Import animation
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { AccountSchema } from "../../../validations/AccountSchema";
+import "bootstrap/dist/js/bootstrap.bundle.min";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -17,69 +19,17 @@ const RegisterPage = () => {
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("customer");
   const [confirmPassword, setConfirmPassword] = useState(""); // New state for confirm password
+  const [errors, setErrors] = useState({});
   let [showPassword, setShowPassword] = useState(false); // State for showing password
   let [showConfirmPassword, setShowConfirmPassword] = useState(false); // State for showing password
-  const [errors, setErrors] = useState({});
-
-  useEffect(() => {
-    import("bootstrap/dist/js/bootstrap.bundle.min");
-  }, []);
-
-  const isValidPhone = (phone) => {
-    const phoneRegex = /^(0[1-9][0-9]{8})$/;
-    return phoneRegex.test(phone);
-  };
-
-  const isValidPassword = (password) => {
-    const passwordRegex =
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
-    return passwordRegex.test(password);
-  };
-
-  const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    let validationErrors = {};
 
-    // Validation checks
-    if (!name) {
-      validationErrors.name = "Name is required.";
-    } else if (name.length > 50) {
-      validationErrors.name = "Name must not exceed 50 characters.";
-    }
-    if (!email) {
-      validationErrors.email = "Email is required.";
-    } else if (!isValidEmail(email)) {
-      validationErrors.email = "Invalid email format.";
-    }
-    if (!phone) {
-      validationErrors.phone = "Phone number is required.";
-    } else if (!isValidPhone(phone)) {
-      validationErrors.phone =
-        "Phone number must be exactly 10 digits.(e.g. 093*******)";
-    }
-    if (!password) {
-      validationErrors.password = "Password is required.";
-    } else if (!isValidPassword(password)) {
-      validationErrors.password =
-        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).";
-    }
-    if (!confirmPassword) {
-      validationErrors.confirmPassword = "Confirm password is required.";
-    }
-    if (password !== confirmPassword) {
-      validationErrors.confirmPassword = "Passwords do not match.";
-    }
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-    console.log(role);
     try {
+      await AccountSchema.validate({ name, email, phone, password, confirmPassword, role }, { abortEarly: false });
+      setErrors({});
+
       const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/register`,
         {
@@ -95,9 +45,23 @@ const RegisterPage = () => {
         toast.success("Registration successful! Redirecting to login...");
         setTimeout(() => navigate("/login"), 2000);
       }
-    } catch (error) {
-      console.log(error);
-      toast.error("Registration failed. Please try again.");
+    } catch (err) {
+      if (err.name === "ValidationError") {
+        const newErrors = {};
+        err.inner.forEach((error) => {
+          newErrors[error.path] = error.message;
+        });
+        setErrors(newErrors);
+      } else {
+        const errorMessage =
+          err.response?.data?.message || "Registration failed. Please try again.";
+
+        if (errorMessage.toLowerCase().includes("email")) {
+          setErrors((prev) => ({ ...prev, email: errorMessage }));
+        } else {
+          toast.error(errorMessage);
+        }
+      }
     }
   };
 

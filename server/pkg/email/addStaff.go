@@ -3,21 +3,22 @@ package pkg
 import (
 	"fmt"
 	"net/smtp"
+	"os"
 )
 
 func SendMailStaff(email, name, password string) error {
-	auth := smtp.PlainAuth(
-		"",
-		"golangtraining2025@gmail.com",
-		"vowhfgfectpvypos",
-		"smtp.gmail.com",
-	)
+	mailUser := os.Getenv("MAIL_USERNAME")
+	mailPass := os.Getenv("MAIL_PASSWORD")
+	smtpHost := os.Getenv("MAIL_SMTP_HOST")
+	smtpPort := os.Getenv("MAIL_SMTP_PORT")
 
-	msg := fmt.Sprintf(`From: no-reply@tablebooker.com  
-To: %s  
-Subject: Thông tin tài khoản nhân viên của bạn  
-MIME-Version: 1.0  
-Content-Type: text/html; charset="UTF-8"  
+	auth := smtp.PlainAuth("", mailUser, mailPass, smtpHost)
+
+	msg := fmt.Sprintf(`From: %s
+To: %s
+Subject: Thông tin tài khoản nhân viên của bạn
+MIME-Version: 1.0
+Content-Type: text/html; charset="UTF-8"
 
 <html>
 	<body style="font-family: Arial, sans-serif;">
@@ -30,14 +31,14 @@ Content-Type: text/html; charset="UTF-8"
 		</ul>
 		<p>Vui lòng đăng nhập vào hệ thống và đổi mật khẩu ngay để bảo mật tài khoản.</p>
 		<p>Trân trọng,</p>
-		<p><strong>Đội ngũ hỗ trợ</strong></p>
+		<p><strong>Đội ngũ hỗ trợ TableBooker</strong></p>
 	</body>
-</html>`, email, name, email, password)
+</html>`, mailUser, email, name, email, password)
 
 	err := smtp.SendMail(
-		"smtp.gmail.com:587",
+		smtpHost+":"+smtpPort,
 		auth,
-		"golangtraining2025@gmail.com",
+		mailUser,
 		[]string{email},
 		[]byte(msg),
 	)

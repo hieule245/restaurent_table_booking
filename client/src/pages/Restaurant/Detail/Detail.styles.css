@@ -94,3 +94,7 @@
     transform: translateY(-5px);
     box-shadow: 0px 8px 15px rgba(220, 53, 69, 0.3);
 }
+
+.table-list-container{
+    height: 70vh;
+}

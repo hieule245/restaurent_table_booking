@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
-import { FaUtensils } from "react-icons/fa";
+import { useEffect } from "react";
 import { Tabs, Tab, TabList, TabPanel } from "react-tabs";
 import Dashboard from "../../components/Dashboard/Dashboard";
-import RestaurantList from "../../components/Restaurants/RestaurantList";
-import ReservationList from "../../components/Restaurants/Reservations/ReservationList";
+import RestaurantList from "../../components/Restaurants_Owner/Restaurant/RestaurantList";
+import ReservationList from "../../components/Restaurants_Owner/Reservations/ReservationList";
 import NavBar from "../../components/NavBar/NavBar";
 import "./Owner.styles.css";
 import axios from "axios";

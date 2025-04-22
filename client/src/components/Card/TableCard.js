@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./TableCard.styles.css"; // Import CSS riêng
 import axios from "axios";
+
 const TableCard = ({ restaurant_id, table, onUpdate }) => {
   const [showModal, setShowModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -157,7 +158,7 @@ const TableCard = ({ restaurant_id, table, onUpdate }) => {
                 <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-between">
                   <button
                     type="button"
-                    class="btn btn-outline-dark fw-bold px-4"
+                    className="btn btn-outline-dark fw-bold px-4"
                     onClick={confirmDelete}
                   >
                     Delete

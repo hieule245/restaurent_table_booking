@@ -218,11 +218,14 @@ const Restaurant = () => {
         {/* Nội dung chính */}
         <div className="col-md-9 p-4 mt-3">
           <div className="restaurant-details pt-4 pb-0">
-            <h1 className="restaurant-name text-dark mb-1">
+            <h1 className="restaurant-name text-dark mb-1 text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>
               {restaurant.Name + " #" + restaurant.Id}
             </h1>
-            <p className="restaurant-description text-muted">
-              {restaurant.Description}
+            <p
+              className="restaurant-description text-muted text-truncate"
+              style={{ maxWidth: '100%' }}
+            >
+              {restaurant.Description || '\u00A0'}
             </p>
             <p className="restaurant-address-text">
               <FontAwesomeIcon
