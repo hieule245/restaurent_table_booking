@@ -51,7 +51,7 @@ func createTable() {
 	ImageQuery := `
 	CREATE TABLE IF NOT EXISTS images (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    url VARCHAR(1024) NOT NULL
+    url VARCHAR(768) NOT NULL
 	);
 	`
 	_, err := DB.Exec(ImageQuery)
@@ -64,8 +64,8 @@ func createTable() {
 		id INTEGER PRIMARY KEY AUTO_INCREMENT,
 		gmail VARCHAR(50) NOT NULL UNIQUE,
 		name NVARCHAR(50) NOT NULL, 
-		phone VARCHAR(50) NOT NULL,
-		password VARCHAR(64) NOT NULL,
+		phone VARCHAR(11) NOT NULL,
+		password VARCHAR(60) NOT NULL,
 		status VARCHAR(10) NOT NULL,
 		image_id INTEGER,
 		FOREIGN KEY (image_id) REFERENCES images(id)
@@ -81,8 +81,8 @@ func createTable() {
 		id INTEGER PRIMARY KEY AUTO_INCREMENT,
 		gmail VARCHAR(50) NOT NULL UNIQUE,
 		name NVARCHAR(50) NOT NULL, 
-		phone VARCHAR(50) NOT NULL,
-		password VARCHAR(64) NOT NULL
+		phone VARCHAR(11) NOT NULL,
+		password VARCHAR(60) NOT NULL
 	)	
 	`
 	_, err = DB.Exec(AdminQuery)
@@ -95,8 +95,8 @@ func createTable() {
 		id INTEGER PRIMARY KEY AUTO_INCREMENT,
 		gmail VARCHAR(50) NOT NULL UNIQUE,
 		name NVARCHAR(50) NOT NULL, 
-		phone VARCHAR(50) NOT NULL,
-		password VARCHAR(64) NOT NULL,
+		phone VARCHAR(11) NOT NULL,
+		password VARCHAR(60) NOT NULL,
 		status VARCHAR(10) NOT NULL,
 		image_id INTEGER,
 		FOREIGN KEY (image_id) REFERENCES images(id)
@@ -116,6 +116,7 @@ func createTable() {
 		time_end TIME NOT NULL,
 		location TEXT NOT NULL,
 		owner_id INTEGER NOT NULL,
+		status VARCHAR(10) NOT NULL,
 		FOREIGN KEY (owner_id) REFERENCES owners(id),
 		image_id INTEGER,
 		FOREIGN KEY (image_id) REFERENCES images(id)
@@ -131,9 +132,9 @@ func createTable() {
 		id INTEGER PRIMARY KEY AUTO_INCREMENT,
 		gmail VARCHAR(50) NOT NULL,
 		name NVARCHAR(50) NOT NULL, 
-		phone VARCHAR(50) NOT NULL,
+		phone VARCHAR(11) NOT NULL,
 		status VARCHAR(10) NOT NULL,
-		password VARCHAR(64) NOT NULL,
+		password VARCHAR(60) NOT NULL,
 		restaurant_id INTEGER NOT NULL,
 		FOREIGN KEY (restaurant_id) REFERENCES restaurants(id),
 		image_id INTEGER,
@@ -151,6 +152,7 @@ func createTable() {
 		type NVARCHAR(50) NOT NULL,
 		seats INTEGER NOT NULL,
 		description TEXT NOT NULL,
+		status VARCHAR(10) NOT NULL,
 		restaurant_id INTEGER NOT NULL,
 		FOREIGN KEY (restaurant_id) REFERENCES restaurants(id),
 		image_id INTEGER,
