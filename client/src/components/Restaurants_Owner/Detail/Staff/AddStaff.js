@@ -46,7 +46,8 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
         restaurant_id: 0,
       });
 
-      closeBtnRef.current?.click(); // 👉 đóng modal bằng ref
+      // 👉 chỉ đóng modal nếu mọi thứ đều thành công
+      closeBtnRef.current?.click();
     } catch (err) {
       if (err.name === "ValidationError") {
         const validationErrors = {};
@@ -55,7 +56,8 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
         });
         setErrors(validationErrors);
       } else {
-        toast.error(err.response?.data?.message || "Failed to create staff.");
+        console.log(err.response?.data?.error);
+        toast.error(err.response?.data?.message || err.response?.data?.error || "Failed to create staff.");
       }
     }
   };
@@ -153,9 +155,6 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
               <button
                 type="submit"
                 className="btn btn-danger fw-bold px-4"
-                {...(Object.keys(errors).length === 0
-                  ? { "data-bs-dismiss": "modal" }
-                  : "")}
               >
                 Create
               </button>

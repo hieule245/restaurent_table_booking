@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaUsers } from "react-icons/fa";
+import { FaUsers, FaUserTag } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import Sidebar from "./SideBar";
 import {
@@ -179,7 +179,7 @@ const Admin = () => {
 
           <div className="accounts-container">
             <div className="row">
-              {currentItems.map(({ Id, Name, Email, Phone, Status }) => (
+              {currentItems.map(({ Id, Name, Email, Phone, Status, Role }) => (
                 <div key={Id} className="col-md-3 mb-4">
                   <div className="card w-100 h-100 shadow-lg border-2 border-danger rounded-4 bg-light text-dark position-relative p-3">
                     <button
@@ -217,6 +217,10 @@ const Admin = () => {
                       <p className="text-dark mb-1">
                         <FaEnvelope className="text-danger me-2" />
                         {Email}
+                      </p>
+                      <p className="text-dark mb-1">
+                        <FaUserTag className="text-danger me-2" />
+                        {Role}
                       </p>
                       <p className="d-flex align-items-center mb-1 justify-content-center text-dark">
                         <FaPhone className="text-danger me-2" />
