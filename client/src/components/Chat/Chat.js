@@ -4,7 +4,6 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { useNavigate } from "react-router-dom";
 import "./Chat.css";
 import axios from "axios";
-import { REST_API_URL } from "../../data";
 function Chat() {
   const [input, setInput] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);

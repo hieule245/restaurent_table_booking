@@ -28,17 +28,17 @@ header {
   padding-left: 1.5rem;
   text-transform: uppercase;
   font-weight: bold;
-  color: #FFFFFF; /* Chữ màu trắng */
+  color: #ffffff; /* Chữ màu trắng */
   transition: color 0.3s ease-in-out;
 }
 
 .nav-links:hover {
-  color: #DC3545; /* Đỏ danger khi hover */
+  color: #dc3545; /* Đỏ danger khi hover */
 }
 
 /* Signup Button */
 .signup-link {
-  background-color: #DC3545; /* Nền đỏ */
+  background-color: #dc3545; /* Nền đỏ */
   color: white;
   padding: 8px 15px;
   border-radius: 5px;
@@ -47,7 +47,7 @@ header {
 }
 
 .signup-link:hover {
-  background-color: #A71D2A; /* Đỏ đậm hơn */
+  background-color: #a71d2a; /* Đỏ đậm hơn */
 }
 
 /* USER AVATAR */
@@ -62,7 +62,7 @@ header {
 
 .nav-menu {
   background-color: #000000; /* Menu mobile nền đen */
-  color: #FFFFFF;
+  color: #ffffff;
   width: 75vw;
   height: 100vh;
   position: fixed;

@@ -9,7 +9,6 @@ import BookingRow from "../BookingRow/BookingRow";
 import "react-toastify/dist/ReactToastify.css";
 import "./BookingHistory.css";
 import RestaurantLayout from "../../pages/Restaurant/restaurantLayout";
-import { REST_API_URL } from "../../data";
 const BookingHistory = () => {
   const [bookings, setBookings] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);

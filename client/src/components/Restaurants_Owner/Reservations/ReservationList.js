@@ -5,7 +5,6 @@ import { faCalendarAlt, faClock, faChair, faUser, faStoreAlt } from "@fortawesom
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 
-import { REST_API_URL } from "../../../data";
 
 const ReservationList = () => {
   const [reservations, setReservations] = useState([]);

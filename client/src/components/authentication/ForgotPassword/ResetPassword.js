@@ -8,7 +8,6 @@ import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import { resetPasswordSchema } from "../../../validations/AccountSchema";
 
-import { REST_API_URL } from "../../../data";
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

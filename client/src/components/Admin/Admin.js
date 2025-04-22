@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { restaurants } from "../../data";
 import HandleLogout from "../authentication/Logout/Logout";
-import { REST_API_URL } from "../../data";
 const Admin = () => {
   const [reservations] = useState([]);
   const [users, setUsers] = useState([]);

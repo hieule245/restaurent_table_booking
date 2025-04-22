@@ -7,9 +7,7 @@ function App() {
   return (
     <>
       <Main />
-      <div>
-        <TestAPI />
-      </div>
+      <div>{/* <TestAPI /> */}</div>
     </>
   );
 }

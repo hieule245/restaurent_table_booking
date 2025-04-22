@@ -1,7 +1,6 @@
 import { useState } from "react";
 import "./TableCard.styles.css"; // Import CSS riêng
 import axios from "axios";
-import { REST_API_URL } from "../../data"; // Đường dẫn API
 
 const TableCard = ({ restaurant_id, table, onUpdate }) => {
   const [showModal, setShowModal] = useState(false);

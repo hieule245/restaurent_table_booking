@@ -12,7 +12,6 @@ import TableCard from "../../../Card/TableCard";
 import "./Tablelist.styles.css";
 import { ToastContainer } from "react-toastify";
 import { Modal } from "bootstrap";
-import { REST_API_URL } from "../../../../data";
 
 const TableList = ({ restaurant_id }) => {
   const [tables, setTables] = useState([]);
