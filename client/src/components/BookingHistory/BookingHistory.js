@@ -24,6 +24,24 @@ const BookingHistory = () => {
   const currentItems = bookings.slice(indexOfFirstItem, indexOfLastItem);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const getUpdatedStatus = (booking, timeNow) => {
+    const startSeconds = convertTimeToSeconds(booking.time_start);
+    const endSeconds = convertTimeToSeconds(booking.time_end);
+
+    switch (booking.status) {
+      case 1: // Pending
+        return timeNow >= startSeconds ? 0 : booking.status;
+      case 2: // Confirmed
+        if (timeNow >= startSeconds && timeNow < endSeconds) return 3;
+        if (timeNow >= endSeconds) return 4;
+        return booking.status;
+      case 3: // Occupied
+        return timeNow >= endSeconds ? 4 : booking.status;
+      default:
+        return booking.status;
+    }
+  };
+
   // cập nhật thời gian mỗi 5 giây và kiểm tra trạng thái
   useEffect(() => {
     const interval = setInterval(() => {
@@ -33,35 +51,24 @@ const BookingHistory = () => {
       // Cập nhật trạng thái đặt bàn
       setBookings((prevBookings) =>
         prevBookings.map((booking) => {
-          const bookDate = new Date(`${booking.book_date}`);
+          const bookDate = new Date(booking.book_date);
           const today = new Date();
+
           if (
             bookDate.getFullYear() !== today.getFullYear() ||
             bookDate.getMonth() !== today.getMonth() ||
             bookDate.getDate() !== today.getDate()
           ) {
-            return booking; // Không phải hôm nay => giữ nguyên
+            return booking;
           }
 
-          const timeNow =
-            now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-          const startSeconds = convertTimeToSeconds(booking.time_start);
-          const endSeconds = convertTimeToSeconds(booking.time_end);
-
-          // Pending => Cancelled nếu quá giờ
-          if (booking.status === 1 && timeNow >= startSeconds) {
-            updateStatusOnServer(booking.id, 0);
-            return { ...booking, status: 0 };
-          }
-          // Confirmed => Occupied hoặc Done
-          if (booking.status === 2) {
-            if (timeNow >= startSeconds && timeNow < endSeconds) {
-              updateStatusOnServer(booking.id, 3);
-              return { ...booking, status: 3 };
-            } else if (timeNow >= endSeconds) {
-              updateStatusOnServer(booking.id, 4);
-              return { ...booking, status: 4 };
-            }
+          const currentSeconds = convertTimeToSeconds(
+            now.toTimeString().split(" ")[0]
+          );
+          const newStatus = getUpdatedStatus(booking, currentSeconds);
+          if (newStatus !== booking.status) {
+            updateStatusOnServer(booking.id, newStatus);
+            return { ...booking, status: newStatus };
           }
 
           return booking;

@@ -17,9 +17,12 @@ func Routes(server *gin.Engine) {
 		restaurant.GET("/:restaurant_id/tables", services.GetAllTables)
 	}
 	server.GET("/table/:table_id", services.GetTableByID)
+	server.PUT("/reservation/:reservation_id/server", services.EditReservationByServer)
 
 	// Các route xác thực
 	AuthRoutes(server)
+
+	RegisterChatRoutes(server)
 
 	Guest(server)
 

@@ -89,15 +89,7 @@ const NavBar = () => {
       <header className="shadow-sm p-0" ref={navRef}>
         <nav className="container-fluid px-4 py-3">
           <div className="row justify-content-between align-items-center">
-            <div className="col-1 back-icon">
-              <div className="border p-2 border-0 d-flex justify-content-center align-items-center">
-                <FontAwesomeIcon
-                  onClick={() => navigate(-1)}
-                  icon={faArrowLeft}
-                  className="arrow-icon"
-                />
-              </div>
-            </div>
+            <div className="col-1 back-icon"></div>
             <div className="col-1"></div>
             <div className="col-3 row">
               <FaUtensils className="nav-icon text-white fs-1 col-2" />
@@ -167,6 +159,12 @@ const NavBar = () => {
                             className="w-100 h-100 rounded-circle object-fit-cover"
                           />
                         </button>
+                        <span className="text-white fw-bold fs-5 ms-4">
+                          {user && user.Name ? user.Name + " | " : "User |  "}
+                        </span>
+                        <span className="text-white fw-bold fs-5 ms-2">
+                          {user && user.Role ? user.Role : "Role"}
+                        </span>
 
                         <ul className="dropdown-menu">
                           <li>
@@ -187,6 +185,14 @@ const NavBar = () => {
                               </button>
                             </li>
                           )}
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => navigate("/chat")}
+                            >
+                              Chat 
+                            </button>
+                          </li>
                           <li>
                             <button
                               className="dropdown-item"

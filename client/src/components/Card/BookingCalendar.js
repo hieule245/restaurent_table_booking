@@ -196,229 +196,189 @@ const BookingCalendar = ({ table, restaurant }) => {
     if (!selectedDay || !hasBooking) return;
 
     try {
-      // Cập nhật thông tin user
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/me`, {
         withCredentials: true,
       });
-      if (res.data && res.data.user) {
-        setUser(res.data.user);
-      } else {
+      setUser(res.data?.user || null);
+      if (!res.data?.user)
         console.warn("API không trả về thông tin user hợp lệ.");
-        setUser(null);
-      }
     } catch (error) {
       setIsLoading(false);
       console.error("Lỗi khi lấy thông tin user:", error);
       setUser(null);
+      return;
     }
 
-    const formattedMonth = String(selectedMonth).padStart(2, "0");
-    const formattedDay = String(selectedDay).padStart(2, "0");
-    const book_date = `${currentYear}-${formattedMonth}-${formattedDay}`;
-
+    const book_date = `${currentYear}-${String(selectedMonth).padStart(
+      2,
+      "0"
+    )}-${String(selectedDay).padStart(2, "0")}`;
     const price = 0.0;
     const status = 1;
     const formatTime = (hour) => String(hour).padStart(2, "0");
-    // Tạo dữ liệu đặt bàn từ các khung giờ được chọn
-    const parse12HourTo24 = (timeLabel) => {
-      const [hourStr, meridiem] = timeLabel.split(" ");
-      let hour = parseInt(hourStr);
-      if (meridiem === "PM" && hour !== 12) hour += 12;
-      if (meridiem === "AM" && hour === 12) hour = 0;
-      return hour;
+    const parse12HourTo24 = (label) => {
+      let [hour, meridiem] = label.split(" ");
+      hour = parseInt(hour);
+      return meridiem === "PM" && hour !== 12
+        ? hour + 12
+        : meridiem === "AM" && hour === 12
+        ? 0
+        : hour;
     };
 
-    const bookingData = selectedSlots.map((timeSlot) => {
-      const [startLabel, endLabel] = timeSlot.split(" - ");
-      const startHour = parse12HourTo24(startLabel);
-      const endHour = parse12HourTo24(endLabel);
-      return {
-        customer_id: user?.Id,
-        table_id: parseInt(table_id),
-        book_date,
-        time_start: `${formatTime(startHour)}:00`,
-        time_end: `${formatTime(endHour)}:00`,
-        actual_end: `${formatTime(endHour)}:00`,
-        price,
-        customer_email: user?.Email,
-        status,
-        numberOfCustomer: numberOfCustomer,
-      };
-    });
-
-    const bookingStaffData = selectedSlots.map((timeSlot) => {
-      const [startLabel, endLabel] = timeSlot.split(" - ");
-      const startHour = parse12HourTo24(startLabel);
-      const endHour = parse12HourTo24(endLabel);
-      return {
-        staff_id: user?.Id,
-        table_id: parseInt(table_id),
-        numberOfCustomer,
-        book_date,
-        time_start: `${formatTime(startHour)}:00`,
-        time_end: `${formatTime(endHour)}:00`,
-        actual_end: `${formatTime(endHour)}:00`,
-        price,
-        customer_email: user?.Role === "staff" ? customerEmail : user?.Email,
-        status,
-      };
-    });
+    const buildBooking = (isStaff = false) =>
+      selectedSlots.map((slot) => {
+        const [startLabel, endLabel] = slot.split(" - ");
+        const startHour = parse12HourTo24(startLabel);
+        const endHour = parse12HourTo24(endLabel);
+        return {
+          [`${isStaff ? "staff" : "customer"}_id`]: user?.Id,
+          table_id: parseInt(table_id),
+          book_date,
+          time_start: `${formatTime(startHour)}:00`,
+          time_end: `${formatTime(endHour)}:00`,
+          actual_end: `${formatTime(endHour)}:00`,
+          price,
+          customer_email: isStaff ? customerEmail : user?.Email,
+          status,
+          numberOfCustomer,
+        };
+      });
 
     if (user?.Role === "staff") {
-      if (!customerEmail.trim()) {
-        Swal.fire({
-          title: "Thiếu email khách hàng",
-          text: "Vui lòng nhập email khách hàng để đặt bàn.",
+      if (!customerEmail.trim() || !customerPhone.trim()) {
+        return Swal.fire({
+          title: "Thiếu thông tin",
+          text: "Vui lòng nhập đầy đủ email và số điện thoại khách hàng.",
           icon: "warning",
         });
-        return;
       }
 
-      if (!customerPhone.trim()) {
-        Swal.fire({
-          title: "Thiếu số điện thoại khách hàng",
-          text: "Vui lòng nhập số điện thoại khách hàng để đặt bàn.",
-          icon: "warning",
-        });
-        return;
-      }
-
-      // Có thể check định dạng email hoặc số điện thoại nếu muốn kỹ hơn:
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
       if (!emailRegex.test(customerEmail)) {
-        Swal.fire({
+        return Swal.fire({
           title: "Email không hợp lệ",
           text: "Vui lòng nhập đúng định dạng email.",
           icon: "warning",
         });
-        return;
       }
-
-      const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
       if (!phoneRegex.test(customerPhone)) {
-        Swal.fire({
+        return Swal.fire({
           title: "Số điện thoại không hợp lệ",
           text: "Vui lòng nhập đúng định dạng số điện thoại Việt Nam.",
           icon: "warning",
         });
-        return;
       }
     }
 
-    const sortedBookings = [...bookingData].sort(
+    const bookingData = buildBooking(false);
+    const bookingStaffData = buildBooking(true);
+
+    const sorted = [...bookingData].sort(
       (a, b) => parseInt(a.time_start) - parseInt(b.time_start)
     );
-    const firstSlot = sortedBookings[0];
-    const lastSlot = sortedBookings[sortedBookings.length - 1];
+    bookingData[0].time_start = sorted[0].time_start;
+    bookingData[0].time_end = sorted[sorted.length - 1].time_end;
 
-    bookingData[0].time_start = firstSlot.time_start;
-    bookingData[0].time_end = lastSlot.time_end;
-
-    // Hiển thị hộp thoại xác nhận trước khi gửi request
     Swal.fire({
       title: "Xác nhận đặt bàn",
       html: `
       <hr>
-        <div style="display: flex; justify-content: space-between; text-align: left; gap: 10px; padding: 20px">
-          <div>
-            <p><strong>User Name :</strong> </p>
-            <p><strong>Email Address :</strong> </p>
-            <p><strong>Phone Number :</strong> </p>
-            <p><strong>Book Date :</strong> </p>
-            <p><strong>Time Start :</strong> </p>
-            <p><strong>Time End :</strong> </p>
-            <p><strong>Time Duration :</strong> </p>
-            <p><strong>Number of Seats :</strong> </p>
-            <p><strong>Number of Customer :</strong> </p>
-          </div>
-          <div>
-            <p>${user.Name}</p>
-            <p>${user?.Role === "staff" ? customerEmail : user.Email}</p>
-            <p>${user?.Role === "staff" ? customerPhone : user.Phone}</p>
-            <p>${book_date}</p>
-            <p>${firstSlot.time_start}</p>
-            <p>${lastSlot.time_end}</p>
-            <p>${selectedSlots.length * 2 + " Hours"}</p>
-            <p>${numberOfCustomer}</p>
-            <p>${bookingData[0].time_start}</p>
-            <p>${bookingData[0].time_end}</p>
-            <p>${table.seats}</p>
-            <p>
-              <input 
-                id="numCustomerInput"
-                type="number"
-                min="${table.seats - 1}"
-                max="${table.seats + 1}"
-                value="${numberOfCustomer}"
-                placeholder="${table.seats}"
-                style="width: 60px; padding: 3px; border: 1px solid #ccc; border-radius: 4px;"
-              />
-            </p>
-          </div>
+      <div style="display: flex; text-align: left; padding: 20px">
+        <div>
+          ${[
+            "User Name",
+            "Email Address",
+            "Phone Number",
+            "Book Date",
+            "Time Start",
+            "Time End",
+            "Time Duration",
+            "Number of Seats",
+            "Number of Customer",
+          ]
+            .map((label) => `<p><strong>${label} :</strong></p>`)
+            .join("")}
         </div>
-        <hr>
-      `,
+        <div style="margin-left: 10px;">
+          <p>${user.Name}</p>
+          <p>${user?.Role === "staff" ? customerEmail : user.Email}</p>
+          <p>${user?.Role === "staff" ? customerPhone : user.Phone}</p>
+          <p>${book_date}</p>
+          <p>${bookingData[0].time_start}</p>
+          <p>${bookingData[0].time_end}</p>
+          <p>${selectedSlots.length * 2} Hours</p>
+          <p>${table.seats}</p>
+          <p>
+            <input 
+              id="numCustomerInput"
+              type="number"
+              min="${table.seats - 1}"
+              max="${table.seats + 1}"
+              value="${numberOfCustomer}"
+              placeholder="${table.seats}"
+              style="width: 60px; padding: 3px; border: 1px solid #ccc; border-radius: 4px;"
+            />
+          </p>
+        </div>
+      </div>
+      <hr>
+    `,
       icon: "info",
       showCancelButton: true,
       confirmButtonText: "Xác nhận",
       cancelButtonText: "Hủy",
     }).then(async (result) => {
-      if (result.isConfirmed) {
-        const numInput = document.getElementById("numCustomerInput");
-        try {
-          const newNum = parseInt(numInput?.value);
+      if (!result.isConfirmed) return;
 
-          const min = table.seats - 1;
-          const max = table.seats + 1;
+      const input = document.getElementById("numCustomerInput");
+      const newNum = parseInt(input?.value);
+      const min = Math.max(1, table.seats - 1); // đảm bảo min luôn >= 1
+      const max = table.seats + 1;
 
-          if (isNaN(newNum) || newNum < min || newNum > max) {
-            return Swal.fire({
-              title: "Lỗi!",
-              text: `Số lượng khách phải từ ${min} đến ${max}`,
-              icon: "error",
-            });
-          }
+      if (isNaN(newNum) || newNum < min || newNum > max) {
+        return Swal.fire({
+          title: "Lỗi!",
+          text: `Số lượng khách phải từ ${min} đến ${max}`,
+          icon: "error",
+        });
+      }
 
-          setNumberOfCustomer(newNum); // cập nhật state nếu bạn cần
+      setNumberOfCustomer(newNum);
+      bookingData[0].numberOfCustomer = newNum.toString();
 
-          bookingData[0].numberOfCustomer = newNum.toString();
-
-          // Gửi request đặt bàn
-          setIsLoading(true);
+      try {
+        setIsLoading(true);
+        const url =
           user.Role === "staff"
-            ? await axios.post(
-                `${process.env.REACT_APP_API_URL}/staff/${restaurant_id}/bookings`,
-                bookingStaffData[0],
-                { withCredentials: true }
-              )
-            : await axios.post(
-                `${process.env.REACT_APP_API_URL}/restaurants/${restaurant_id}/bookings`,
-                bookingData[0],
-                { withCredentials: true }
-              );
-          // Hiển thị thông báo thành công
-          setIsLoading(false);
-          Swal.fire({
-            title: "Thành công!",
-            text: "Đặt bàn thành công!",
-            icon: "success",
-            confirmButtonText: "OK",
-          });
+            ? `/staff/${restaurant_id}/bookings`
+            : `/restaurants/${restaurant_id}/bookings`;
+        const data =
+          user.Role === "staff" ? bookingStaffData[0] : bookingData[0];
 
-          // Reset các state sau khi đặt bàn
-          setSelectedSlots([]);
-          setHasBooking(false);
-          setSelectedDay(null);
-        } catch (error) {
-          setIsLoading(false);
-          Swal.fire({
-            title: "Lỗi!",
-            text: error.response?.data?.error || "Đặt bàn thất bại!",
-            icon: "error",
-          });
-        } finally {
-          setIsLoading(false);
-        }
+        await axios.post(`${process.env.REACT_APP_API_URL}${url}`, data, {
+          withCredentials: true,
+        });
+
+        Swal.fire({
+          title: "Thành công!",
+          text: "Đặt bàn thành công!",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+
+        setSelectedSlots([]);
+        setHasBooking(false);
+        setSelectedDay(null);
+      } catch (error) {
+        Swal.fire({
+          title: "Lỗi!",
+          text: error.response?.data?.error || "Đặt bàn thất bại!",
+          icon: "error",
+        });
+      } finally {
+        setIsLoading(false);
       }
     });
   };
@@ -522,7 +482,7 @@ const BookingCalendar = ({ table, restaurant }) => {
                       <button
                         key={timeSlot}
                         className={buttonClass + " fs-6"}
-                        style={{ width: "120px", height: "40px" }}
+                        style={{ width: "200px", height: "40px" }}
                         onClick={() => toggleBooking(timeSlot)}
                         disabled={isPastTime || isPreBooked}
                       >
