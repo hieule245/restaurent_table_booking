@@ -16,7 +16,7 @@ const Admin = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   const filteredRestaurants = (Array.isArray(restaurants) ? restaurants : []).filter((restaurant) =>
-    restaurant && restaurant.Name && restaurant.Name.toLowerCase().includes(searchTerm.toLowerCase())
+    restaurant && restaurant.Name && restaurant.Name.toLowerCase().includes(searchTerm.trim().toLowerCase())
   );
   const totalPages = Math.ceil(filteredRestaurants.length / itemsPerPage);
   const paginatedRestaurants = filteredRestaurants.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);

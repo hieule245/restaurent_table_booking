@@ -25,6 +25,14 @@ const Admin = () => {
   const [, setSortType] = useState(null);
   const itemsPerPage = 12;
 
+  const filteredAccounts = accounts.filter((account) =>
+    account?.Name?.toLowerCase().includes(searchTerm.trim().toLowerCase())
+  );
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredAccounts.slice(indexOfFirstItem, indexOfLastItem);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
   useEffect(() => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/admin/users`, {
@@ -94,11 +102,6 @@ const Admin = () => {
 
     modalInstance?.hide();
   };
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = accounts.slice(indexOfFirstItem, indexOfLastItem);
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="bg-black">
@@ -290,7 +293,7 @@ const Admin = () => {
             </div>
           </div>
 
-          {accounts.length > itemsPerPage && (
+          {filteredAccounts.length > itemsPerPage && (
             <div className="pagination-container">
               <button
                 className="btn btn-outline-secondary me-2"
@@ -299,7 +302,7 @@ const Admin = () => {
               >
                 &laquo;
               </button>
-              {[...Array(Math.ceil(accounts.length / itemsPerPage)).keys()].map(
+              {[...Array(Math.ceil(filteredAccounts.length / itemsPerPage)).keys()].map(
                 (number) => (
                   <button
                     key={number + 1}
@@ -317,7 +320,7 @@ const Admin = () => {
                 className="btn btn-outline-secondary ms-2"
                 onClick={() => paginate(currentPage + 1)}
                 disabled={
-                  currentPage === Math.ceil(accounts.length / itemsPerPage)
+                  currentPage === Math.ceil(filteredAccounts.length / itemsPerPage)
                 }
               >
                 &raquo;
