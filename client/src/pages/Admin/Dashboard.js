@@ -19,7 +19,7 @@ const Admin = () => {
         })
         .then((res) => {
           console.log("API Response:", res.data); // Kiểm tra dữ liệu trả về
-          SetRevenues(res.data.message || {}); // Gán dữ liệu vào state
+          SetTop(Array.isArray(res.data.top) ? res.data.top : []); // Gán dữ liệu vào state
         })
         .catch((err) => {
           if (err.response) {
@@ -49,7 +49,7 @@ const Admin = () => {
         })
         .then((res) => {
           console.log("API Response:", res.data.top); // Kiểm tra dữ liệu trả về
-          SetTop(res.data.top || {}); // Gán dữ liệu vào state
+          SetTop(Array.isArray(res.data.top) ? res.data.top : []); // Gán dữ liệu vào state
         })
         .catch((err) => {
           if (err.response) {
@@ -103,8 +103,6 @@ const Admin = () => {
                   ? `${revenues.WeeklyRevenue.toLocaleString()} VND`
                   : 0
               }
-              growth="+55% than last week"
-              color="danger"
             />
             <Card
               icon={<FaUsers className="text-white fs-4" />}
@@ -114,15 +112,11 @@ const Admin = () => {
                   ? `${revenues.ActiveStaff} accounts`
                   : "0 account"
               }
-              growth="+55% than last week"
-              color="danger"
             />
             <Card
               icon={<FaUsers className="text-white fs-4" />}
               title="Dropped Users"
               value={revenues.OutStaff ? revenues.OutStaff : 0}
-              growth="+55% than last week"
-              color="danger"
             />
             <Card
               icon={<FaUsers className="text-white fs-4" />}
@@ -133,8 +127,6 @@ const Admin = () => {
                   } reservations`
                   : "0 reservation"
               }
-              growth="+55% than last week"
-              color="danger"
             />
           </div>
 
@@ -143,49 +135,54 @@ const Admin = () => {
             {/* Transaction History */}
             <div className="w-100 d-flex">
               <div
-                className="p-3 rounded shadow-sm w-100 h-100"
+                className="p-3 rounded shadow-sm w-100"
                 style={{
                   backgroundColor: "#FFFFFF",
                   borderRadius: "12px",
                   border: "2px solid #D1E7FF",
+                  height:"54vh"
                 }}
               >
                 <h5 className="pb-2 text-primary">
-                  Top {top.length} Performing Restaurants
+                  Top {top && top.length ? top.length : ""} Performing Restaurants
                 </h5>
-                {top.map((restaurant, index) => (
-                  <div
-                    key={index}
-                    className="d-flex justify-content-between p-2 mt-2 rounded shadow-sm"
-                    style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}
-                  >
-                    <div>
-                      <strong className="text-dark text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>
-                        {restaurant.Name}
-                      </strong>
-                      <p className="mb-0 text-muted">
-                        {restaurant.TotalRevenue
-                          ? restaurant.TotalRevenue.toLocaleString()
-                          : 0}{" "}
-                        VND
-                      </p>
+                {Array.isArray(top) && top.length > 0 ? (
+                  top && top.map((restaurant, index) => (
+                    <div
+                      key={index}
+                      className="d-flex justify-content-between p-2 mt-2 rounded shadow-sm"
+                      style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}
+                    >
+                      <div>
+                        <strong className="text-dark text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>
+                          {restaurant.Name}
+                        </strong>
+                        <p className="mb-0 text-muted">
+                          {restaurant.TotalRevenue
+                            ? restaurant.TotalRevenue.toLocaleString()
+                            : 0}{" "}
+                          VND
+                        </p>
+                      </div>
+                      <div className="text-end">
+                        <small className="text-muted">
+                          {restaurant.TotalCustomer
+                            ? restaurant.TotalCustomer
+                            : 0}{" "}
+                          customers
+                        </small>
+                        <p className="mb-0 text-dark">
+                          {restaurant.TotalReservation
+                            ? restaurant.TotalReservation
+                            : 0}{" "}
+                          reservations
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-end">
-                      <small className="text-muted">
-                        {restaurant.TotalCustomer
-                          ? restaurant.TotalCustomer
-                          : 0}{" "}
-                        customers
-                      </small>
-                      <p className="mb-0 text-dark">
-                        {restaurant.TotalReservation
-                          ? restaurant.TotalReservation
-                          : 0}{" "}
-                        reservations
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-muted text-center mt-3 fs-4">Chưa có nhà hàng nào</p>
+                )}
               </div>
             </div>
           </div>
