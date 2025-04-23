@@ -16,6 +16,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
     password: "",
     phone: "",
     restaurant_id: 0,
+    status: "active",
   });
   const [errors, setErrors] = useState({});
 
@@ -27,12 +28,13 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
-    setIsSubmitting(true);
-    console.log("Form submitting...");
+
     try {
       await staffValidationSchema.validate(formData, { abortEarly: false });
       setErrors({});
+      setIsSubmitting(true); // ✅ CHỈ SET SAU KHI VALIDATE THÀNH CÔNG
 
+      console.log("Form submitting...");
       await axios.post(
         `${process.env.REACT_APP_API_URL}/owners/:owner_id/${restaurant_id}/staffs`,
         { ...formData, restaurant_id: restaurant_id },
@@ -49,9 +51,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
         restaurant_id: 0,
       });
 
-      // 👉 chỉ đóng modal nếu mọi thứ đều thành công
       closeBtnRef.current?.click();
-      setIsSubmitting(false);
     } catch (err) {
       if (err.name === "ValidationError") {
         const validationErrors = {};
@@ -63,6 +63,8 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
         console.log(err.response?.data?.error);
         toast.error(err.response?.data?.message || err.response?.data?.error || "Failed to create staff.");
       }
+    } finally {
+      setIsSubmitting(false); // ✅ luôn reset lại sau khi xong
     }
   };
 

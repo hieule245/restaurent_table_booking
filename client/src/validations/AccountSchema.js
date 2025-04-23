@@ -3,7 +3,7 @@ import * as Yup from "yup";
 
 const phoneRegex = /^(0[1-9][0-9]{8})$/;
 const passwordRegex =
-  /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
+  /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])(?!.*\s)[A-Za-z\d@$!%*?&_]{8,}$/;
 const nameRegex = /^[A-Za-zÀ-ỹ\s]+$/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -37,7 +37,7 @@ export const AccountSchema = Yup.object().shape({
     .required("Password is required.")
     .matches(passwordRegex, {
       message:
-        "Password must include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).",
+        "Password must at least 8 character and include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).",
       excludeEmptyString: true,
     })
     .max(64, "The password must not exceed 64 characters."),
@@ -64,7 +64,7 @@ export const loginSchema = Yup.object().shape({
     .required("Password is required.")
     .matches(passwordRegex, {
       message:
-        "Password must include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).",
+        "Password must at least 8 character and include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).",
       excludeEmptyString: true,
     })
     .max(64, "The password must not exceed 64 characters."),
@@ -75,7 +75,7 @@ export const changePasswordSchema = Yup.object().shape({
     .required("Old password is required.")
     .matches(passwordRegex, {
       message:
-        "Password must include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).",
+        "Password must at least 8 character and include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).",
       excludeEmptyString: true,
     }),
 
@@ -84,7 +84,7 @@ export const changePasswordSchema = Yup.object().shape({
     .required("New password is required.")
     .matches(passwordRegex, {
       message:
-        "Password must include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).",
+        "Password must at least 8 character and include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).",
       excludeEmptyString: true,
     })
     .max(64, "The password must not exceed 64 characters.")
@@ -110,13 +110,19 @@ export const resetPasswordSchema = Yup.object().shape({
     .max(64, "The password must not exceed 64 characters.")
     .matches(passwordRegex, {
       message:
-        "Password must include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).",
+        "Password must at least 8 character and include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).",
       excludeEmptyString: true,
-    }),
+    })
+    .test(
+      "no-spaces",
+      "Password must not contain spaces.",
+      (value) => !/\s/.test(value)
+    ),
   confirmPassword: Yup.string()
     .transform((value) => (value === "" ? undefined : value)) // Biến chuỗi rỗng thành undefined
     .required("Confirm password is required.")
-    .oneOf([Yup.ref("password")], "Passwords do not match."),
+    .oneOf([Yup.ref("password")], "Passwords do not match.")
+    .trim(),
 });
 
 export const profileSchema = Yup.object().shape({
@@ -153,7 +159,7 @@ export const staffValidationSchema = Yup.object().shape({
     .required("Password is required.")
     .matches(passwordRegex, {
       message:
-        "Password must include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).",
+        "Password must at least 8 character and include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&_).",
       excludeEmptyString: true,
     })
     .max(64, "The password must not exceed 64 characters."),

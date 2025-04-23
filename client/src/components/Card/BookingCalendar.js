@@ -57,14 +57,32 @@ const BookingCalendar = ({ table, restaurant }) => {
   const generateTimeSlots = () => {
     if (!restaurant?.Started || !restaurant?.Ended) return [];
 
-    const openHour = extractHour(restaurant.Started);
-    const closeHour = extractHour(restaurant.Ended);
+    const openHour = extractHour(restaurant.Started); // ví dụ 17
+    const closeHour = extractHour(restaurant.Ended);  // ví dụ 6
     const slots = [];
 
-    for (let hour = openHour; hour + 2 <= closeHour; hour += 2) {
-      const start = convertTo12HourFormat(hour);
-      const end = convertTo12HourFormat(hour + 2);
-      slots.push(`${start} - ${end}`);
+    const formatSlot = (startHour, endHour) => {
+      const start = convertTo12HourFormat(startHour);
+      const end = convertTo12HourFormat(endHour);
+      return `${start} - ${end}`;
+    };
+
+    if (openHour < closeHour) {
+      // Nhà hàng mở và đóng trong cùng 1 ngày
+      for (let hour = openHour; hour + 2 <= closeHour; hour += 2) {
+        slots.push(formatSlot(hour, hour + 2));
+      }
+    } else {
+      // Nhà hàng mở từ chiều hôm nay đến sáng hôm sau
+      // Phần từ openHour đến 24h
+      for (let hour = openHour; hour + 2 <= 24; hour += 2) {
+        slots.push(formatSlot(hour, hour + 2));
+      }
+
+      // Phần từ 0h đến closeHour
+      for (let hour = 0; hour + 2 <= closeHour; hour += 2) {
+        slots.push(formatSlot(hour, hour + 2));
+      }
     }
 
     return slots;
@@ -216,15 +234,7 @@ const BookingCalendar = ({ table, restaurant }) => {
     const price = 0.0;
     const status = 1;
     const formatTime = (hour) => String(hour).padStart(2, "0");
-    const parse12HourTo24 = (label) => {
-      let [hour, meridiem] = label.split(" ");
-      hour = parseInt(hour);
-      return meridiem === "PM" && hour !== 12
-        ? hour + 12
-        : meridiem === "AM" && hour === 12
-        ? 0
-        : hour;
-    };
+
 
     const buildBooking = (isStaff = false) =>
       selectedSlots.map((slot) => {
@@ -288,18 +298,18 @@ const BookingCalendar = ({ table, restaurant }) => {
       <div style="display: flex; text-align: left; padding: 20px">
         <div>
           ${[
-            "User Name",
-            "Email Address",
-            "Phone Number",
-            "Book Date",
-            "Time Start",
-            "Time End",
-            "Time Duration",
-            "Number of Seats",
-            "Number of Customer",
-          ]
-            .map((label) => `<p><strong>${label} :</strong></p>`)
-            .join("")}
+          "User Name",
+          "Email Address",
+          "Phone Number",
+          "Book Date",
+          "Time Start",
+          "Time End",
+          "Time Duration",
+          "Number of Seats",
+          "Number of Customer",
+        ]
+          .map((label) => `<p><strong>${label} :</strong></p>`)
+          .join("")}
         </div>
         <div style="margin-left: 10px;">
           <p>${user.Name}</p>
@@ -383,6 +393,29 @@ const BookingCalendar = ({ table, restaurant }) => {
     });
   };
 
+  const parse12HourTo24 = (label) => {
+    let [hour, meridiem] = label.split(" ");
+    hour = parseInt(hour);
+    return meridiem === "PM" && hour !== 12
+      ? hour + 12
+      : meridiem === "AM" && hour === 12
+        ? 0
+        : hour;
+  };
+
+  const isSlotBooked = (timeSlot) => {
+    const dayKey = `${selectedMonth}-${selectedDay}`;
+    const bookedRanges = preBooked[dayKey] || [];
+
+    const [startLabel, endLabel] = timeSlot.split(" - ");
+    const startHour = parse12HourTo24(startLabel);
+    const endHour = parse12HourTo24(endLabel);
+
+    return bookedRanges.some(([bookedStart, bookedEnd]) => {
+      return !(endHour <= bookedStart || startHour >= bookedEnd);
+    });
+  };
+
   return (
     <div>
       <div className="row bg-white m-2 rounded text-dark">
@@ -414,11 +447,10 @@ const BookingCalendar = ({ table, restaurant }) => {
               {months.map((month) => (
                 <button
                   key={month}
-                  className={`btn btn-sm fw-bold ${
-                    selectedMonth === month
+                  className={`btn btn-sm fw-bold ${selectedMonth === month
                       ? "btn-primary"
                       : "btn-outline-secondary"
-                  }`}
+                    }`}
                   onClick={() => setSelectedMonth(month)}
                   disabled={month < currentMonth} // Không cho chọn tháng trước
                 >
@@ -438,9 +470,8 @@ const BookingCalendar = ({ table, restaurant }) => {
               {days.map((day) => (
                 <button
                   key={day}
-                  className={`border d-flex justify-content-center align-items-center fs-6 ${
-                    selectedDay === day ? "bg-success text-white" : "bg-light"
-                  }`}
+                  className={`border d-flex justify-content-center align-items-center fs-6 ${selectedDay === day ? "bg-success text-white" : "bg-light"
+                    }`}
                   style={{ width: "40px", height: "40px" }}
                   onClick={() => setSelectedDay(day)}
                   disabled={selectedMonth === currentMonth && day < currentDay} // Không cho chọn ngày trước
@@ -470,18 +501,17 @@ const BookingCalendar = ({ table, restaurant }) => {
                     const isPreBooked = preBookedForDay.includes(timeSlot);
                     const isSelected = selectedSlots.includes(timeSlot);
 
-                    const buttonClass = `border ${
-                      isPreBooked
+                    const buttonClass = `border ${isPreBooked
                         ? "bg-secondary text-white" // Đã đặt từ backend
                         : isSelected
-                        ? "bg-danger text-white" // Đang được chọn
-                        : "bg-white"
-                    }`;
+                          ? "bg-danger text-white" // Đang được chọn
+                          : "bg-white"
+                      }`;
 
                     return (
                       <button
                         key={timeSlot}
-                        className={buttonClass + " fs-6"}
+                        className={`btn ${isSlotBooked(timeSlot) ? "btn-secondary disabled" : buttonClass} fs-6`}
                         style={{ width: "200px", height: "40px" }}
                         onClick={() => toggleBooking(timeSlot)}
                         disabled={isPastTime || isPreBooked}

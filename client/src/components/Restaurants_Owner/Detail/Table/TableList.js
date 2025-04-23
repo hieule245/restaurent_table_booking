@@ -172,9 +172,9 @@ const TableList = ({ restaurant_id }) => {
       }
       await axios.post(`${process.env.REACT_APP_API_URL}/owners/:owner_id/restaurants/${restaurant_id}/tables`, newTableWithImage, { withCredentials: true })
         .then((res) => {
-          setTables([...tables, res.data.table]);
           toast.success("Table added successfully!");
           addTableModalRef.current.querySelector(".btn-close").click();
+          fetchTables();
           setNewTable({ name: "", type: "", seats: 1, Description: "", image_id: 0 });
         })
         .catch((error) => {

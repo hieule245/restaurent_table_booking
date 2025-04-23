@@ -24,7 +24,7 @@ const ResetPassword = () => {
       navigate("/forgot-password"); // Nếu không có cookie, chuyển hướng về trang forgot-password
     }
   }, [navigate]);
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const email = Cookies.get("resetEmail"); // Lấy email đã lưu
@@ -50,7 +50,19 @@ const ResetPassword = () => {
         }
       }
     } catch (error) {
-      toast.error("Invalid password:", error.response.data.message || error.response.data.error);
+      if (error.name === "ValidationError") {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err.message;
+        });
+        setError(validationErrors); // set lỗi cho từng trường
+      } else {
+        const errorMessage =
+          error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          "An unexpected error occurred.";
+        toast.error("Invalid password: " + errorMessage);
+      }
     }
   };
 
@@ -122,8 +134,8 @@ const ResetPassword = () => {
                   <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
                 </span>
               </div>
-              {error.confirmpassword && (
-                <small className="text-danger">{error.confirmpassword}</small>
+              {error.confirmPassword && (
+                <small className="text-danger">{error.confirmPassword}</small>
               )}
             </div>
             <button type="submit" className="btn btn-success w-100">

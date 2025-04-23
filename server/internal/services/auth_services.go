@@ -28,7 +28,7 @@ var pinStorage = sync.Map{}
 
 func Login(context *gin.Context) {
 	if _, err := context.Cookie("token"); err == nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "You have already logged in"})
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
