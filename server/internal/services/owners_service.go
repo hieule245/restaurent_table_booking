@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/restaurent_table_booking/internal/models"
 	"github.com/restaurent_table_booking/internal/utils"
+	pkg "github.com/restaurent_table_booking/pkg/email"
 )
 
 // RESTAURANT HANDLER
@@ -338,6 +339,55 @@ func GetReservationsByRestaurants(context *gin.Context) {
 		return
 	}
 	context.JSON(http.StatusOK, gin.H{"booking": reservation})
+}
+
+func ConfirmBookingFromRestaurant(context *gin.Context) {
+	var res *models.Reservations
+	err := context.ShouldBindBodyWithJSON(&res)
+	if err != nil {
+		fmt.Println("confirm 1-", err)
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	fmt.Println(res)
+	err = res.ConfirmBooking()
+	if err != nil {
+		fmt.Println("confirm 2-", err)
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	r := &models.Reservation{}
+	r.ID = int(res.Id)
+	err = r.GetReservationByID()
+	if err != nil {
+		fmt.Println("confirm 3-", err)
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	pkg.ConfirmReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.TimeStart, r.NumberOfCustomer)
+	context.JSON(http.StatusOK, gin.H{"message": "The reservation has been approved"})
+}
+
+func CancelBookingFromRestaurant(context *gin.Context) {
+	var res *models.Reservations
+	err := context.ShouldBindBodyWithJSON(&res)
+	if err != nil {
+		fmt.Println("confirm 1-", err)
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err = res.CancelBooking()
+	if err != nil {
+		fmt.Println("confirm 2-", err)
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	r := &models.Reservation{}
+	r.ID = int(res.Id)
+	err = r.GetReservationByID()
+	if err != nil {
+		fmt.Println("confirm 3-", err)
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	pkg.CancelReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.TimeStart, r.NumberOfCustomer)
+	context.JSON(http.StatusOK, gin.H{"message": "The reservation has been approved"})
 }
 
 func EndingUsingTable(context *gin.Context) {

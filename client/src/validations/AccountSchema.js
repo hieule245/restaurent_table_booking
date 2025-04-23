@@ -116,7 +116,7 @@ export const resetPasswordSchema = Yup.object().shape({
   confirmPassword: Yup.string()
     .transform((value) => (value === "" ? undefined : value)) // Biến chuỗi rỗng thành undefined
     .required("Confirm password is required.")
-    .oneOf([Yup.ref("newPassword")], "Passwords do not match."),
+    .oneOf([Yup.ref("password")], "Passwords do not match."),
 });
 
 export const profileSchema = Yup.object().shape({

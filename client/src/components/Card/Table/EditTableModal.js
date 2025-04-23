@@ -52,6 +52,7 @@ const EditTableModal = ({ imageUrl, formData, handleChange, setShowModal, setSho
                 <input
                   type="number"
                   name="seats"
+                  min="1"
                   className={`form-control ${validationErrors.seats ? 'is-invalid' : ''}`}
                   placeholder="Number of Seats"
                   value={formData.seats}

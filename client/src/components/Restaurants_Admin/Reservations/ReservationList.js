@@ -131,7 +131,7 @@ const ReservationList = () => {
                           : "btn btn-danger"
                     }
                   >
-                    {res.Status === 4 ? "Edit" : res.Status === 0 ? "Cancel" : "Finish?"}
+                    {res.Status === 4 ? "Edit" : res.Status === 3 ? "On using" : res.Status === 1 ? "Pending" : res.Status === 0 ? "Cancelled" : "Waitting"}
                   </button>
                 </td>
               </tr>
