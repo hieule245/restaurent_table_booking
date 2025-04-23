@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import "./Chat.css";
 import axios from "axios";
 function Chat() {
+  const [loadingWs, setLoadingWs] = useState(true); // loading trong lúc kết nối
+  const [connectedMessage, setConnectedMessage] = useState(""); // thông báo kết nối thành công
+
   const [people, setPeople] = useState([]);
 
   const [input, setInput] = useState("");
@@ -78,8 +81,10 @@ function Chat() {
       const validSocketUrl = await getValidSocket(user.Id, user.Role);
       if (validSocketUrl) {
         socket = new WebSocket(validSocketUrl);
-        setIsConnected(true);
         setWs(socket);
+        setIsConnected(true);
+        setLoadingWs(false);
+        setConnectedMessage("✅ Đã kết nối WebSocket thành công!");
 
         socket.onmessage = (event) => {
           console.log("📩 Received WebSocket message:", event.data); // ← log để kiểm tra
@@ -95,6 +100,8 @@ function Chat() {
         };
       } else {
         console.error("Không tìm được WebSocket hợp lệ.");
+        setLoadingWs(false);
+        setConnectedMessage("❌ Không thể kết nối WebSocket.");
       }
     };
 
@@ -155,6 +162,19 @@ function Chat() {
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
+  if (loadingWs) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100 bg-dark text-white">
+        <div className="text-center">
+          <div className="spinner-border text-light" role="status">
+            <span className="visually-hidden">Đang kết nối...</span>
+          </div>
+          <p className="mt-3">Đang kết nối đến WebSocket...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="vh-100 d-flex">
       <div
@@ -211,6 +231,12 @@ function Chat() {
       <div className="chat-main d-flex flex-column flex-grow-1">
         <div className="chat-header bg-black text-white text-start py-2 fw-bold">
           <h2 className="d-flex align-items-center justify-content-center">
+            {connectedMessage && (
+              <div className="alert alert-info text-center m-2 py-2 rounded-pill">
+                {connectedMessage}
+              </div>
+            )}
+
             <p className="text-primary fs-2 fw-bold">CHAT</p>
             <p className="fw-bold"> |</p>
             <p className="text-danger">Table booker</p>
