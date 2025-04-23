@@ -7,9 +7,6 @@ import "./NavBar.styles.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import avatar from "../../assets/image/avatar.png";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
 const NavBar = () => {
   const [nav, setNav] = useState(false);
   const [user, setUser] = useState({
@@ -48,14 +45,11 @@ const NavBar = () => {
         { withCredentials: true }
       );
       setUser(null);
-      toast.success("Logout thành công!"); // Hiển thị thông báo toast
       navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
-      toast.error("Logout thất bại!"); // Thông báo khi logout thất bại
     }
   };
-
   // onClick HANDLER
   const handleClick = () => {
     if (nav) {
@@ -100,13 +94,7 @@ const NavBar = () => {
               <span className="fw-bolder text-white  fs-3 col-10 ">
                 <button
                   onClick={() =>
-                    navigate(
-                      user && user.Role === "owner"
-                        ? "/owner"
-                        : user && user.Role === "admin"
-                        ? "/admin/dashboard"
-                        : "/"
-                    )
+                    navigate(user && user.Role === "owner" ? "/owner" :user && user.Role === "admin" ? "/admin/dashboard" : "/")
                   }
                   className="text-white text-decoration-none cursor-pointer border-0 bg-transparent"
                 >
@@ -172,11 +160,8 @@ const NavBar = () => {
                           />
                         </button>
                         <p className="text-white fw-bold fs-5 ms-4 m-0 p-0">
-                          {user && user.Name ? user.Name : "User |  "}
-                          <br />
-                          <small className="fw-lighter">
-                            {user && user.Role ? user.Role : "Role"}
-                          </small>
+                          {user && user.Name ? user.Name : "User |  "}<br/>
+                          <small className="fw-lighter">{user && user.Role ? user.Role : "Role"}</small>
                         </p>
                         <ul className="dropdown-menu">
                           <li>
@@ -202,7 +187,7 @@ const NavBar = () => {
                               className="dropdown-item"
                               onClick={() => navigate("/chat")}
                             >
-                              Chat
+                              Chat 
                             </button>
                           </li>
                           <li>
@@ -254,7 +239,6 @@ const NavBar = () => {
           </div>
         </nav>
       </header>
-      <ToastContainer />
 
       {/* MENU KHI HAMBURGER ĐƯỢC BẬT */}
       {nav && (
