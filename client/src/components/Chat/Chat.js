@@ -114,6 +114,22 @@ function Chat() {
     };
   }, [user.Id]); // 🔁 Theo dõi user.Id
 
+  const getFilteredMessages = () => {
+    if (!receiverId || !receiverRole) return [];
+
+    return messages.filter(
+      (msg) =>
+        (msg.sender_id === user.Id &&
+          msg.sender_role === user.Role &&
+          msg.receiver_id === receiverId &&
+          msg.receiver_role === receiverRole) ||
+        (msg.sender_id === receiverId &&
+          msg.sender_role === receiverRole &&
+          msg.receiver_id === user.Id &&
+          msg.receiver_role === user.Role)
+    );
+  };
+
   const getValidSocket = async (userID, userRole) => {
     for (let i = 0; i < sockets.length; i++) {
       const urlWithUserID = `${sockets[i]}?user_id=${userID}&user_role=${userRole}`;
@@ -130,7 +146,10 @@ function Chat() {
         socket.close();
         resolve(true);
       };
-      socket.onerror = () => resolve(false);
+      socket.onerror = (e) => {
+        console.error("WebSocket test error:", url, e);
+        resolve(false);
+      };
     });
   };
 
@@ -279,20 +298,29 @@ function Chat() {
             </div>
           </div>
         </div>
-        <div className="chat-messages flex-grow-1 p-2 overflow-auto d-flex flex-column">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`chat-message rounded-pill px-3 py-1 mb-1 fs-6 ${
-                msg.sender_id === user.Id && msg.sender_role === user.Role
-                  ? "bg-primary text-white align-self-end"
-                  : "bg-danger text-white align-self-start"
-              }`}
-            >
-              {msg.content}
-            </div>
-          ))}
-        </div>
+
+        {receiverId && receiverRole ? (
+          <div className="chat-messages flex-grow-1 p-2 overflow-auto d-flex flex-column">
+            {getFilteredMessages().map((msg, index) => (
+              <div
+                key={index}
+                className={`chat-message rounded-pill px-3 py-1 mb-1 fs-6 ${
+                  msg.sender_id === user.Id && msg.sender_role === user.Role
+                    ? "bg-primary text-white align-self-end"
+                    : "bg-danger text-white align-self-start"
+                }`}
+              >
+                {msg.content}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="d-flex flex-grow-1 align-items-center justify-content-center">
+            <p className="text-muted fs-5">
+              Chọn người để bắt đầu trò chuyện 👈
+            </p>
+          </div>
+        )}
         <footer className="chat-footer bg-dark text-white d-flex p-2">
           <input
             type="text"

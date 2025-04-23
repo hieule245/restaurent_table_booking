@@ -168,7 +168,7 @@ func chatHandler(c *gin.Context) {
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Println("WebSocket upgrade failed:", err)
+		log.Printf("WebSocket upgrade failed: %v\nRequest headers: %+v\n", err, c.Request.Header)
 		return
 	}
 
