@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import "./Chat.css";
 import axios from "axios";
 function Chat() {
+  const [loadingWs, setLoadingWs] = useState(true); // loading trong lúc kết nối
+  const [connectedMessage, setConnectedMessage] = useState(""); // thông báo kết nối thành công
+
   const [people, setPeople] = useState([]);
 
   const [input, setInput] = useState("");
@@ -12,10 +15,16 @@ function Chat() {
   const [user, setUser] = useState({});
   const [messages, setMessages] = useState([]);
   const [ws, setWs] = useState(null);
-  const [sockets] = useState([
-    "ws://192.168.16.55:8080/ws",
-    "ws://100.84.223.32:8080/ws",
-  ]);
+  const getSockets = () => {
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    return [
+      `${protocol}://192.168.16.55:8080/ws`,
+      `${protocol}://100.84.223.32:8080/ws`,
+      `${protocol}://giolang.cloud.runsystem.site/ws`,
+    ];
+  };
+
+  const [sockets] = useState(getSockets());
   const [isConnected, setIsConnected] = useState(false);
   const [receiverId, setReceiverId] = useState(null); // người nhận
   const [receiverRole, setReceiverRole] = useState(null); // người nhận
@@ -72,8 +81,10 @@ function Chat() {
       const validSocketUrl = await getValidSocket(user.Id, user.Role);
       if (validSocketUrl) {
         socket = new WebSocket(validSocketUrl);
-        setIsConnected(true);
         setWs(socket);
+        setIsConnected(true);
+        setLoadingWs(false);
+        setConnectedMessage("✅ Đã kết nối WebSocket thành công!");
 
         socket.onmessage = (event) => {
           console.log("📩 Received WebSocket message:", event.data); // ← log để kiểm tra
@@ -89,6 +100,8 @@ function Chat() {
         };
       } else {
         console.error("Không tìm được WebSocket hợp lệ.");
+        setLoadingWs(false);
+        setConnectedMessage("❌ Không thể kết nối WebSocket.");
       }
     };
 
@@ -100,6 +113,22 @@ function Chat() {
       }
     };
   }, [user.Id]); // 🔁 Theo dõi user.Id
+
+  const getFilteredMessages = () => {
+    if (!receiverId || !receiverRole) return [];
+
+    return messages.filter(
+      (msg) =>
+        (msg.sender_id === user.Id &&
+          msg.sender_role === user.Role &&
+          msg.receiver_id === receiverId &&
+          msg.receiver_role === receiverRole) ||
+        (msg.sender_id === receiverId &&
+          msg.sender_role === receiverRole &&
+          msg.receiver_id === user.Id &&
+          msg.receiver_role === user.Role)
+    );
+  };
 
   const getValidSocket = async (userID, userRole) => {
     for (let i = 0; i < sockets.length; i++) {
@@ -117,7 +146,10 @@ function Chat() {
         socket.close();
         resolve(true);
       };
-      socket.onerror = () => resolve(false);
+      socket.onerror = (e) => {
+        console.error("WebSocket test error:", url, e);
+        resolve(false);
+      };
     });
   };
 
@@ -148,6 +180,19 @@ function Chat() {
   };
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+  if (loadingWs) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100 bg-dark text-white">
+        <div className="text-center">
+          <div className="spinner-border text-light" role="status">
+            <span className="visually-hidden">Đang kết nối...</span>
+          </div>
+          <p className="mt-3">Đang kết nối đến WebSocket...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="vh-100 d-flex">
@@ -205,6 +250,12 @@ function Chat() {
       <div className="chat-main d-flex flex-column flex-grow-1">
         <div className="chat-header bg-black text-white text-start py-2 fw-bold">
           <h2 className="d-flex align-items-center justify-content-center">
+            {connectedMessage && (
+              <div className="alert alert-info text-center m-2 py-2 rounded-pill">
+                {connectedMessage}
+              </div>
+            )}
+
             <p className="text-primary fs-2 fw-bold">CHAT</p>
             <p className="fw-bold"> |</p>
             <p className="text-danger">Table booker</p>
@@ -247,20 +298,29 @@ function Chat() {
             </div>
           </div>
         </div>
-        <div className="chat-messages flex-grow-1 p-2 overflow-auto d-flex flex-column">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`chat-message rounded-pill px-3 py-1 mb-1 fs-6 ${
-                msg.sender_id === user.Id && msg.sender_role === user.Role
-                  ? "bg-primary text-white align-self-end"
-                  : "bg-danger text-white align-self-start"
-              }`}
-            >
-              {msg.content}
-            </div>
-          ))}
-        </div>
+
+        {receiverId && receiverRole ? (
+          <div className="chat-messages flex-grow-1 p-2 overflow-auto d-flex flex-column">
+            {getFilteredMessages().map((msg, index) => (
+              <div
+                key={index}
+                className={`chat-message rounded-pill px-3 py-1 mb-1 fs-6 ${
+                  msg.sender_id === user.Id && msg.sender_role === user.Role
+                    ? "bg-primary text-white align-self-end"
+                    : "bg-danger text-white align-self-start"
+                }`}
+              >
+                {msg.content}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="d-flex flex-grow-1 align-items-center justify-content-center">
+            <p className="text-muted fs-5">
+              Chọn người để bắt đầu trò chuyện 👈
+            </p>
+          </div>
+        )}
         <footer className="chat-footer bg-dark text-white d-flex p-2">
           <input
             type="text"
