@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
@@ -70,7 +70,6 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
       aria-labelledby="myModalLabel"
       aria-hidden="true"
     >
-      <ToastContainer />
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content rounded-4 shadow-lg border-0">
           <div className="modal-header bg-dark text-white rounded-top-4">
@@ -155,6 +154,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
               <button
                 type="submit"
                 className="btn btn-danger fw-bold px-4"
+                ref={closeBtnRef}
               >
                 Create
               </button>

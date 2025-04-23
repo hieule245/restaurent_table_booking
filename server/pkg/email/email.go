@@ -23,7 +23,7 @@ func getSMTPAddr() string {
 
 func SendMailSimple(email string, pin int) {
 	auth := getSMTPAuth()
-
+ 
 	msg := fmt.Sprintf(`From: %s
 To: %s
 Subject: Mã PIN xác nhận đặt lại mật khẩu

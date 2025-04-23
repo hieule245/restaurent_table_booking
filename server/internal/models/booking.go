@@ -302,6 +302,40 @@ func (res *Booking) Checkout() error {
 	return nil
 }
 
+func (res *Reservations) ConfirmBooking() error {
+	query := `
+	UPDATE reservations SET status = 2
+	WHERE id = ?
+	`
+	stmt, err := db.DB.Prepare(query)
+	defer stmt.Close()
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(res.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (res *Reservations) CancelBooking() error {
+	query := `
+	UPDATE reservations SET status = 0
+	WHERE id = ?
+	`
+	stmt, err := db.DB.Prepare(query)
+	defer stmt.Close()
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(res.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (res *Booking) EditCheckout() error {
 	query := `
 	UPDATE reservations SET price = ?

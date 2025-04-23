@@ -260,7 +260,7 @@ const BookingCalendar = ({ table, restaurant }) => {
         actual_end: `${formatTime(endHour)}:00`,
         price,
         customer_email: user?.Role === "staff" ? customerEmail : user?.Email,
-        status,
+        status: user?.Role === "staff" ? 2: 1,
       };
     });
 

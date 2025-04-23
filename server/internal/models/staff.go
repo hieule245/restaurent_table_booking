@@ -387,3 +387,17 @@ func UnbanByAdmin(email, role string) error {
 	}
 	return err
 }
+
+func (res *Reservation) GetReservationByID() error {
+	query := `
+	SELECT numberOfCustomer, book_date, time_start, customer_email FROM reservations WHERE id = ?
+	`
+	row := db.DB.QueryRow(query, res.ID)
+	err := row.Scan(&res.NumberOfCustomer, &res.BookDate, &res.TimeStart, &res.CustomerEmail)
+	if err != nil {
+		fmt.Println(res.ID)
+		fmt.Println("reservation 1-", err)
+		return err
+	}
+	return nil
+}

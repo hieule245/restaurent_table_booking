@@ -14,6 +14,7 @@ const ReservationList = () => {
   const [reservations, setReservations] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const reservationsPerPage = 12;
+  const [selectedReservation, setSelectedReservation] = useState(null);
 
   // Tính toán chỉ số trang hiện tại
   const indexOfLastReservation = currentPage * reservationsPerPage;
@@ -78,17 +79,65 @@ const ReservationList = () => {
   };
 
   const handleOpen = (reservation) => {
-    const currentTime = new Date().toLocaleTimeString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
+    const currentTime = new Date().toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     });
 
     setFinish({
       Id: reservation.Id,
       Price: parseFloat(reservation.Price) || 0,
-      ActualEnd: currentTime,
+      ActualEnd: currentTime
     });
+
+    setSelectedReservation(reservation);
+  };
+
+  const handleConfirm = async (id) => {
+    console.log("res", selectedReservation)
+    if (!selectedReservation) return;
+
+    const data = {
+      Id: selectedReservation.Id,
+      RoleBook: selectedReservation.RoleBook,
+      RestaurantName: selectedReservation.RestaurantName,
+    };
+    console.log(data.CustomerRole)
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/staff/reservations/${id}/confirm_booking`,
+        data,
+        { withCredentials: true }
+      );
+      toast.success("Confirmed successfully");
+      fetch(); // reload danh sách
+    } catch (err) {
+      toast.error("Failed to confirm");
+    }
+  };
+
+  const handleCancel = async (id) => {
+    console.log("res", selectedReservation)
+    if (!selectedReservation) return;
+
+    const data = {
+      Id: selectedReservation.Id,
+      RoleBook: selectedReservation.RoleBook,
+      RestaurantName: selectedReservation.RestaurantName,
+    };
+    console.log(data.CustomerRole)
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/staff/reservations/${id}/cancel_booking`,
+        data,
+        { withCredentials: true }
+      );
+      toast.success("Cancelled successfully");
+      fetch(); // reload danh sách
+    } catch (err) {
+      toast.error("Failed to confirm");
+    }
   };
 
   return (
@@ -138,53 +187,47 @@ const ReservationList = () => {
                       res.Status === 0
                         ? "text-danger"
                         : res.Status === 1
-                        ? "text-secondary"
-                        : res.Status === 2
-                        ? "text-body"
-                        : res.Status === 3
-                        ? "text-primary"
-                        : res.Status === 4
-                        ? "text-success"
-                        : ""
+                          ? "text-secondary"
+                          : res.Status === 2
+                            ? "text-body"
+                            : res.Status === 3
+                              ? "text-primary"
+                              : res.Status === 4
+                                ? "text-success"
+                                : ""
                     }
                   >
                     {res.Status === 0
                       ? "Cancelled"
                       : res.Status === 1
-                      ? "Pending"
-                      : res.Status === 2
-                      ? "Confirm"
-                      : res.Status === 3
-                      ? "Occupied"
-                      : res.Status === 4
-                      ? "Done"
-                      : "Undefined"}
+                        ? "Pending"
+                        : res.Status === 2
+                          ? "Confirm"
+                          : res.Status === 3
+                            ? "Occupied"
+                            : res.Status === 4
+                              ? "Done"
+                              : "Undefined"}
                   </td>
                   <td>
                     <button
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target={
-                        res.Status === 4
-                          ? "#myUpdateModal"
-                          : res.Status === 0
-                          ? ""
-                          : "#myCompleteModal"
-                      }
+                      data-bs-target={res.Status === 4 ? "#myUpdateModal" : res.Status === 0 ? "" : res.Status === 1 ? "#actionModal" : "#myCompleteModal"}
                       onClick={() => handleOpen(res)}
                       className={
                         res.Status === 4
                           ? "btn btn-outline-danger"
-                          : res.Status === 0
-                          ? "btn btn-outline-secondary disabled"
-                          : "btn btn-danger"
+                          : res.Status === 3
+                            ? "btn btn-danger"
+                            : res.Status === 1
+                              ? "btn btn-primary"
+                              : res.Status === 0
+                                ? "btn btn-outline-secondary disabled"
+                                : "btn btn success disabled"
                       }
                     >
-                      {res.Status === 4
-                        ? "Edit"
-                        : res.Status === 0
-                        ? "Cancel"
-                        : "Finish?"}
+                      {res.Status === 4 ? "Edit" : res.Status === 3 ? "Finish?" : res.Status === 1 ? "Confirm?" : res.Status === 0 ? "Cancelled" : "Waitting"}
                     </button>
                   </td>
                 </tr>
@@ -210,9 +253,8 @@ const ReservationList = () => {
             ].map((number) => (
               <button
                 key={number + 1}
-                className={`btn ${
-                  currentPage === number + 1 ? "btn-dark" : "btn-outline-dark"
-                } mx-1`}
+                className={`btn ${currentPage === number + 1 ? "btn-dark" : "btn-outline-dark"
+                  } mx-1`}
                 onClick={() => paginate(number + 1)}
               >
                 {number + 1}
@@ -281,6 +323,40 @@ const ReservationList = () => {
             </div>
           </div>
         </div>
+
+        {/* Modal confirm*/}
+        <div className="modal fade" id="actionModal" tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h4 className="modal-title">Update Reservation Status</h4>
+                <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div className="modal-body">
+                <p>Do you want to <strong>Confirm</strong> or <strong>Cancel</strong> this reservation?</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-outline-danger"
+                  data-bs-dismiss="modal"
+                  onClick={() => handleCancel(selectedReservation?.id)}
+                >
+                  Cancel Booking
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  data-bs-dismiss="modal"
+                  onClick={() => handleConfirm(selectedReservation?.id)}
+                >
+                  Confirm Booking
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="modal fade" id="myUpdateModal">
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">

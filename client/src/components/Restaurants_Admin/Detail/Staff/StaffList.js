@@ -12,7 +12,6 @@ export default function StaffList({ restaurant_id }) {
     const [selectedStaff, setSelectedStaff] = useState(null);
     const [modalInstance, setModalInstance] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [sortType, setSortType] = useState(null);
     const itemsPerPage = 12;
 
     const fetchStaff = useCallback(() => {
@@ -37,11 +36,10 @@ export default function StaffList({ restaurant_id }) {
 
 
     const handleSort = (type) => {
-        setSortType(type);
         let sortedStaff = [...staff];
-        if (sortType === "name-asc") {
+        if (type === "name-asc") {
             sortedStaff.sort((a, b) => a.name.localeCompare(b.name));
-        } else if (sortType === "name-desc") {
+        } else if (type === "name-desc") {
             sortedStaff.sort((a, b) => b.name.localeCompare(a.name));
         }
         setStaff(sortedStaff);

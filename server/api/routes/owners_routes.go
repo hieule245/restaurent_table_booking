@@ -18,6 +18,8 @@ func OwnerRoutes(user *gin.RouterGroup) {
 		reservation := owner.Group("/reservations")
 		{
 			reservation.GET("", services.GetAllReservations)
+			reservation.POST("/:reservation_id/confirm_booking", services.ConfirmBookingFromRestaurant)
+			reservation.POST("/:reservation_id/cancel_booking", services.CancelBookingFromRestaurant)
 			reservation.POST("finish_booking", services.EndingUsingTable)
 		}
 		restaurant := owner.Group("/restaurants")
