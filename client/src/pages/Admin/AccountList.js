@@ -67,26 +67,28 @@ const Admin = () => {
   const handleConfirmToggle = async () => {
     if (!selectedAccount) return;
 
-    const { Id, Status } = selectedAccount;
+    const { Id, Status, Role, Email } = selectedAccount;
     console.log(Status);
-    const newStatus = Status === "active" ? "inactive" : "active";
+    const newStatus = Status === "ban" ? "active" : "ban";
 
     try {
       await axios.post(
         `${process.env.REACT_APP_API_URL}/admin/users/:user_id/lock`,
-        { Status: Status, Id: Id },
+        { Status: Status, Id: Id, Role: Role, Email: Email },
         { withCredentials: true }
       );
 
       setAccount((prevAccount) =>
-        prevAccount.map((s) => (s.Id === Id ? { ...s, Status: newStatus } : s))
+        prevAccount.map((s) =>
+          s.Id === Id && s.Email === Email ? { ...s, Status: newStatus } : s
+        )
       );
       toast.success(
-        `Account ${newStatus === "active" ? "unlocked" : "locked"
+        `Account ${newStatus === "active" || newStatus === "inactive" ? "baned" : "unbaned"
         } successfully!`
       );
     } catch (error) {
-      toast.error(`Failed to update accounts Status! Error: ${error.message}`);
+      toast.error(`Failed to update accounts Status! Error: ${error.response.data.message}`);
       console.error(error);
     }
 
@@ -180,7 +182,7 @@ const Admin = () => {
           <div className="accounts-container">
             <div className="row">
               {currentItems.map(({ Id, Name, Email, Phone, Status, Role }) => (
-                <div key={Id} className="col-md-3 mb-4">
+                <div key={`${Id}-${Email}`} className="col-md-3 mb-4">
                   <div className="card w-100 h-100 shadow-lg border-2 border-danger rounded-4 bg-light text-dark position-relative p-3">
                     <button
                       className={`btn btn-square position-absolute top-0 end-0 m-2 
@@ -191,17 +193,15 @@ const Admin = () => {
                             : "btn-danger"
                         }`}
                       onClick={() =>
-                        Status !== "ban" &&
-                        handleOpenModal({ Id, Name, Status })
+                        handleOpenModal({ Id, Name, Status, Role, Email })
                       }
-                      disabled={Status === "ban"}
                     >
                       {Status === "active" ? (
                         <FaUnlock />
                       ) : Status === "inactive" ? (
                         <FaLock />
                       ) : (
-                        <FaUnlock />
+                        <FaLock />
                       )}
                     </button>
 
@@ -259,7 +259,7 @@ const Admin = () => {
                   <p className="text-dark">
                     Are you sure you want to{" "}
                     <strong>
-                      {selectedAccount?.Status === "active" ? "lock" : "unlock"}{" "}
+                      {selectedAccount?.Status === "active" || selectedAccount?.Status === "inactive" ? "ban" : "unban"}{" "}
                     </strong>
                     accounts{" "}
                     <strong className="text-danger">
@@ -304,8 +304,8 @@ const Admin = () => {
                   <button
                     key={number + 1}
                     className={`btn ${currentPage === number + 1
-                        ? "btn-secondary"
-                        : "btn-outline-secondary"
+                      ? "btn-secondary"
+                      : "btn-outline-secondary"
                       } mx-1`}
                     onClick={() => paginate(number + 1)}
                   >

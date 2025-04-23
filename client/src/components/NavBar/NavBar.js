@@ -7,8 +7,6 @@ import "./NavBar.styles.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import avatar from "../../assets/image/avatar.png";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 const NavBar = () => {
   const [nav, setNav] = useState(false);
   const [user, setUser] = useState({
@@ -87,7 +85,7 @@ const NavBar = () => {
   return (
     <>
       <header className="shadow-sm p-0" ref={navRef}>
-        <nav className="container-fluid px-4 py-3">
+        <nav className="container-fluid px-4 py-1">
           <div className="row justify-content-between align-items-center">
             <div className="col-1 back-icon"></div>
             <div className="col-1"></div>
@@ -96,7 +94,7 @@ const NavBar = () => {
               <span className="fw-bolder text-white  fs-3 col-10 ">
                 <button
                   onClick={() =>
-                    navigate(user && user.Role === "owner" ? "/owner" : "/")
+                    navigate(user && user.Role === "owner" ? "/owner" :user && user.Role === "admin" ? "/admin/dashboard" : "/")
                   }
                   className="text-white text-decoration-none cursor-pointer border-0 bg-transparent"
                 >
@@ -120,6 +118,8 @@ const NavBar = () => {
                     ? "Serving restaurant"
                     : user && user.Role === "owner"
                     ? ""
+                    : user && user.Role === "admin"
+                    ? ""
                     : "Restaurants"}
                 </button>
                 {user && user.Role === "staff" ? (
@@ -142,7 +142,7 @@ const NavBar = () => {
                 {user ? (
                   <div>
                     <li className="d-flex justify-content-end align-items-center">
-                      <div className="dropdown d-flex justify-content-end">
+                      <div className="dropdown d-flex justify-content-end align-items-center">
                         <button
                           type="button"
                           className="rounded-circle p-0 m-0 border-0"
@@ -154,18 +154,15 @@ const NavBar = () => {
                           }}
                         >
                           <img
-                            src={user && imageUrl ? imageUrl : avatar}
+                            src={imageUrl}
                             alt="User Avatar"
                             className="w-100 h-100 rounded-circle object-fit-cover"
                           />
                         </button>
-                        <span className="text-white fw-bold fs-5 ms-4">
-                          {user && user.Name ? user.Name + " | " : "User |  "}
-                        </span>
-                        <span className="text-white fw-bold fs-5 ms-2">
-                          {user && user.Role ? user.Role : "Role"}
-                        </span>
-
+                        <p className="text-white fw-bold fs-5 ms-4 m-0 p-0">
+                          {user && user.Name ? user.Name : "User |  "}<br/>
+                          <small className="fw-lighter">{user && user.Role ? user.Role : "Role"}</small>
+                        </p>
                         <ul className="dropdown-menu">
                           <li>
                             <a className="dropdown-item" href="/personal">
