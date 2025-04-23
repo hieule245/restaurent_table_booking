@@ -88,6 +88,8 @@ const BookingHistory = () => {
     });
   };
 
+  console.log(bookings);
+
   const filteredBookings =
     selectedMonth === "All"
       ? bookings
@@ -149,6 +151,14 @@ const BookingHistory = () => {
                     <th>Day</th>
                     <th>Month</th>
                     <th>Year</th>
+                    <th>
+                      <strong>Start</strong>
+                    </th>{" "}
+                    {/* Mới */}
+                    <th>
+                      <strong>End</strong>
+                    </th>{" "}
+                    {/* Mới */}
                     <th>Number of customer</th>
                     <th>Table ID</th>
                     <th>Price (VND)</th>
@@ -156,6 +166,7 @@ const BookingHistory = () => {
                     <th>Actions</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {currentItems?.map((booking, index) => (
                     <BookingRow
