@@ -317,8 +317,8 @@ const BookingCalendar = ({ table, restaurant }) => {
               min="${table.seats - 1}"
               max="${table.seats + 1}"
               value="${numberOfCustomer}"
-              placeholder="${table.seats}"
-              style="width: 60px; padding: 3px; border: 1px solid #ccc; border-radius: 4px;"
+              placeholder="Number of customers"
+              style="width: 100%; padding: 3px; border: 1px solid #ccc; border-radius: 4px;"
             />
           </p>
         </div>
