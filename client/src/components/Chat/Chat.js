@@ -12,10 +12,16 @@ function Chat() {
   const [user, setUser] = useState({});
   const [messages, setMessages] = useState([]);
   const [ws, setWs] = useState(null);
-  const [sockets] = useState([
-    "ws://192.168.16.55:8080/ws",
-    "ws://100.84.223.32:8080/ws",
-  ]);
+  const getSockets = () => {
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    return [
+      `${protocol}://192.168.16.55:8080/ws`,
+      `${protocol}://100.84.223.32:8080/ws`,
+      `${protocol}://giolang.cloud.runsystem.site/ws`,
+    ];
+  };
+
+  const [sockets] = useState(getSockets());
   const [isConnected, setIsConnected] = useState(false);
   const [receiverId, setReceiverId] = useState(null); // người nhận
   const [receiverRole, setReceiverRole] = useState(null); // người nhận
