@@ -496,7 +496,6 @@ const TableList = ({ restaurant_id }) => {
                   <label className="form-label fw-bold text-dark">Seats</label>
                   <input type="number"
                     name="seats"
-                    min="1"
                     className={`form-control border-secondary rounded-3 ${validationErrors.seats ? 'is-invalid' : ''}`}
                     value={newTable.seats}
                     onChange={(e) => {
@@ -510,7 +509,7 @@ const TableList = ({ restaurant_id }) => {
                         });
                       }
                     }} />
-                  {validationErrors.type && <div className="invalid-feedback">{validationErrors.type}</div>}
+                  {validationErrors.seats && <div className="invalid-feedback">{validationErrors.seats}</div>}
                 </div>
                 <div className="form-group mb-3">
                   <label className="form-label fw-bold text-dark">Description</label>
