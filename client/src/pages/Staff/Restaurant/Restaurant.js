@@ -12,7 +12,15 @@ const Restaurant = () => {
   const [restaurant, setRestaurant] = useState({});
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+  
+  const totalPages = Math.ceil(tables.length / itemsPerPage);
+  const paginatedTables = tables.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  
   // Lấy thông tin nhà hàng và danh sách tất cả bàn khi component mount
   useEffect(() => {
     const fetchData = async () => {
@@ -125,15 +133,50 @@ const Restaurant = () => {
       );
     }
     return (
-      <div className="row mt-4">
-        {tables.map((table, index) => (
-          <div className="col-md-3 mb-3" key={index}>
-            <TableCard table={table} />
+      <>
+        <div className="row mt-4">
+          {paginatedTables.map((table, index) => (
+            <div className="col-md-3 mb-3" key={index}>
+              <TableCard table={table} />
+            </div>
+          ))}
+        </div>
+  
+        {totalPages > 1 && (
+          <div className="pagination-container d-flex justify-content-center mt-3">
+            <button
+              className="btn btn-outline-secondary me-2"
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              &laquo;
+            </button>
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index + 1}
+                className={`btn ${
+                  currentPage === index + 1
+                    ? "btn-secondary"
+                    : "btn-outline-secondary"
+                } mx-1`}
+                onClick={() => setCurrentPage(index + 1)}
+              >
+                {index + 1}
+              </button>
+            ))}
+            <button
+              className="btn btn-outline-secondary ms-2"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              &raquo;
+            </button>
           </div>
-        ))}
-      </div>
+        )}
+      </>
     );
   }
+  
 
   return (
     <div className="container-fluid mt-5">

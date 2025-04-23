@@ -41,7 +41,7 @@ const Sidebar = () => {
     const imageUrl = user.ImageFile ? user.ImageFile : avatar;
 
     return (
-        <div className="position-sticky top-0 start-0 bg-dark rounded-4 d-flex flex-column justify-content-between py-4 align-items-center h-100" style={{ position: "sticky" }}>
+        <div className="position-sticky top-0 start-0 bg-dark rounded-4 d-flex flex-column justify-content-between py-4 align-items-center" style={{ position: "sticky", height:"92vh" }}>
             <div className="d-flex flex-column align-items-center gap-3">
                 <button className="text-white text-decoration-none cursor-pointer fs-2 fw-bolder border-0 bg-transparent d-flex align-items-center">
                     <FaUtensils className="me-1" /> TableBooker

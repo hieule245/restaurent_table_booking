@@ -9,6 +9,7 @@ import { useRef } from "react";
 export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
   const closeBtnRef = useRef();
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     gmail: "",
@@ -25,7 +26,9 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    console.log("Form submitting...");
     try {
       await staffValidationSchema.validate(formData, { abortEarly: false });
       setErrors({});
@@ -48,6 +51,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
 
       // 👉 chỉ đóng modal nếu mọi thứ đều thành công
       closeBtnRef.current?.click();
+      setIsSubmitting(false);
     } catch (err) {
       if (err.name === "ValidationError") {
         const validationErrors = {};
@@ -156,7 +160,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
                 className="btn btn-danger fw-bold px-4"
                 ref={closeBtnRef}
               >
-                Create
+                {isSubmitting ? "Creating..." : "Create"}
               </button>
             </div>
           </form>
