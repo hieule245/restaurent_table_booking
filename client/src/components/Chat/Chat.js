@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import "./Chat.css";
 import axios from "axios";
 function Chat() {
+  const [people, setPeople] = useState([]);
+
   const [input, setInput] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [user, setUser] = useState({});
@@ -20,13 +22,27 @@ function Chat() {
 
   const navigate = useNavigate();
 
-  const people = [
-    { ID: 1, Name: "Tran Vu Thanh Lam", Role: "customer" },
-    { ID: 2, Name: "Alice", Role: "customer" },
-    { ID: 3, Name: "Bob", Role: "owner" },
-    { ID: 4, Name: "Nguyen Thuy Chi", Role: "customer" },
-    { ID: 1, Name: "Tran Vu Thanh Lam", Role: "owner" },
-  ];
+  useEffect(() => {
+    if (!user.Id || !user.Role) return;
+
+    const fetchPeople = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/chat/people`,
+          {
+            params: { role: user.Role, user_id: user.Id },
+            withCredentials: true,
+          }
+        );
+        console.log("Danh sách người chat được:", res.data);
+        setPeople(res.data);
+      } catch (error) {
+        console.error("Lỗi khi gọi API /api/chat/people:", error);
+      }
+    };
+
+    fetchPeople();
+  }, [user.Id, user.Role]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -162,15 +178,15 @@ function Chat() {
               <ul>
                 {people.map((person) => (
                   <li
-                    key={`${person.ID}-${person.Role}`}
+                    key={`${person.id}-${person.role}`}
                     className={`active-user p-1 rounded  d-flex justify-content-start align-items-center mt-1 ${
-                      receiverId === person.ID && receiverRole === person.Role
+                      receiverId === person.id && receiverRole === person.role
                         ? "bg-primary text-white"
                         : "bg-white text-dark"
                     }  `}
                     onClick={() => {
-                      setReceiverId(person.ID);
-                      setReceiverRole(person.Role);
+                      setReceiverId(person.id);
+                      setReceiverRole(person.role);
                     }}
                     style={{ cursor: "pointer" }}
                   >
@@ -178,7 +194,7 @@ function Chat() {
                       className="bg-success rounded-circle mx-3 shadow-sm"
                       style={{ height: "12px", width: "12px" }}
                     ></div>
-                    {person.Name + " (" + person.Role + ") "}
+                    {person.name + " (" + person.role + ") "}
                   </li>
                 ))}
               </ul>
