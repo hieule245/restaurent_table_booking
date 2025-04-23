@@ -316,6 +316,7 @@ const TableList = ({ restaurant_id }) => {
                     name="Name"
                     className={`form-control border-secondary rounded-3 ${validationErrors.Name ? 'is-invalid' : ''}`}
                     value={formData.Name}
+                    placeholder="Input name of table"
                     onChange={(e) => {
                       handleChange(e);
                       // Xóa lỗi nếu có khi người dùng sửa
@@ -495,6 +496,7 @@ const TableList = ({ restaurant_id }) => {
                   <label className="form-label fw-bold text-dark">Seats</label>
                   <input type="number"
                     name="seats"
+                    min="1"
                     className={`form-control border-secondary rounded-3 ${validationErrors.seats ? 'is-invalid' : ''}`}
                     value={newTable.seats}
                     onChange={(e) => {

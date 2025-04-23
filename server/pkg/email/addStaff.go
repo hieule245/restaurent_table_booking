@@ -7,19 +7,14 @@ import (
 )
 
 func SendMailStaff(email, name, password string) error {
-	mailUser := os.Getenv("MAIL_USERNAME")
-	mailPass := os.Getenv("MAIL_PASSWORD")
-	smtpHost := os.Getenv("MAIL_SMTP_HOST")
-	smtpPort := os.Getenv("MAIL_SMTP_PORT")
-
-	auth := smtp.PlainAuth("", mailUser, mailPass, smtpHost)
+	auth := getSMTPAuth()
 
 	msg := fmt.Sprintf(`From: %s
 To: %s
 Subject: Thông tin tài khoản nhân viên của bạn
 MIME-Version: 1.0
 Content-Type: text/html; charset="UTF-8"
-
+ 
 <html>
 	<body style="font-family: Arial, sans-serif;">
 		<p>Kính gửi <strong>%s</strong>,</p>
@@ -33,12 +28,12 @@ Content-Type: text/html; charset="UTF-8"
 		<p>Trân trọng,</p>
 		<p><strong>Đội ngũ hỗ trợ TableBooker</strong></p>
 	</body>
-</html>`, mailUser, email, name, email, password)
+</html>`, os.Getenv("MAIL_USERNAME"), email, name, email, password)
 
 	err := smtp.SendMail(
-		smtpHost+":"+smtpPort,
+		getSMTPAddr(),
 		auth,
-		mailUser,
+		os.Getenv("MAIL_USERNAME"),
 		[]string{email},
 		[]byte(msg),
 	)

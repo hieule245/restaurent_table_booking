@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { AccountSchema } from "../../../validations/AccountSchema";
 import "bootstrap/dist/js/bootstrap.bundle.min";
+import { FaArrowRight } from "react-icons/fa";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -95,7 +96,7 @@ const RegisterPage = () => {
                 <div className="form-group my-2">
                   <label className="form-label">Email</label>
                   <input
-                    type="email"
+                    type="text"
                     className="form-control"
                     placeholder="Email"
                     value={email}
@@ -203,7 +204,16 @@ const RegisterPage = () => {
             </div>
           </div>
         </div>
-        <div className="sidenav d-flex align-items-center justify-content-center text-white text-center">
+        <div className="sidenav d-flex align-items-center justify-content-center text-white text-center vh-100">
+          {/* Nút Quay Lại Trang Chủ */}
+          <div>
+            <button
+              className="btn btn-dark back-home-btn"
+              onClick={() => navigate("/")}
+            >
+              Back to Home <FaArrowRight className="mb-1" />
+            </button>
+          </div>
           <div className="register-main-text">
             <h1>Restaurant</h1>
             <h3>Register Page</h3>

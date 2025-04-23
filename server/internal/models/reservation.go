@@ -4,16 +4,18 @@ import "github.com/restaurent_table_booking/internal/db"
 
 // Reservation đại diện cho một lần đặt bàn
 type Reservation struct {
-	ID        int    `json:"id"`
-	BookDate  string `json:"book_date"`  // YYYY-MM-DD
-	TimeStart string `json:"time_start"` // HH:MM:SS hoặc HH:MM
-	TimeEnd   string `json:"time_end"`
-	Status    string `json:"status"`
+	ID               int    `json:"id"`
+	NumberOfCustomer int    `json:"number_of_customer"`
+	CustomerEmail    string `json:"customer_email"`
+	BookDate         string `json:"book_date"`  // YYYY-MM-DD
+	TimeStart        string `json:"time_start"` // HH:MM:SS hoặc HH:MM
+	TimeEnd          string `json:"time_end"`
+	Status           string `json:"status"`
 }
 
 type ReservationDetail struct {
 	ID               int     `json:"id"`
-	NumberOfCustomer string  `json:"number_of_customer"`
+	NumberOfCustomer int     `json:"number_of_customer"`
 	BookDate         string  `json:"book_date"`  // YYYY-MM-DD
 	TimeStart        string  `json:"time_start"` // HH:MM:SS hoặc HH:MM
 	TimeEnd          string  `json:"time_end"`
@@ -24,9 +26,9 @@ type ReservationDetail struct {
 	CustomerID       *int    `json:"customer_id,omitempty"`
 	Status           int     `json:"status"`
 	// Thông tin khách hàng
-	CustomerName  *string `json:"customer_name,omitempty"`
+	CustomerName  string  `json:"customer_name,omitempty"`
 	CustomerPhone *string `json:"customer_phone,omitempty"`
-	CustomerGmail *string `json:"customer_gmail,omitempty"`
+	CustomerGmail string  `json:"customer_gmail,omitempty"`
 	// Thông tin staff
 	StaffName  *string `json:"staff_name,omitempty"`
 	StaffGmail *string `json:"staff_gmail,omitempty"`

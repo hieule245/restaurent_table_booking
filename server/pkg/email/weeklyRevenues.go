@@ -8,12 +8,7 @@ import (
 )
 
 func SendMailRevenues(email, name, revenueChange string, weekTotal float32, newStaff, outStaff, order, using int) error {
-	mailUser := os.Getenv("MAIL_USERNAME")
-	mailPass := os.Getenv("MAIL_PASSWORD")
-	smtpHost := os.Getenv("MAIL_SMTP_HOST")
-	smtpPort := os.Getenv("MAIL_SMTP_PORT")
-
-	auth := smtp.PlainAuth("", mailUser, mailPass, smtpHost)
+	auth := getSMTPAuth()
 	currentYear, currentWeek := time.Now().ISOWeek()
 
 	msg := fmt.Sprintf(`From: %s
@@ -40,12 +35,12 @@ Content-Type: text/html; charset="UTF-8"
 		<p>Trân trọng,</p>
 		<p><strong>TableBooker</strong></p>
 	</body>
-</html>`, mailUser, email, name, currentWeek, currentYear, weekTotal, revenueChange, newStaff, outStaff, order, using)
+</html>`, os.Getenv("MAIL_USERNAME"), email, name, currentWeek, currentYear, weekTotal, revenueChange, newStaff, outStaff, order, using)
 
 	err := smtp.SendMail(
-		smtpHost+":"+smtpPort,
+		getSMTPAddr(),
 		auth,
-		mailUser,
+		os.Getenv("MAIL_USERNAME"),
 		[]string{email},
 		[]byte(msg),
 	)
