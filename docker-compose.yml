@@ -67,7 +67,6 @@ services:
     networks:
       - my_network
 
-
   frontend:
     build: ./client
     container_name: frontend
