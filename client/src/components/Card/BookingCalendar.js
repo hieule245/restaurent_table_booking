@@ -58,7 +58,7 @@ const BookingCalendar = ({ table, restaurant }) => {
     if (!restaurant?.Started || !restaurant?.Ended) return [];
 
     const openHour = extractHour(restaurant.Started); // ví dụ 17
-    const closeHour = extractHour(restaurant.Ended);  // ví dụ 6
+    const closeHour = extractHour(restaurant.Ended); // ví dụ 6
     const slots = [];
 
     const formatSlot = (startHour, endHour) => {
@@ -235,7 +235,6 @@ const BookingCalendar = ({ table, restaurant }) => {
     const status = 1;
     const formatTime = (hour) => String(hour).padStart(2, "0");
 
-
     const buildBooking = (isStaff = false) =>
       selectedSlots.map((slot) => {
         const [startLabel, endLabel] = slot.split(" - ");
@@ -250,7 +249,7 @@ const BookingCalendar = ({ table, restaurant }) => {
           actual_end: `${formatTime(endHour)}:00`,
           price,
           customer_email: isStaff ? customerEmail : user?.Email,
-          status : isStaff ? 2 : status,
+          status: isStaff ? 2 : status,
           numberOfCustomer,
         };
       });
@@ -298,18 +297,18 @@ const BookingCalendar = ({ table, restaurant }) => {
       <div style="display: flex; text-align: left; padding: 20px">
         <div>
           ${[
-          "User Name",
-          "Email Address",
-          "Phone Number",
-          "Book Date",
-          "Time Start",
-          "Time End",
-          "Time Duration",
-          "Number of Seats",
-          "Number of Customer",
-        ]
-          .map((label) => `<p><strong>${label} :</strong></p>`)
-          .join("")}
+            "User Name",
+            "Email Address",
+            "Phone Number",
+            "Book Date",
+            "Time Start",
+            "Time End",
+            "Time Duration",
+            "Number of Seats",
+            "Number of Customer",
+          ]
+            .map((label) => `<p><strong>${label} :</strong></p>`)
+            .join("")}
         </div>
         <div style="margin-left: 10px;">
           <p>${user.Name}</p>
@@ -399,8 +398,8 @@ const BookingCalendar = ({ table, restaurant }) => {
     return meridiem === "PM" && hour !== 12
       ? hour + 12
       : meridiem === "AM" && hour === 12
-        ? 0
-        : hour;
+      ? 0
+      : hour;
   };
 
   const isSlotBooked = (timeSlot) => {
@@ -447,10 +446,11 @@ const BookingCalendar = ({ table, restaurant }) => {
               {months.map((month) => (
                 <button
                   key={month}
-                  className={`btn btn-sm fw-bold ${selectedMonth === month
+                  className={`btn btn-sm fw-bold ${
+                    selectedMonth === month
                       ? "btn-primary"
                       : "btn-outline-secondary"
-                    }`}
+                  }`}
                   onClick={() => setSelectedMonth(month)}
                   disabled={month < currentMonth} // Không cho chọn tháng trước
                 >
@@ -470,8 +470,9 @@ const BookingCalendar = ({ table, restaurant }) => {
               {days.map((day) => (
                 <button
                   key={day}
-                  className={`border d-flex justify-content-center align-items-center fs-6 ${selectedDay === day ? "bg-success text-white" : "bg-light"
-                    }`}
+                  className={`border d-flex justify-content-center align-items-center fs-6 ${
+                    selectedDay === day ? "bg-success text-white" : "bg-light"
+                  }`}
                   style={{ width: "40px", height: "40px" }}
                   onClick={() => setSelectedDay(day)}
                   disabled={selectedMonth === currentMonth && day < currentDay} // Không cho chọn ngày trước
@@ -501,17 +502,18 @@ const BookingCalendar = ({ table, restaurant }) => {
                     const isPreBooked = preBookedForDay.includes(timeSlot);
                     const isSelected = selectedSlots.includes(timeSlot);
 
-                    const buttonClass = `border ${isPreBooked
+                    const buttonClass = `border ${
+                      isPreBooked
                         ? "bg-secondary text-white" // Đã đặt từ backend
                         : isSelected
-                          ? "bg-danger text-white" // Đang được chọn
-                          : "bg-white"
-                      }`;
+                        ? "bg-danger text-white" // Đang được chọn
+                        : "bg-white"
+                    }`;
 
                     return (
                       <button
                         key={timeSlot}
-                        className={`btn ${isSlotBooked(timeSlot) ? "btn-secondary disabled" : buttonClass} fs-6`}
+                        className={`btn ${buttonClass} fs-6`}
                         style={{ width: "200px", height: "40px" }}
                         onClick={() => toggleBooking(timeSlot)}
                         disabled={isPastTime || isPreBooked}

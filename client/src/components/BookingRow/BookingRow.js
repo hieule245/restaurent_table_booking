@@ -39,13 +39,6 @@ const BookingRow = ({ booking, index, onEdit, onCancel, formatTo12Hour }) => {
         {(booking.status === 1 || booking.status === 2) && (
           <>
             <button
-              className="action-button bg-success text-white me-2"
-              onClick={() => onEdit(booking)}
-              title="Edit booking"
-            >
-              ✏️ Edit
-            </button>
-            <button
               className="action-button bg-danger text-white"
               onClick={() => onCancel(booking)}
               title="Cancel booking"
