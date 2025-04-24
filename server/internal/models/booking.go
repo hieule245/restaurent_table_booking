@@ -316,6 +316,7 @@ func (res *Reservations) ConfirmBooking() error {
 	if err != nil {
 		return err
 	}
+	
 	return nil
 }
 
