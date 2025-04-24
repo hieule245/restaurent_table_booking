@@ -12,6 +12,9 @@ const Hero = () => {
           Discover and book tables at top restaurants with ease. From cozy cafes
           to elegant eateries, find the perfect spot for any occasion.
         </h4>
+        <LinkR to="/bookings" className="reserve-button">
+          Search
+        </LinkR>
       </div>
       <div className="col">
         <img

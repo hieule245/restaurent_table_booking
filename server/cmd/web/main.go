@@ -72,7 +72,7 @@ func main() {
 }
 
 func AutoUpdateReservationStatuses() {
-	ticker := time.NewTicker(5 * time.Minute)
+	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
 	for {
@@ -82,7 +82,7 @@ func AutoUpdateReservationStatuses() {
 			log.Println("Failed to fetch reservations:", err)
 			continue
 		}
-		// defer rows.Close()
+		defer rows.Close()
 
 		now := time.Now().Unix()
 		hasUpdated := false
@@ -143,7 +143,7 @@ func updateStatusByAPI(reservationID int, newStatus int) {
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{Timeout: 5 * time.Minute}
+	client := &http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Println("Failed to send update status:", err)
@@ -168,7 +168,7 @@ func chatHandler(c *gin.Context) {
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Printf("WebSocket upgrade failed: %v\nRequest headers: %+v\n", err, c.Request.Header)
+		log.Println("WebSocket upgrade failed:", err)
 		return
 	}
 

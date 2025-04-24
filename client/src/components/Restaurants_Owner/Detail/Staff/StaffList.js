@@ -14,7 +14,15 @@ export default function StaffList({ restaurant_id }) {
     const [modalInstance, setModalInstance] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 12;
+    // Lọc nhân viên theo tên
+    const filteredStaff = staff.filter((s) =>
+        s.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
+    // Phân trang danh sách đã lọc
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredStaff.slice(indexOfFirstItem, indexOfLastItem);
     const fetchStaff = useCallback(() => {
         axios.get(`${process.env.REACT_APP_API_URL}/owners/:owner_id/${restaurant_id}/staffs`, { withCredentials: true })
             .then((res) => {
@@ -81,10 +89,6 @@ export default function StaffList({ restaurant_id }) {
 
         modalInstance?.hide();
     };
-
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = staff.slice(indexOfFirstItem, indexOfLastItem);
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
@@ -200,12 +204,12 @@ export default function StaffList({ restaurant_id }) {
                 </div>
             </div>
 
-            {staff.length > itemsPerPage && (
+            {filteredStaff.length > itemsPerPage && (
                 <div className="pagination-container">
                     <button className="btn btn-outline-dark me-2" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
                         &laquo;
                     </button>
-                    {[...Array(Math.ceil(staff.length / itemsPerPage)).keys()].map(number => (
+                    {[...Array(Math.ceil(filteredStaff.length / itemsPerPage)).keys()].map(number => (
                         <button
                             key={number + 1}
                             className={`btn ${currentPage === number + 1 ? "btn-dark" : "btn-outline-dark"} mx-1`}
@@ -214,7 +218,7 @@ export default function StaffList({ restaurant_id }) {
                             {number + 1}
                         </button>
                     ))}
-                    <button className="btn btn-outline-dark ms-2" onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(staff.length / itemsPerPage)}>
+                    <button className="btn btn-outline-dark ms-2" onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(filteredStaff.length / itemsPerPage)}>
                         &raquo;
                     </button>
                 </div>
