@@ -49,6 +49,7 @@ export default function AddStaffForm({ restaurant_id, fetchStaff }) {
         password: "",
         phone: "",
         restaurant_id: 0,
+        status: "active",
       });
 
       closeBtnRef.current?.click();
@@ -61,7 +62,11 @@ export default function AddStaffForm({ restaurant_id, fetchStaff }) {
         setErrors(validationErrors);
       } else {
         console.log(err.response?.data?.error);
-        toast.error(err.response?.data?.message || err.response?.data?.error || "Failed to create staff.");
+        toast.error(
+          err.response?.data?.message ||
+            err.response?.data?.error ||
+            "Failed to create staff."
+        );
       }
     } finally {
       setIsSubmitting(false); // ✅ luôn reset lại sau khi xong

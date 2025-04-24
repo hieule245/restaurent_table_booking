@@ -27,8 +27,8 @@ const BookingRow = ({ booking, index, onCancel, formatTo12Hour }) => {
       <td>{day}</td>
       <td>{month}</td>
       <td>{year}</td>
-      <td>{formatTo12Hour(booking.time_start?.slice(0, 5)) || "N/A"}</td>
-      <td>{formatTo12Hour(booking.time_end?.slice(0, 5)) || "N/A"}</td>
+      <td>{booking.time_start?.slice(0, 5) || "N/A"}</td>
+      <td>{booking.time_end?.slice(0, 5) || "N/A"}</td>
       <td>{booking.numberOfCustomer}</td>
       <td>{booking.table_id}</td>
       <td>{booking.price}</td>

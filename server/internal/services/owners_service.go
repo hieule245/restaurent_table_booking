@@ -362,12 +362,7 @@ func ConfirmBookingFromRestaurant(context *gin.Context) {
 		fmt.Println("confirm 3-", err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-	fmt.Println("hereeeeee", r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.TimeStart, r.NumberOfCustomer)
-	err = pkg.ConfirmReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.NumberOfCustomer)
-	if err != nil {
-		fmt.Println("confirm 4-", err)
-		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	}
+	pkg.ConfirmReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.NumberOfCustomer)
 	context.JSON(http.StatusOK, gin.H{"message": "The reservation has been approved"})
 }
 
@@ -391,12 +386,7 @@ func CancelBookingFromRestaurant(context *gin.Context) {
 		fmt.Println("confirm 3-", err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-	fmt.Println("hereeeeee", r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.TimeStart, r.NumberOfCustomer)
-	err = pkg.CancelReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.NumberOfCustomer)
-	if err != nil {
-		fmt.Println("confirm 4-", err)
-		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	}
+	pkg.CancelReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.NumberOfCustomer)
 	context.JSON(http.StatusOK, gin.H{"message": "The reservation has been approved"})
 }
 

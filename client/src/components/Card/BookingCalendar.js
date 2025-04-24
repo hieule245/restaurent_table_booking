@@ -244,7 +244,7 @@ const BookingCalendar = ({ table, restaurant }) => {
           actual_end: `${formatTime(endHour)}:00`,
           price,
           customer_email: isStaff ? customerEmail : user?.Email,
-          status: isStaff ? 2 : 1,
+          status: isStaff ? 2 : status,
           numberOfCustomer,
         };
       });
@@ -397,6 +397,19 @@ const BookingCalendar = ({ table, restaurant }) => {
       : hour;
   };
 
+  const isSlotBooked = (timeSlot) => {
+    const dayKey = `${selectedMonth}-${selectedDay}`;
+    const bookedRanges = preBooked[dayKey] || [];
+
+    const [startLabel, endLabel] = timeSlot.split(" - ");
+    const startHour = parse12HourTo24(startLabel);
+    const endHour = parse12HourTo24(endLabel);
+
+    return bookedRanges.some(([bookedStart, bookedEnd]) => {
+      return !(endHour <= bookedStart || startHour >= bookedEnd);
+    });
+  };
+
   return (
     <div>
       <div className="row bg-white m-2 rounded text-dark">
@@ -488,15 +501,15 @@ const BookingCalendar = ({ table, restaurant }) => {
                       isPreBooked
                         ? "bg-secondary text-white" // Đã đặt từ backend
                         : isSelected
-                        ? "bg-primary text-white" // Đang được chọn
+                        ? "bg-danger text-white" // Đang được chọn
                         : "bg-white"
                     }`;
 
                     return (
                       <button
                         key={timeSlot}
-                        className={`btn ${buttonClass} fs-6 mx-1 mb-3`}
-                        style={{ width: "175px", height: "40px" }}
+                        className={`btn ${buttonClass} fs-6`}
+                        style={{ width: "200px", height: "40px" }}
                         onClick={() => toggleBooking(timeSlot)}
                         disabled={isPastTime || isPreBooked}
                       >

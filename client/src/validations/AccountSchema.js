@@ -154,7 +154,7 @@ export const staffValidationSchema = Yup.object().shape({
       message: "Gmail must be like abc@xyz.com form",
       excludeEmptyString: true,
     })
-    .max(50, "The email must not exceed 50 characters")
+    .max(50, "The email must not exceed 50 characters.")
     .required("Gmail is required."),
   password: Yup.string()
     .required("Password is required.")

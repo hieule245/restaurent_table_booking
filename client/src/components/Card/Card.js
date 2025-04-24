@@ -3,7 +3,10 @@ import Slider from "react-slick";
 import { specials } from "../../data";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronLeft,
+  faChevronRight,
+} from "@fortawesome/free-solid-svg-icons";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./Card.styles.css";
@@ -43,7 +46,7 @@ const CardCarousel = () => {
           </div>
         ))}
       </Slider>
-      
+
       {/* Nút chuyển card */}
       <button
         className="btn-carousel prev"
