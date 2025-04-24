@@ -132,7 +132,7 @@ export default function StaffList({ restaurant_id }) {
                             <div className="card w-100 h-100 shadow-lg border-2 border-danger rounded-4 bg-light text-dark position-relative p-3">
                                 <button
                                     className={`btn btn-square position-absolute top-0 end-0 m-2 
-                                ${status === "ban" ? "btn-secondary" : status === "active" ? "btn-outline-danger" : "btn-danger"}`}
+                                ${status === "ban" ? "custom-hover-success" : "btn-outline-success custom-hover-secondary"}`}
                                     onClick={() => handleOpenModal({ id, name, status })}
                                 >
                                     {status === "active" ? <FaUnlock /> : status === "inactive" ? <FaLock /> : <FaLock />}

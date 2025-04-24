@@ -53,11 +53,6 @@ export default function StaffList({ restaurant_id }) {
         setStaff(sortedStaff);
     };
 
-    // Hàm này sẽ được truyền xuống AddStaffForm
-    const handleStaffAdded = (newStaff) => {
-        setStaff((prevStaff) => [...prevStaff, newStaff]); // Cập nhật danh sách mà không cần load lại trang
-    };
-
     const handleOpenModal = (staff) => {
         setSelectedStaff(staff);
         modalInstance?.show();
@@ -153,7 +148,7 @@ export default function StaffList({ restaurant_id }) {
                             <div className="card w-100 h-100 shadow-lg border-2 border-danger rounded-4 bg-light text-dark position-relative p-3">
                                 <button
                                     className={`btn btn-square position-absolute top-0 end-0 m-2 
-                                ${status === "ban" ? "btn-secondary" : status === "active" ? "btn-outline-danger" : "btn-danger"}`}
+                                ${status === "ban" ? "btn-secondary" : status === "active" ? "btn-outline-success custom-hover-danger" : "btn-danger custom-hover-success"}`}
                                     onClick={() => status !== "ban" && handleOpenModal({ id, name, status })}
                                     disabled={status === "ban"}
                                 >

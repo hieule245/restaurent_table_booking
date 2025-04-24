@@ -187,8 +187,3 @@
   background-color: #f1f1f1; /* Màu nền sáng hơn khi hover */
   cursor: pointer; /* Đổi con trỏ chuột thành dạng pointer */
 }
-
-/* Thêm hiệu ứng làm đậm dòng khi hover */
-.booking-history-table tbody tr:hover td {
-  font-weight: bold; /* Làm đậm văn bản khi hover */
-}

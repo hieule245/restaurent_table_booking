@@ -18,8 +18,8 @@ const Admin = () => {
           withCredentials: true,
         })
         .then((res) => {
-          console.log("API Response:", res.data); // Kiểm tra dữ liệu trả về
-          SetTop(Array.isArray(res.data.top) ? res.data.top : []); // Gán dữ liệu vào state
+          console.log("API Response 1:", res.data.message); // Kiểm tra dữ liệu trả về
+          SetRevenues(res.data.message ? res.data.message : []); // Gán dữ liệu vào state
         })
         .catch((err) => {
           if (err.response) {
@@ -30,7 +30,7 @@ const Admin = () => {
             console.error("No response received:", err.request);
             toast.error("Không nhận được phản hồi từ server");
           } else {
-            // Lỗi khi thiết lập request
+            // Error request
             console.error("Request setup error:", err.message);
             toast.error("Lỗi khi gửi request: " + err.message);
           }
@@ -181,7 +181,7 @@ const Admin = () => {
                     </div>
                   ))
                 ) : (
-                  <p className="text-muted text-center mt-3 fs-4">Chưa có nhà hàng nào</p>
+                  <p className="text-muted text-center mt-3 fs-4">Not restaurant's available</p>
                 )}
               </div>
             </div>

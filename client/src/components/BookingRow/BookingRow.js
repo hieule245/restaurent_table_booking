@@ -1,6 +1,6 @@
 import React from "react";
 
-const BookingRow = ({ booking, index, onEdit, onCancel, formatTo12Hour }) => {
+const BookingRow = ({ booking, index, onCancel, formatTo12Hour }) => {
   // Mapping trạng thái đặt bàn
   const statusMapping = {
     // -1: la khong cap nhat
@@ -27,9 +27,8 @@ const BookingRow = ({ booking, index, onEdit, onCancel, formatTo12Hour }) => {
       <td>{day}</td>
       <td>{month}</td>
       <td>{year}</td>
-      {/* Format ngày theo "DD/MM/YYYY" */}
-      <td>{formatTo12Hour(booking.time_start)}</td>
-      <td>{formatTo12Hour(booking.time_end)}</td>
+      <td>{formatTo12Hour(booking.time_start?.slice(0, 5)) || "N/A"}</td>
+      <td>{formatTo12Hour(booking.time_end?.slice(0, 5)) || "N/A"}</td>
       <td>{booking.numberOfCustomer}</td>
       <td>{booking.table_id}</td>
       <td>{booking.price}</td>
@@ -39,13 +38,6 @@ const BookingRow = ({ booking, index, onEdit, onCancel, formatTo12Hour }) => {
       <td>
         {(booking.status === 1 || booking.status === 2) && (
           <>
-            <button
-              className="action-button bg-success text-white me-2"
-              onClick={() => onEdit(booking)}
-              title="Edit booking"
-            >
-              ✏️ Edit
-            </button>
             <button
               className="action-button bg-danger text-white"
               onClick={() => onCancel(booking)}

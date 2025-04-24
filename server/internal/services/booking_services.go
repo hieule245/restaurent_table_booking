@@ -131,7 +131,7 @@ func CreateBookingByStaff(c *gin.Context) {
 	}
 
 	var req BookingRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBindBodyWithJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		fmt.Println("2-", err)
 		return
@@ -186,9 +186,10 @@ func CreateBookingByStaff(c *gin.Context) {
 
 	// Tạo booking mới trong database
 	bookingID, err := booking.CreateByStaff()
+	fmt.Println("book", bookingID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		fmt.Println("8-", err)
+		fmt.Println("8 1-", err)
 		return
 	}
 

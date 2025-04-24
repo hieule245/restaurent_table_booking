@@ -189,12 +189,7 @@ const Admin = () => {
                   <div className="card w-100 h-100 shadow-lg border-2 border-danger rounded-4 bg-light text-dark position-relative p-3 mb-4">
                     <button
                       className={`btn btn-square position-absolute top-0 end-0 m-2 
-                                                    ${Status === "ban"
-                          ? "btn-secondary"
-                          : Status === "active"
-                            ? "btn-outline-danger"
-                            : "btn-danger"
-                        }`}
+                                                    ${Status === "ban" ? "custom-hover-success" : "btn-outline-success custom-hover-secondary"}`}
                       onClick={() =>
                         handleOpenModal({ Id, Name, Status, Role, Email })
                       }
