@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BACKENDS="backend:8080 frontend:3000"  # Thêm nhiều hơn nếu cần: backend3:8080 backend4:8080
+BACKENDS="backend:8080 backend2:8080 frontend:3000"  # Thêm nhiều hơn nếu cần: backend3:8080 backend4:8080
 
 for backend in $BACKENDS; do
   host=$(echo $backend | cut -d: -f1)
