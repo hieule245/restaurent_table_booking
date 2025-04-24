@@ -144,7 +144,7 @@ export default function StaffList({ restaurant_id }) {
                 </div>
             </div>
 
-            {restaurant_id && <AddStaff restaurant_id={restaurant_id} onStaffAdded={handleStaffAdded} />}
+            {restaurant_id && <AddStaff restaurant_id={restaurant_id} fetchStaff={fetchStaff} />}
 
             <div className="staff-container">
                 <div className="row">
@@ -162,8 +162,8 @@ export default function StaffList({ restaurant_id }) {
 
                                 <div className="text-center">
                                     <img src="https://tamanh.net/wp-content/uploads/2023/03/kieu-toc-mini-man-bun.jpg" alt={name} className="rounded-circle border border-danger p-1 mb-3" width={80} height={80} />
-                                    <h4 className="fw-bold text-danger">{name}</h4>
-                                    <p className="text-dark mb-1"><FaEnvelope className="text-danger me-2" />{gmail}</p>
+                                    <h4 className="fw-bold text-danger text-truncate" style={{ maxWidth: "100%" }} title={name}>{name}</h4>
+                                    <p className="text-dark mb-1text-truncate" style={{ maxWidth: "100%" }} title={gmail}><FaEnvelope className="text-danger me-2" />{gmail}</p>
                                     <p className="d-flex align-items-center mb-1 justify-content-center text-dark">
                                         <FaPhone className="text-danger me-2" />{phone}
                                     </p>

@@ -44,6 +44,22 @@ const EnterPin = () => {
     }
   };
 
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").replace(/\D/g, ""); // chỉ lấy số
+    const numbers = pastedData.slice(0, 6).split("");
+  
+    const newPin = [...pin];
+    numbers.forEach((num, idx) => {
+      newPin[idx] = num;
+    });
+  
+    setPin(newPin);
+  
+    const nextIndex = numbers.length >= 6 ? 5 : numbers.length;
+    inputRefs.current[nextIndex]?.focus();
+  };  
+
   const handleKeyDown = (index, e) => {
     if (e.key === "Backspace" && !pin[index] && index > 0) {
       inputRefs.current[index - 1].focus(); // Quay lại ô trước nếu bấm xoá
@@ -113,6 +129,7 @@ const EnterPin = () => {
                     value={num}
                     onChange={(e) => handleChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
+                    onPaste={handlePaste}
                     ref={(el) => (inputRefs.current[index] = el)}
                   />
                 </div>

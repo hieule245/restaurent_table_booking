@@ -6,7 +6,7 @@ import axios from "axios";
 import { staffValidationSchema } from "../../../../validations/AccountSchema";
 import { useRef } from "react";
 
-export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
+export default function AddStaffForm({ restaurant_id, fetchStaff }) {
   const closeBtnRef = useRef();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,7 +42,7 @@ export default function AddStaffForm({ restaurant_id, onStaffAdded }) {
       );
 
       toast.success("Staff created successfully!");
-      onStaffAdded(formData);
+      fetchStaff();
       setFormData({
         name: "",
         gmail: "",

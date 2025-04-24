@@ -250,7 +250,7 @@ const BookingCalendar = ({ table, restaurant }) => {
           actual_end: `${formatTime(endHour)}:00`,
           price,
           customer_email: isStaff ? customerEmail : user?.Email,
-          status,
+          status: isStaff ? 2 : 1,
           numberOfCustomer,
         };
       });
@@ -283,7 +283,7 @@ const BookingCalendar = ({ table, restaurant }) => {
     }
 
     const bookingData = buildBooking(false);
-    const bookingStaffData = buildBooking(true);
+    const bookingStaffData = buildBooking(false);
 
     const sorted = [...bookingData].sort(
       (a, b) => parseInt(a.time_start) - parseInt(b.time_start)

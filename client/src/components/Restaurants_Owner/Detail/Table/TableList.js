@@ -12,6 +12,7 @@ import { tableSchema } from "../../../../validations/TableSchema";
 import { restaurantEditSchema } from "../../../../validations/RestaurantSchema";
 
 const TableList = ({ restaurant_id }) => {
+  const fileInputRef = useRef(null);
   const [tables, setTables] = useState([]);
   const [restaurant, setRestaurant] = useState({});
   const [formData, setFormData] = useState({});
@@ -176,6 +177,8 @@ const TableList = ({ restaurant_id }) => {
           addTableModalRef.current.querySelector(".btn-close").click();
           fetchTables();
           setNewTable({ name: "", type: "", seats: 1, Description: "", image_id: 0 });
+          setSelectedFile(null);
+          fileInputRef.current.value = null;
         })
         .catch((error) => {
           if (error.response?.data?.error) {
@@ -466,6 +469,7 @@ const TableList = ({ restaurant_id }) => {
                 <div className="form-group mb-3">
                   <label className="form-label fw-bold text-dark">Picture</label>
                   <input
+                    ref={fileInputRef}
                     type="file"
                     name="ImageFile"
                     accept="image/*"
@@ -496,6 +500,7 @@ const TableList = ({ restaurant_id }) => {
                   <label className="form-label fw-bold text-dark">Seats</label>
                   <input type="number"
                     name="seats"
+                    min={0}
                     className={`form-control border-secondary rounded-3 ${validationErrors.seats ? 'is-invalid' : ''}`}
                     value={newTable.seats}
                     onChange={(e) => {
