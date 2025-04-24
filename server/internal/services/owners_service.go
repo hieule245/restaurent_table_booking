@@ -362,7 +362,7 @@ func ConfirmBookingFromRestaurant(context *gin.Context) {
 		fmt.Println("confirm 3-", err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-	pkg.ConfirmReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.TimeStart, r.NumberOfCustomer)
+	pkg.ConfirmReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.NumberOfCustomer)
 	context.JSON(http.StatusOK, gin.H{"message": "The reservation has been approved"})
 }
 
@@ -386,7 +386,7 @@ func CancelBookingFromRestaurant(context *gin.Context) {
 		fmt.Println("confirm 3-", err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-	pkg.CancelReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.TimeStart, r.NumberOfCustomer)
+	pkg.CancelReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.NumberOfCustomer)
 	context.JSON(http.StatusOK, gin.H{"message": "The reservation has been approved"})
 }
 
