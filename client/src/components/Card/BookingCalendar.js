@@ -244,7 +244,7 @@ const BookingCalendar = ({ table, restaurant }) => {
           actual_end: `${formatTime(endHour)}:00`,
           price,
           customer_email: isStaff ? customerEmail : user?.Email,
-          status: isStaff ? 2 : status,
+          status: isStaff ? 2 : 1,
           numberOfCustomer,
         };
       });
@@ -508,8 +508,8 @@ const BookingCalendar = ({ table, restaurant }) => {
                     return (
                       <button
                         key={timeSlot}
-                        className={`btn ${buttonClass} fs-6`}
-                        style={{ width: "200px", height: "40px" }}
+                        className={`btn ${buttonClass} fs-6 mx-2 mb-2`}
+                        style={{ width: "175px", height: "40px" }}
                         onClick={() => toggleBooking(timeSlot)}
                         disabled={isPastTime || isPreBooked}
                       >
