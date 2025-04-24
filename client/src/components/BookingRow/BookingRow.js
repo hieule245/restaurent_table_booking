@@ -1,6 +1,6 @@
 import React from "react";
 
-const BookingRow = ({ booking, index, onEdit, onCancel, formatTo12Hour }) => {
+const BookingRow = ({ booking, index, onCancel, formatTo12Hour }) => {
   // Mapping trạng thái đặt bàn
   const statusMapping = {
     // -1: la khong cap nhat

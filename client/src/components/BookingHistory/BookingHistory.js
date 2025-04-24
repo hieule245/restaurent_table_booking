@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
@@ -11,7 +11,10 @@ import "./BookingHistory.css";
 import RestaurantLayout from "../../pages/Restaurant/restaurantLayout";
 const BookingHistory = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
   const [bookings, setBookings] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const navigate = useNavigate();
@@ -24,7 +27,7 @@ const BookingHistory = () => {
   const currentItems = bookings && bookings.slice(indexOfFirstItem, indexOfLastItem);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  const getUpdatedStatus = (booking, timeNow) => {
+  const getUpdatedStatus = useCallback((booking, timeNow) => {
     const startSeconds = convertTimeToSeconds(booking.time_start);
     const endSeconds = convertTimeToSeconds(booking.time_end);
 
@@ -40,7 +43,7 @@ const BookingHistory = () => {
       default:
         return booking.status;
     }
-  };
+  }, []);
 
   // cập nhật thời gian mỗi 5 giây và kiểm tra trạng thái
   useEffect(() => {
@@ -77,7 +80,7 @@ const BookingHistory = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [getUpdatedStatus]);
 
   // Fetch user info
   const [user, setUser] = useState({});
@@ -88,8 +91,7 @@ const BookingHistory = () => {
       .catch(() => navigate("/login"));
   }, [navigate]);
 
-  // Fetch booking history
-  useEffect(() => {
+  const fetchHistory = useCallback(() => {
     if (!user?.Id) return;
     axios
       .get(
@@ -103,7 +105,12 @@ const BookingHistory = () => {
         console.error(err);
         toast.error("Error fetching booking history");
       });
-  }, [user]);
+  }, [user.Email, user?.Id])
+
+  // Fetch booking history
+  useEffect(() => {
+    fetchHistory()
+  }, [fetchHistory]);
 
   const updateStatusOnServer = (id, newStatus) => {
     axios
@@ -195,6 +202,7 @@ const BookingHistory = () => {
             }
           )
           .then(() => {
+            fetchHistory()
             setBookings((prev) => prev.filter((b) => b.id !== booking.id));
             Swal.fire(
               "Cancelled!",
@@ -220,48 +228,41 @@ const BookingHistory = () => {
     selectedMonth === "All"
       ? bookings // Nếu chọn "All", không lọc
       : bookings.filter((booking) => {
-          const bookingDate = new Date(booking.book_date); // Chuyển đổi ngày của booking thành đối tượng Date
-          const bookingMonth = String(bookingDate.getMonth() + 1).padStart(
-            2,
-            "0"
-          ); // Lấy tháng từ ngày và thêm 0 nếu cần
-          return bookingMonth === selectedMonth; // So sánh tháng với tháng đã chọn
-        });
+        const bookingDate = new Date(booking.book_date); // Chuyển đổi ngày của booking thành đối tượng Date
+        const bookingMonth = String(bookingDate.getMonth() + 1).padStart(
+          2,
+          "0"
+        ); // Lấy tháng từ ngày và thêm 0 nếu cần
+        return bookingMonth === selectedMonth; // So sánh tháng với tháng đã chọn
+      });
 
   return (
     <RestaurantLayout>
-      <div className="booking-history-container mt-2">
+      <div className="booking-history-container mt-2 p-5">
         <ToastContainer position="top-right" autoClose={3000} />
-        <h2 className="booking-history-title text-danger fs-1">
+        <h2 className="fw-bolder text-danger fs-1">
           Booking History
         </h2>
-        <div className="d-flex align-items-center mb-3 gap-2">
-          <label className="fw-bold">Filter theo tháng:</label>
-          <select
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            className="form-select w-auto"
-          >
-            <option value="All">Tất cả</option>
-            {[...Array(12)].map((_, i) => (
-              <option key={i} value={String(i + 1).padStart(2, "0")}>
-                Tháng {i + 1}
-              </option>
-            ))}
-          </select>
+        <div className="row">
+          <div className="d-flex align-items-center mb-3 gap-2 col-6">
+            <label className="fw-bold">Filter theo tháng:</label>
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="form-select w-auto"
+            >
+              <option value="All">All time</option>
+              {monthNames.map((month, i) => (
+                <option key={i} value={String(i + 1).padStart(2, "0")}>
+                  {month}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-6 d-flex justify-content-end">
+            <h5 className="text-muted">Current: {currentTime.toLocaleString()}</h5>
+          </div>
         </div>
-
-        <h5 className="text-muted">Current: {currentTime.toLocaleString()}</h5>
-
-        {user ? (
-          <p className="booking-history-welcome">
-            <hr />
-            Welcome,<strong> {user.Name}! </strong>
-            <p> Here is your booking history:</p>
-          </p>
-        ) : (
-          <p className="booking-history-loading">Loading user info...</p>
-        )}
 
         {!Array.isArray(filteredBookings) || filteredBookings.length === 0 ? (
           <p className="booking-history-no">No bookings found.</p>
@@ -323,11 +324,10 @@ const BookingHistory = () => {
                 ].map((number) => (
                   <button
                     key={number + 1}
-                    className={`btn ${
-                      currentPage === number + 1
-                        ? "btn-dark"
-                        : "btn-outline-dark"
-                    } mx-1`}
+                    className={`btn ${currentPage === number + 1
+                      ? "btn-dark"
+                      : "btn-outline-dark"
+                      } mx-1`}
                     onClick={() => paginate(number + 1)}
                   >
                     {number + 1}

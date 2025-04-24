@@ -53,11 +53,6 @@ export default function StaffList({ restaurant_id }) {
         setStaff(sortedStaff);
     };
 
-    // Hàm này sẽ được truyền xuống AddStaffForm
-    const handleStaffAdded = (newStaff) => {
-        setStaff((prevStaff) => [...prevStaff, newStaff]); // Cập nhật danh sách mà không cần load lại trang
-    };
-
     const handleOpenModal = (staff) => {
         setSelectedStaff(staff);
         modalInstance?.show();
@@ -144,7 +139,7 @@ export default function StaffList({ restaurant_id }) {
                 </div>
             </div>
 
-            {restaurant_id && <AddStaff restaurant_id={restaurant_id} onStaffAdded={handleStaffAdded} />}
+            {restaurant_id && <AddStaff restaurant_id={restaurant_id} fetchStaff={fetchStaff} />}
 
             <div className="staff-container">
                 <div className="row">
@@ -153,7 +148,7 @@ export default function StaffList({ restaurant_id }) {
                             <div className="card w-100 h-100 shadow-lg border-2 border-danger rounded-4 bg-light text-dark position-relative p-3">
                                 <button
                                     className={`btn btn-square position-absolute top-0 end-0 m-2 
-                                ${status === "ban" ? "btn-secondary" : status === "active" ? "btn-outline-danger" : "btn-danger"}`}
+                                ${status === "ban" ? "btn-secondary" : status === "active" ? "btn-outline-success custom-hover-danger" : "btn-danger custom-hover-success"}`}
                                     onClick={() => status !== "ban" && handleOpenModal({ id, name, status })}
                                     disabled={status === "ban"}
                                 >
@@ -162,8 +157,8 @@ export default function StaffList({ restaurant_id }) {
 
                                 <div className="text-center">
                                     <img src="https://tamanh.net/wp-content/uploads/2023/03/kieu-toc-mini-man-bun.jpg" alt={name} className="rounded-circle border border-danger p-1 mb-3" width={80} height={80} />
-                                    <h4 className="fw-bold text-danger">{name}</h4>
-                                    <p className="text-dark mb-1"><FaEnvelope className="text-danger me-2" />{gmail}</p>
+                                    <h4 className="fw-bold text-danger text-truncate" style={{ maxWidth: "100%" }} title={name}>{name}</h4>
+                                    <p className="text-dark mb-1text-truncate" style={{ maxWidth: "100%" }} title={gmail}><FaEnvelope className="text-danger me-2" />{gmail}</p>
                                     <p className="d-flex align-items-center mb-1 justify-content-center text-dark">
                                         <FaPhone className="text-danger me-2" />{phone}
                                     </p>

@@ -111,10 +111,6 @@ const BookingCalendar = ({ table, restaurant }) => {
   // Fetch các khung giờ đã đặt từ backend cho ngày được chọn
   useEffect(() => {
     if (!selectedDay) return;
-    {
-      console.log("restaurant id", restaurant.id);
-    }
-
     const fetchBookings = async () => {
       try {
         const response = await axios.get(
@@ -232,7 +228,6 @@ const BookingCalendar = ({ table, restaurant }) => {
       "0"
     )}-${String(selectedDay).padStart(2, "0")}`;
     const price = 0.0;
-    const status = 1;
     const formatTime = (hour) => String(hour).padStart(2, "0");
 
     const buildBooking = (isStaff = false) =>

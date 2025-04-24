@@ -80,7 +80,7 @@ const RestaurantList = () => {
     <div className="bg-light">
       <div className="container">
         <div className="">
-          <h2 className="text-center my-4 fs-1 fw-bold">Restaurant List</h2>
+          <h2 className="text-center mt-5 mb-0 fs-1 fw-bold">🍽️ Explore Restaurants</h2>
           <hr />
           <div className="row mb-3 justify-content-end">
             <div className="col-2 flex-grow-1">

@@ -13,3 +13,17 @@
     min-height: 78vh;
     /* Đảm bảo chiều cao tối thiểu */
 }
+
+.custom-hover-danger:hover {
+    background-color: #dc3545;
+    /* Bootstrap danger color */
+    color: white;
+    border-color: #dc3545;
+}
+
+.custom-hover-success:hover {
+    background-color: #198754;
+    /* Bootstrap success color */
+    color: white;
+    border-color: #198754;
+}

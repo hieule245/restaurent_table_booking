@@ -21,6 +21,7 @@ Subject: Xác nhận đặt bàn thành công
 MIME-Version: 1.0
 Content-Type: text/html; charset="UTF-8"
 
+	body := fmt.Sprintf(`
 <html>
   <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
     <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
@@ -72,6 +73,7 @@ Subject: Xác nhận đặt bàn không thành công
 MIME-Version: 1.0
 Content-Type: text/html; charset="UTF-8"
 
+	body := fmt.Sprintf(`
 <html>
   <body style="font-family: Arial, sans-serif;">
     <p>Kính gửi <strong>%s</strong>,</p>
