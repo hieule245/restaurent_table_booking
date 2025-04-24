@@ -250,7 +250,7 @@ const BookingCalendar = ({ table, restaurant }) => {
           actual_end: `${formatTime(endHour)}:00`,
           price,
           customer_email: isStaff ? customerEmail : user?.Email,
-          status,
+          status : isStaff ? 2 : status,
           numberOfCustomer,
         };
       });
