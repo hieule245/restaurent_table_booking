@@ -17,6 +17,11 @@ const DetailRestaurant = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const tablesPerPage = 8;
   const totalPages = Math.ceil(tables.length / tablesPerPage);
+  const now = new Date();
+  const hour = now.getHours().toString().padStart(2, "0");
+  const minute = now.getMinutes().toString().padStart(2, "0");
+  const currentTime = `${hour}:${minute}`;
+  const isToday = selectedDate === new Date().toISOString().split("T")[0];
 
   const paginatedTables = tables.slice(
     (currentPage - 1) * tablesPerPage,
@@ -37,6 +42,7 @@ const DetailRestaurant = () => {
       .get(`${process.env.REACT_APP_API_URL}/restaurant/${restaurant_id}`)
       .then((responseRestaurant) => {
         setRestaurant(responseRestaurant.data.restaurant);
+        console.log(responseRestaurant.data.restaurant)
       })
       .catch((error) => console.error("Error fetching restaurant:", error));
 
@@ -60,13 +66,26 @@ const DetailRestaurant = () => {
   }, [restaurant_id]);
 
   // Tạo danh sách khung giờ từ 07:00 đến 22:00, mỗi 2 giờ
-  const generateTimeSlots = (start, end, step) => {
-    return Array.from(
-      { length: (end - start) / step + 1 },
-      (_, i) => (start + i * step).toString().padStart(2, "0") + ":00"
-    );
+  const generateTimeSlots = (startStr, endStr, step) => {
+    const parseHour = (timeStr) => parseInt(timeStr.split(":")[0], 10);
+    const start = startStr ? parseHour(startStr) : 0;
+    const end = endStr ? parseHour(endStr) : 0;
+
+    return Array.from({ length: Math.floor((end - start) / step) + 1 }, (_, i) => {
+      const hour24 = start + i * step;
+      const hour = hour24.toString().padStart(2, "0");
+      const labelHour = hour24 % 12 === 0 ? 12 : hour24 % 12;
+      const labelPeriod = hour24 < 12 ? "AM" : "PM";
+      return {
+        value: `${hour}:00`,        // Dạng 24h để xử lý
+        label: `${labelHour}:00 ${labelPeriod}`, // Hiển thị 12h
+      };
+    });
   };
-  const timeSlots = generateTimeSlots(7, 22, 2);
+
+  // Ví dụ:
+  const timeSlots = generateTimeSlots(restaurant.Started, restaurant.Ended, 2);
+
 
   // Hàm gọi API tìm bàn trống theo ngày, startTime và endTime
   const searchAvailableTables = async (e) => {
@@ -213,11 +232,19 @@ const DetailRestaurant = () => {
                 onChange={(e) => setStartTime(e.target.value)}
               >
                 <option value="">Select Time</option>
-                {timeSlots.map((time, index) => (
-                  <option key={index} value={time}>
-                    {time}
-                  </option>
-                ))}
+                {timeSlots.map((slot, index) => {
+                  const isDisabled = isToday && slot.value <= currentTime;
+                  return (
+                    <option
+                      key={index}
+                      value={slot.value}
+                      disabled={isDisabled}
+                      className={isDisabled ? "text-muted" : ""}
+                    >
+                      {slot.label}
+                    </option>
+                  );
+                })}
               </select>
             </div>
 
@@ -232,11 +259,20 @@ const DetailRestaurant = () => {
                 onChange={(e) => setEndTime(e.target.value)}
               >
                 <option value="">Select Time</option>
-                {timeSlots.map((time, index) => (
-                  <option key={index} value={time}>
-                    {time}
-                  </option>
-                ))}
+                {timeSlots.map((slot, index) => {
+                  const isDisabled =
+                    !startTime || slot.value <= startTime || (isToday && slot.value <= currentTime);
+                  return (
+                    <option
+                      key={index}
+                      value={slot.value}
+                      disabled={isDisabled}
+                      className={isDisabled ? "text-muted" : ""}
+                    >
+                      {slot.label}
+                    </option>
+                  );
+                })}
               </select>
             </div>
 

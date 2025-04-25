@@ -7,19 +7,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-const data = {
-  labels: ["Bàn do khách đặt", "Bàn do staff đặt", "Others"],
-  datasets: [
-    {
-      data: [236, 593, 371],
-      backgroundColor: ["#00D25B", "#FC424A", "#FBBF24"],
-      hoverBackgroundColor: ["#00FF80", "#FF5C6C", "#FFD966"],
-      borderWidth: 0,
-    },
-  ],
-};
+ChartJS.register(ArcElement, Tooltip, Legend);  
 
 const options = {
   cutout: "70%",
@@ -33,6 +21,7 @@ const Dashboard = () => {
   const [revenues, SetRevenues] = useState([]);
   const [index, SetIndex] = useState([]);
   const [top, SetTop] = useState([]);
+  const [circleChart, SetChart] = useState([])
   const fetch = () => {
     try {
       axios
@@ -40,7 +29,7 @@ const Dashboard = () => {
           withCredentials: true,
         })
         .then((res) => {
-          console.log("API Response:", res.data); // Kiểm tra dữ liệu trả về
+          console.log("API Response revenues infor:", res.data); // Kiểm tra dữ liệu trả về
           SetRevenues(res.data.message || {}); // Gán dữ liệu vào state
         })
         .catch((err) => {
@@ -70,7 +59,7 @@ const Dashboard = () => {
           withCredentials: true,
         })
         .then((res) => {
-          console.log("API Response:", res.data.top); // Kiểm tra dữ liệu trả về
+          console.log("API Response top:", res.data.top); // Kiểm tra dữ liệu trả về
           SetTop(res.data.top || {}); // Gán dữ liệu vào state
         })
         .catch((err) => {
@@ -100,8 +89,10 @@ const Dashboard = () => {
           withCredentials: true,
         })
         .then((res) => {
-          console.log("API Response:", res.data); // Kiểm tra dữ liệu trả về
+          console.log("API Response chart:", res.data); // Kiểm tra dữ liệu trả về
           SetIndex(res.data || {}); // Gán dữ liệu vào state
+          SetChart(res.data)
+
         })
         .catch((err) => {
           if (err.response) {
@@ -156,8 +147,8 @@ const Dashboard = () => {
               revenues.DiffTotal > 0
                 ? "+" + revenues.DiffTotal + "%"
                 : revenues.DiffTotal < 0
-                ? "-" + revenues.DiffTotal + "%"
-                : "",
+                  ? "-" + revenues.DiffTotal + "%"
+                  : "",
             up: revenues.DiffTotal >= 0 ? true : false,
           },
           {
@@ -167,8 +158,8 @@ const Dashboard = () => {
               revenues.DiffBookNumber > 0
                 ? "+" + revenues.DiffBookNumber + "%"
                 : revenues.DiffBookNumber < 0
-                ? "-" + revenues.DiffBookNumber + "%"
-                : "",
+                  ? "-" + revenues.DiffBookNumber + "%"
+                  : "",
             up: revenues.DiffBookNumber >= 0 ? true : false,
           },
           {
@@ -178,8 +169,8 @@ const Dashboard = () => {
               revenues.DiffCanceledBook > 0
                 ? "+" + revenues.DiffCanceledBook + "%"
                 : revenues.DiffCanceledBook < 0
-                ? "-" + revenues.DiffCanceledBook + "%"
-                : "",
+                  ? "-" + revenues.DiffCanceledBook + "%"
+                  : "",
             up: revenues.DiffCanceledBook >= 0 ? false : true,
           },
         ].map((stat, index) => (
@@ -232,7 +223,7 @@ const Dashboard = () => {
               border: "2px solid #D1E7FF",
             }}
           >
-            <h5 className="text-primary">Transaction History</h5>
+            <h5 className="text-primary">Total reservation history</h5>
 
             {/* Biểu đồ Doughnut */}
             <div className="position-relative d-flex justify-content-center align-items-center flex-grow-1 mb-3">
@@ -242,11 +233,11 @@ const Dashboard = () => {
                 style={{ top: "42%" }}
               >
                 <h5 className="text-dark mb-0">
-                  {revenues.WeeklyRevenue
-                    ? revenues.WeeklyRevenue.toLocaleString()
+                  {circleChart.numStaff || circleChart.numCustomer
+                    ? (circleChart.numCustomer + circleChart.numStaff)
                     : 0}
                 </h5>
-                <p className="small text-muted">VND</p>
+                <p className="small text-muted">reservations</p>
               </div>
             </div>
 
@@ -290,7 +281,7 @@ const Dashboard = () => {
                   style={{ backgroundColor: "#E3F2FD", borderRadius: "8px" }}
                 >
                   <div>
-                  <strong className="text-dark text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>{restaurant.Name}</strong>
+                    <strong className="text-dark text-muted text-truncate" style={{ maxWidth: "100%" }} title={restaurant.Name}>{restaurant.Name}</strong>
                     <p className="mb-0 text-muted">
                       {restaurant.TotalRevenue
                         ? restaurant.TotalRevenue.toLocaleString()
