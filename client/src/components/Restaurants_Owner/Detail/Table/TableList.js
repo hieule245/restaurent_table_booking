@@ -16,6 +16,7 @@ const TableList = ({ restaurant_id }) => {
   const [tables, setTables] = useState([]);
   const [restaurant, setRestaurant] = useState({});
   const [formData, setFormData] = useState({});
+  const [isAdding, setIsAdding] = useState(false)
   const [newTable, setNewTable] = useState(
     {
       name: "",
@@ -35,9 +36,6 @@ const TableList = ({ restaurant_id }) => {
   const indexOfFirstTable = indexOfLastTable - tablesPerPage;
   const currentTables = tables.slice(indexOfFirstTable, indexOfLastTable);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  const resetFormData = () => {
-    setFormData(restaurant); // Reset lại dữ liệu form về giá trị ban đầu (restaurant)
-  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.name === "seats" ? Number(e.target.value) : e.target.value });
@@ -153,7 +151,7 @@ const TableList = ({ restaurant_id }) => {
   const handleAddTable = async (e) => {
     e.preventDefault();
     setValidationErrors({}); // reset trước
-
+    setIsAdding(true);
     try {
       await tableSchema.validate(newTable, { abortEarly: false });
       let newTableWithImage = { ...newTable };
@@ -168,6 +166,7 @@ const TableList = ({ restaurant_id }) => {
           .catch((error) => {
             console.error("Error uploading image:", error.response.data.message);
             toast.error("Error uploading image!");
+            setIsAdding(false);
             return; // Nếu upload ảnh thất bại, không tiếp tục tạo bàn
           });
       }
@@ -179,6 +178,7 @@ const TableList = ({ restaurant_id }) => {
           setNewTable({ name: "", type: "", seats: 1, Description: "", image_id: 0 });
           setSelectedFile(null);
           fileInputRef.current.value = null;
+          setIsAdding(false);
         })
         .catch((error) => {
           if (error.response?.data?.error) {
@@ -195,6 +195,7 @@ const TableList = ({ restaurant_id }) => {
       } else {
         toast.error("Đã có lỗi xảy ra!");
       }
+      setIsAdding(false);
     }
   };
 
@@ -229,6 +230,14 @@ const TableList = ({ restaurant_id }) => {
     }
   }
 
+  const resetFormData = () => {
+    setFormData(restaurant); // Reset lại dữ liệu form về giá trị ban đầu (restaurant)
+  };
+
+  const resetError = () => {
+    setValidationErrors({});
+  }
+
   return (
     <div className="container-fluid row align-items-center">
       <ToastContainer />
@@ -257,7 +266,7 @@ const TableList = ({ restaurant_id }) => {
 
       <div className="col-3 text-end pe-5">
         <button className="btn btn-outline-success me-3" data-bs-toggle="modal" data-bs-target="#addTableModal"><FontAwesomeIcon icon={faPlus} /></button>
-        <button className="btn btn-outline-primary me-3" data-bs-toggle="modal" data-bs-target="#editRestaurantModal"><FaPen /></button>
+        <button className="btn btn-outline-primary me-3" data-bs-toggle="modal" data-bs-target="#editRestaurantModal" onClick={resetError}><FaPen /></button>
         <button className="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteRestaurantModal">
           <FaStoreSlash />
         </button>
@@ -537,7 +546,7 @@ const TableList = ({ restaurant_id }) => {
                 </div>
               </div>
               <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-end">
-                <button type="submit" className="btn btn-success fw-bold px-4">Add</button>
+                <button type="submit" className="btn btn-success fw-bold px-4" disabled={isAdding}>Add</button>
               </div>
             </form>
           </div>

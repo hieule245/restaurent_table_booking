@@ -28,14 +28,14 @@ func (rev *Revenues) GetCurrentWeekRevenue(ownerId int64) error {
     SUM(b.price) AS total_price, 
     (SELECT COUNT(*) FROM staffs s 
      WHERE s.restaurant_id IN (SELECT r.id FROM restaurants r WHERE r.owner_id = o.id) 
-     AND s.status = 'active') AS active_staffs,
+     AND s.status = 'active'),
     (SELECT COUNT(*) FROM staffs s 
      WHERE s.restaurant_id IN (SELECT r.id FROM restaurants r WHERE r.owner_id = o.id) 
-     AND s.status = 'inactive') AS inactive_staffs,
-    COUNT(DISTINCT CASE WHEN b.status = 0 THEN b.id ELSE NULL END) AS pending_reservations, 
-    COUNT(DISTINCT CASE WHEN b.status != 0 THEN b.id ELSE NULL END) AS confirmed_reservations,
-    COUNT(DISTINCT b.customer_id) AS unique_customers,
-    SUM(b.numberOfCustomer) AS total_customers
+     AND s.status = 'inactive'),
+    COUNT(DISTINCT CASE WHEN b.status = 0 THEN b.id ELSE NULL END), 
+    COUNT(DISTINCT CASE WHEN b.status != 0 THEN b.id ELSE NULL END),
+    COUNT(DISTINCT b.customer_id),
+    SUM(b.numberOfCustomer)
 	FROM reservations b 
 	INNER JOIN tables t ON b.table_id = t.id 
 	INNER JOIN restaurants r ON t.restaurant_id = r.id 

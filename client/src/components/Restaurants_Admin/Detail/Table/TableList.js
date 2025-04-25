@@ -94,7 +94,13 @@ const TableList = ({ restaurant_id }) => {
       });
   };
 
+  const resetFormData = () =>{
+    setFormData(restaurant);
+  }
 
+  const resetError = () =>{
+    setValidationErrors({});
+  }
 
   const indexOfLastTable = currentPage * tablesPerPage;
   const indexOfFirstTable = indexOfLastTable - tablesPerPage;
@@ -128,7 +134,7 @@ const TableList = ({ restaurant_id }) => {
       </div>
 
       <div className="col-3 text-end pe-5">
-        <button className="btn btn-outline-primary me-3" data-bs-toggle="modal" data-bs-target="#editRestaurantModal"><FaPen /></button>
+        <button className="btn btn-outline-primary me-3" data-bs-toggle="modal" data-bs-target="#editRestaurantModal" onClick={resetError}><FaPen /></button>
         <button className="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteRestaurantModal">
           <FaStoreSlash />
         </button>
@@ -179,7 +185,7 @@ const TableList = ({ restaurant_id }) => {
           <div className="modal-content rounded-4 shadow-lg border-0">
             <div className="modal-header bg-dark text-white rounded-top-4">
               <h4 className="modal-title fw-bold" id="editRestaurantModalLabel">Edit Restaurant</h4>
-              <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" onClick={resetFormData}></button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body p-4 bg-white">
