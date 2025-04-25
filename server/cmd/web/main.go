@@ -68,7 +68,10 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	server.Run(":" + port)
+	err = server.Run(":" + port)
+	if err != nil {
+		fmt.Println("server run:", err)
+	}
 }
 
 func AutoUpdateReservationStatuses() {

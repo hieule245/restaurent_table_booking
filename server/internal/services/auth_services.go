@@ -158,19 +158,20 @@ func Register(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
 		return
 	}
-	if u.Role == "customer" {
+	switch u.Role {
+	case "customer":
 		err = u.RegisterCustomer()
 		if err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-	} else if u.Role == "admin" {
+	case "admin":
 		err = u.RegisterAdmin()
 		if err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-	} else if u.Role == "owner" {
+	case "owner":
 		err = u.RegisterOwner()
 		if err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -321,13 +322,14 @@ func UpdateProfile(context *gin.Context) {
 	var acc models.Account
 	var err error
 	context.ShouldBindBodyWithJSON(&acc)
-	if acc.Role == "staff" {
+	switch acc.Role {
+	case "staff":
 		err = acc.UpdateStaff()
-	} else if acc.Role == "owner" {
+	case "owner":
 		err = acc.UpdateOwner()
-	} else if acc.Role == "customer" {
+	case "customer":
 		err = acc.UpdateCustomer()
-	} else if acc.Role == "admin" {
+	case "admin":
 		err = acc.UpdateAdmin()
 	}
 

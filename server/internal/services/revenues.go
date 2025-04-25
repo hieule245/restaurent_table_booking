@@ -17,7 +17,7 @@ func WeeklyRevenue() {
 	if err != nil {
 		fmt.Println("1-", err)
 		return
-	} 
+	}
 	defer rows.Close()
 	for rows.Next() {
 		var ownerId int64
@@ -34,7 +34,7 @@ func WeeklyRevenue() {
 			fmt.Println("9 user-", err)
 		}
 
-		if isActive == false {
+		if !isActive {
 			fmt.Println("No active this week...", ownerId, ", skipping...")
 			continue
 		}

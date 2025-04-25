@@ -273,7 +273,7 @@ func EditReservation(c *gin.Context) {
 	// Debug info
 	fmt.Println("Booking DateTime:", bookingDateTime)
 	fmt.Println("Current Time:", time.Now())
-	duration := bookingDateTime.Sub(time.Now())
+	duration := time.Until(bookingDateTime)
 	fmt.Println("Time remaining until booking:", duration)
 
 	// Nếu còn dưới 30 phút trước thời gian đặt bàn gốc, không cho chỉnh sửa
@@ -383,7 +383,7 @@ func CancelReservation(c *gin.Context) {
 
 	fmt.Println("Booking DateTime:", bookingDateTime)
 	fmt.Println("Current Time:", time.Now())
-	duration := bookingDateTime.Sub(time.Now())
+	duration := time.Until(bookingDateTime)
 	fmt.Println("Time remaining until booking:", duration)
 
 	// So sánh với thời gian hiện tại: nếu thời gian hiện tại sau thời gian đặt bàn thì không cho hủy

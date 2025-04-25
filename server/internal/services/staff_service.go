@@ -151,22 +151,25 @@ func LockStaff(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't take input information"})
 		return
 	}
-	if staff.Status == "active" {
+	switch staff.Status {
+	case "active":
 		err = models.LockStaff(userId, staff.ID)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 			return
 		}
 		context.JSON(http.StatusOK, gin.H{"message": "Lock successfully!!!"})
-	} else if staff.Status == "inactive" {
+	case "inactive":
 		err = models.UnlockStaff(userId, staff.ID)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 			return
 		}
 		context.JSON(http.StatusOK, gin.H{"message": "Unlock successfully!!!"})
-	} else if staff.Status == "ban" {
+	case "ban":
 		context.JSON(http.StatusBadRequest, gin.H{"message": "This account was banned by admin"})
+	default:
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Can catch status of this account"})
 	}
 }
 

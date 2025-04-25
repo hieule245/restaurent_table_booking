@@ -36,7 +36,10 @@ func main() {
 	server.GET("/ws", handlerConnections)
 
 	go cronjobs.CronCalculation()
-	server.Run(":8080")
+	err := server.Run(":8080")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 // WebSocket
@@ -78,7 +81,11 @@ func handlerConnections(c *gin.Context) {
 		fmt.Println("WebSocket upgrade failed:", err)
 		return
 	}
-	defer conn.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			fmt.Printf("failed to close connection: %v", err)
+		}
+	}()
 
 	client := &Client{
 		UserID:   userID,

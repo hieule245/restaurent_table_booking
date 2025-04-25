@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"net/smtp"
 	"os"
-	"time"
 )
 
 func getSMTPAuth() smtp.Auth {
@@ -23,7 +22,7 @@ func getSMTPAddr() string {
 
 func SendMailSimple(email string, pin int) {
 	auth := getSMTPAuth()
- 
+
 	msg := fmt.Sprintf(`From: %s
 To: %s
 Subject: Mã PIN xác nhận đặt lại mật khẩu
@@ -95,7 +94,6 @@ Content-Type: text/html; charset="UTF-8"
 }
 
 func RandomPin() int {
-	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(900000) + 100000
 }
 
