@@ -179,7 +179,7 @@ func GetRestaurantByOwnerID(id int64) ([]Restaurant, error) {
 	var res []Restaurant
 	// var image_id int64
 	query := `
-	SELECT id, name, description, time_start, time_end, location, owner_id, image_id FROM restaurants
+	SELECT id, name, description, time_start, time_end, location, owner_id FROM restaurants
 	WHERE owner_id = ? AND status = 'active'
 	`
 	rows, err := db.DB.Query(query, id)
@@ -196,18 +196,18 @@ func GetRestaurantByOwnerID(id int64) ([]Restaurant, error) {
 
 	for rows.Next() {
 		var e Restaurant
-		err := rows.Scan(&e.Id, &e.Name, &e.Description, &e.Started, &e.Ended, &e.Location, &e.Owner_id, &e.ImageId)
+		err := rows.Scan(&e.Id, &e.Name, &e.Description, &e.Started, &e.Ended, &e.Location, &e.Owner_id)
 		if err != nil {
 			fmt.Println("Error scanning row 2:", err)
 			return nil, err
 		}
-		query = `SELECT image FROM images WHERE id = ?`
-		row := db.DB.QueryRow(query, e.ImageId)
-		err = row.Scan(&e.ImageFile)
-		if err != nil {
-			fmt.Println("res", err)
-			return nil, err
-		}
+		// query = `SELECT image FROM images WHERE id = ?`
+		// row := db.DB.QueryRow(query, e.ImageId)
+		// err = row.Scan(&e.ImageFile)
+		// if err != nil {
+		// 	fmt.Println("res", err)
+		// 	return nil, err
+		// }
 		res = append(res, e)
 	}
 	return res, err

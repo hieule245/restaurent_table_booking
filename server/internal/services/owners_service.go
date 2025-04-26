@@ -38,7 +38,7 @@ func GetAllOwnerRestaurants(context *gin.Context) {
 	}
 	claims, err := utils.ParseJWT(token)
 	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "Claim failse"})
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Claim failse"})
 		context.Abort()
 		return
 	}
@@ -46,7 +46,7 @@ func GetAllOwnerRestaurants(context *gin.Context) {
 
 	restaurant, err := models.GetRestaurantByOwnerID(acc.Id)
 	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can't collect data"})
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Can't collect data"})
 		context.Abort()
 		return
 	}

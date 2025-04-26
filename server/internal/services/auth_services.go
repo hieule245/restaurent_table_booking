@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/restaurent_table_booking/internal/models"
 	"github.com/restaurent_table_booking/internal/utils"
+	"github.com/restaurent_table_booking/internal/validation"
 	pkg "github.com/restaurent_table_booking/pkg/email"
 )
 
@@ -27,7 +28,8 @@ type PinData struct {
 var pinStorage = sync.Map{}
 
 func Login(context *gin.Context) {
-	if _, err := context.Cookie("token"); err == nil {
+	_, err := context.Cookie("token")
+	if err == nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
@@ -38,8 +40,13 @@ func Login(context *gin.Context) {
 		return
 	}
 
+	if !validation.ValidateAccountInput(context, &u, "login") {
+		fmt.Println("error validation")
+		return
+	}
+
 	if err := u.Login(); err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -156,6 +163,9 @@ func Register(context *gin.Context) {
 	err := context.ShouldBindBodyWithJSON(&u)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't read your input information"})
+		return
+	}
+	if !validation.ValidateAccountInput(context, &u, "register") {
 		return
 	}
 	switch u.Role {
@@ -285,14 +295,19 @@ func CheckPin(context *gin.Context) {
 }
 
 func ChangePassword(context *gin.Context) {
-	var pass models.NewPassword
+	var pass *models.NewPassword
 	fmt.Println("Change password")
 	err := context.ShouldBindBodyWithJSON(&pass)
+	fmt.Println(pass)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid Input"})
+		context.JSON(http.StatusBadGateway, gin.H{"message": "Invalid Input"})
 		return
 	}
-	if pass.NewPassword == pass.OldPassword {
+	if !validation.ValidateChangePassInput(context, pass, "") {
+		return
+	}
+
+	if pass.Password == pass.OldPassword {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "New password should not be the same as the old password."})
 		return
 	}
@@ -310,7 +325,7 @@ func ChangePassword(context *gin.Context) {
 		return
 	}
 	acc.Email = claims.Gmail
-	err = acc.ChangePassword(pass)
+	err = acc.ChangePassword(*pass)
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -324,6 +339,11 @@ func UpdateProfile(context *gin.Context) {
 	err = context.ShouldBindBodyWithJSON(&acc)
 	if err != nil {
 		fmt.Println("326 - : ", err)
+		return
+	}
+	fmt.Println(acc)
+	if !validation.ValidateAccountInput(context, &acc, "information") {
+		fmt.Println("345. validation")
 		return
 	}
 	switch acc.Role {

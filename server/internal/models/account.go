@@ -10,30 +10,33 @@ import (
 	"github.com/restaurent_table_booking/internal/utils"
 )
 
-type Account struct {
-	Id        int64
-	Name      string
-	Email     string
-	Phone     string
-	Password  string
-	Role      string
-	Status    string
-	Orther_id int64
-	ImageFile string
-}
-
-type NewPassword struct {
-	OldPassword string
-	NewPassword string
-}
+var failedAttempts = sync.Map{}
 
 type CheckPassword struct {
 	Attempt int
 }
 
-var failedAttempts = sync.Map{}
+type NewPassword struct {
+	OldPassword     string `validate:"required,max=64,passwordregex"`
+	Password        string `validate:"required,max=64,passwordregex"`
+	ConfirmPassword string `validate:"required"`
+}
+
+type Account struct {
+	Id              int64
+	Name            string `validate:"required,max=50,fullnameregex"`
+	Email           string `validate:"required,email,min=5,max=50,emailregex"`
+	Phone           string `validate:"required,min=10,max=11,phoneregex"`
+	Password        string `validate:"required,min=8,max=64,passwordregex"`
+	ConfirmPassword string `validate:"required"`
+	Role            string
+	Status          string
+	Orther_id       int64
+	ImageFile       string
+}
 
 func (u *Account) RegisterCustomer() error {
+
 	_, check := CheckAccount(u)
 	if !check {
 		return errors.New("email already exists")
@@ -182,6 +185,7 @@ func (u *Account) RegisterStaff() error {
 	u.Id = id
 	return nil
 }
+
 func (u *Account) Login() error {
 	// Check if the user exists
 	retrievedPassword, ok := CheckAccount(u)
@@ -504,26 +508,47 @@ func (acc *Account) ChangePassword(pass NewPassword) error {
 	if !ok {
 		return errors.New("old password is not true")
 	}
-	hashPassword, err := utils.HashPassword(pass.NewPassword)
+	hashPassword, err := utils.HashPassword(pass.Password)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	query := `
+	var query string
+	switch acc.Role {
+	case "admin":
+		query = `
+	UPDATE admin SET password = ?
+	WHERE gmail = ?
+	`
+	case "staff":
+		query = `
+	UPDATE staffs SET password = ?
+	WHERE gmail = ?
+	`
+	case "customer":
+		query = `
 	UPDATE customers SET password = ?
 	WHERE gmail = ?
 	`
+	case "owner":
+		query = `
+	UPDATE owners SET password = ?
+	WHERE gmail = ?
+	`
+	}
 
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
+
 	defer func() {
 		if err := stmt.Close(); err != nil {
 			fmt.Println("Error closing stmt:", err)
 		}
 	}()
+
 	_, err = stmt.Exec(hashPassword, acc.Email)
 	if err != nil {
 		fmt.Println(err)

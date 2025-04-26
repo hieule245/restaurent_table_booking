@@ -76,7 +76,7 @@ func main() {
 }
 
 func AutoUpdateReservationStatuses() {
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(5 * time.Hour)
 	defer ticker.Stop()
 	var rows *sql.Rows
 	defer func() {
@@ -154,7 +154,7 @@ func updateStatusByAPI(reservationID int, newStatus int) {
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{Timeout: 5 * time.Second}
+	client := &http.Client{Timeout: 5 * time.Hour}
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Println("Failed to send update status:", err)
