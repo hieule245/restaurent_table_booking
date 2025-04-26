@@ -106,7 +106,7 @@ const Admin = () => {
   return (
     <div className="bg-black">
       <ToastContainer />
-      <div className="p-4 text-white row h-100">
+      <div className="p-4 text-white row vh-100">
         <div className="col-2">
           <Sidebar />
         </div>
