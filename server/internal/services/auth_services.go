@@ -321,7 +321,11 @@ func ChangePassword(context *gin.Context) {
 func UpdateProfile(context *gin.Context) {
 	var acc models.Account
 	var err error
-	context.ShouldBindBodyWithJSON(&acc)
+	err = context.ShouldBindBodyWithJSON(&acc)
+	if err != nil {
+		fmt.Println("326 - : ", err)
+		return
+	}
 	switch acc.Role {
 	case "staff":
 		err = acc.UpdateStaff()
@@ -346,7 +350,11 @@ func UploadImage(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't take any image"})
 		return
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Println("Error closing file:", err)
+		}
+	}()
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {

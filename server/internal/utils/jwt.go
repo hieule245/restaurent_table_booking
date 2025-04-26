@@ -48,5 +48,5 @@ func ParseJWT(tokenStr string) (*Claims, error) {
 		return claims, nil
 	}
 
-	return nil, errors.New("Can not parse token!")
+	return nil, errors.New("can not parse token")
 }

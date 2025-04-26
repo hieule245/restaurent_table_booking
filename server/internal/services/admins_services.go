@@ -265,6 +265,11 @@ func ReservationEachRestaurant(context *gin.Context) {
 	user_gmail := claims.Gmail
 	var restaurant_id int
 	restaurant_id, err = strconv.Atoi(context.Param("restaurant_id"))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		context.Abort()
+		return
+	}
 	reservation, err := models.GetBookingByRestaurantId(user_gmail, user_id, restaurant_id)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

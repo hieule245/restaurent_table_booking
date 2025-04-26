@@ -133,14 +133,15 @@ func GetBookingsByUser(userGmail string) ([]Booking, error) {
 	acc.Email = userGmail
 	CheckAccount(acc)
 	var query string
-	if acc.Role == "customer" {
+	switch acc.Role {
+	case "customer":
 		query = `
 		SELECT 
 			id, numberOfCustomer, book_date, time_start, time_end, actual_end, price, customer_email, table_id, status 
 		FROM reservations 
 		WHERE customer_id = ?
 	`
-	} else if acc.Role == "staff" {
+	case "staff":
 		query = `SELECT 
 			id, numberOfCustomer, book_date, time_start, time_end, actual_end, price, customer_email, table_id, status 
 		FROM reservations 
@@ -151,7 +152,11 @@ func GetBookingsByUser(userGmail string) ([]Booking, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing file:", err)
+		}
+	}()
 
 	var bookings []Booking
 	for rows.Next() {
@@ -212,17 +217,21 @@ func GetBookingByOwner(ownerId int64) ([]Reservations, error) {
 
 	rows, err := db.DB.Query(query, ownerId)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing file:", err)
+		}
+	}()
 
 	for rows.Next() {
 		var book Reservations
 		err = rows.Scan(&book.Id, &book.RestaurantName, &book.TableName, &book.UserBook, &book.RoleBook, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status)
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
 			return nil, err
 		}
 		reservation = append(reservation, book)
@@ -260,28 +269,33 @@ func GetBookingByRestaurantId(user_gmail string, ownerId int64, restaurant_id in
 
 	rows, err := db.DB.Query(query, restaurant_id)
 	if err != nil {
-		panic(err)
+		fmt.Println("book 1- ", err)
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing rows:", err)
+		}
+	}()
 
 	for rows.Next() {
 		var book Reservations
 		err = rows.Scan(&book.Id, &book.TableName, &book.UserBook, &book.RoleBook, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status)
 		if err != nil {
-			panic(err)
+			fmt.Println("book 2- ", err)
 			return nil, err
 		}
 		acc := &Account{}
 		acc.Email = user_gmail
 		CheckAccount(acc)
-		if acc.Role == "owner" {
+		switch acc.Role {
+		case "owner":
 			if book.Owner_id == ownerId {
 				return nil, errors.New("not your restaurant")
 			}
-		} else if acc.Role == "staff" || acc.Role == "customer" {
-			return nil, errors.New("You can't be here")
+		case "staff", "customer":
+			return nil, errors.New("you can't be here")
 		}
 		reservation = append(reservation, book)
 	}
@@ -308,7 +322,11 @@ func (res *Reservations) ConfirmBooking() error {
 	WHERE id = ?
 	`
 	stmt, err := db.DB.Prepare(query)
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	if err != nil {
 		return err
 	}
@@ -316,7 +334,7 @@ func (res *Reservations) ConfirmBooking() error {
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -326,7 +344,11 @@ func (res *Reservations) CancelBooking() error {
 	WHERE id = ?
 	`
 	stmt, err := db.DB.Prepare(query)
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	if err != nil {
 		return err
 	}
@@ -397,7 +419,11 @@ func GetTopRestaurantRevenues(ownerId int64) ([]TopRestaurant, error) {
 	}
 	for rows.Next() {
 		var topRestaurant TopRestaurant
-		rows.Scan(&topRestaurant.Name, &topRestaurant.TotalRevenue, &topRestaurant.TotalCustomer, &topRestaurant.TotalReservation)
+		err = rows.Scan(&topRestaurant.Name, &topRestaurant.TotalRevenue, &topRestaurant.TotalCustomer, &topRestaurant.TotalReservation)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
 		top = append(top, topRestaurant)
 	}
 
@@ -428,7 +454,11 @@ func GetTopRestaurantRevenuesByAdmin() ([]TopRestaurant, error) {
 	}
 	for rows.Next() {
 		var topRestaurant TopRestaurant
-		rows.Scan(&topRestaurant.Name, &topRestaurant.TotalRevenue, &topRestaurant.TotalCustomer, &topRestaurant.TotalReservation)
+		err = rows.Scan(&topRestaurant.Name, &topRestaurant.TotalRevenue, &topRestaurant.TotalCustomer, &topRestaurant.TotalReservation)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
 		top = append(top, topRestaurant)
 	}
 
@@ -465,17 +495,21 @@ func GetBookingByAdmin() ([]Reservations, error) {
 
 	rows, err := db.DB.Query(query)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing rows:", err)
+		}
+	}()
 
 	for rows.Next() {
 		var book Reservations
 		err = rows.Scan(&book.Id, &book.RestaurantName, &book.TableName, &book.UserBook, &book.RoleBook, &book.BookingDate, &book.BookingTime, &book.ActualTime, &book.Price, &book.Status)
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
 			return nil, err
 		}
 		reservation = append(reservation, book)

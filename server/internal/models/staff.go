@@ -27,17 +27,21 @@ func GetAllStaffEachRestaurant(restaurantID int64) ([]Staff, error) {
 	`
 	rows, err := db.DB.Query(query, restaurantID)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing rows:", err)
+		}
+	}()
 
 	var st []Staff
 	for rows.Next() {
 		var staff Staff
 		err := rows.Scan(&staff.ID, &staff.Name, &staff.Gmail, &staff.Phone, &staff.Status)
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
 			return nil, err
 		}
 		st = append(st, staff)
@@ -50,26 +54,38 @@ func CheckPermissionsToLock(ownerId, id int64) error {
 	rows := db.DB.QueryRow("SELECT restaurant_id FROM staffs WHERE id = ?", id)
 	err := rows.Scan(&str)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
 
 	restaurant_id, err := strconv.ParseInt(str, 10, 64)
-	CheckPermissionsToAdd(ownerId, restaurant_id, id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	err = CheckPermissionsToAdd(ownerId, restaurant_id, id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 	return nil
 }
 
 func CheckPermissionsToAdd(ownerId, restaurant_id, id int64) error {
 	rows := db.DB.QueryRow("SELECT owner_id FROM restaurants WHERE id = ?", restaurant_id)
 	var ownerStr string
-	rows.Scan(&ownerStr)
+	err := rows.Scan(&ownerStr)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 	owner_id, err := strconv.ParseInt(ownerStr, 10, 64)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
 	if ownerId != owner_id {
-		return errors.New("You do not have permission in here!")
+		return errors.New("you do not have permission in here")
 	}
 	return nil
 }
@@ -84,17 +100,25 @@ func LockStaff(ownerId, id int64) error {
 	WHERE id = ?
 	`
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
 
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	_, err = stmt.Exec(id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 	return nil
 }
 
@@ -105,7 +129,7 @@ func BanStaff(gmail string, ownerId, id int64) error {
 	CheckAccount(acc)
 
 	if acc.Role != "admin" {
-		return errors.New("You do not have permission in here!")
+		return errors.New("you do not have permission in here")
 	}
 	query := `
 	UPDATE staffs SET status = 'ban'
@@ -116,8 +140,16 @@ func BanStaff(gmail string, ownerId, id int64) error {
 		fmt.Println(err)
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	_, err = stmt.Exec(id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 	return nil
 }
 
@@ -132,17 +164,25 @@ func UnlockStaff(ownerId, id int64) error {
 	`
 
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
 
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	_, err = stmt.Exec(id)
+	if err != nil {
+		fmt.Println("167: ", err)
+		return err
+	}
 	return nil
 }
 
@@ -161,6 +201,10 @@ func (staff *Staff) CreateStaff(userId int64) error {
 	}
 
 	rows, err := db.DB.Query(`SELECT id, restaurant_id, status FROM staffs WHERE gmail = ?`, staff.Gmail)
+	if err != nil {
+		fmt.Println("185: ", err)
+		return err
+	}
 	for rows.Next() {
 		var st Staff
 		err := rows.Scan(&st.ID, &st.RestaurantID, &st.Status)
@@ -169,11 +213,11 @@ func (staff *Staff) CreateStaff(userId int64) error {
 			return err
 		}
 		if err == nil && staff.RestaurantID == st.RestaurantID {
-			return errors.New("This account has already been created here!")
+			return errors.New("this account has already been created here")
 		} else if err == nil && staff.RestaurantID != st.RestaurantID && st.Status == "active" {
-			return errors.New("This staff has already work in another place!")
+			return errors.New("this staff has already work in another place")
 		} else if err == nil && st.Status == "ban" {
-			return errors.New("This staff was blocked for working elsewhere!")
+			return errors.New("this staff was blocked for working elsewhere")
 		} else if err == nil && staff.RestaurantID != st.RestaurantID && st.Status == "inactive" {
 			stmt, err := db.DB.Prepare(`UPDATE staffs SET name = ?, status = 'active', password = ?, restaurant_id = ?, phone = ? WHERE id = ?`)
 			if err != nil {
@@ -200,7 +244,11 @@ func (staff *Staff) CreateStaff(userId int64) error {
 		fmt.Println(err)
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	staff.Status = "active"
 
 	hashPassword, err := utils.HashPassword(staff.Password)
@@ -307,7 +355,11 @@ func GetReservationByRestaurantID(resId int64) ([]Reservations, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing rows:", err)
+		}
+	}()
 
 	for rows.Next() {
 		var book Reservations
@@ -324,11 +376,19 @@ func GetReservationByRestaurantID(resId int64) ([]Reservations, error) {
 func SetStatusByAdmin(email, query string) error {
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		fmt.Println("prepare: ", err)
+		fmt.Println("prepare 347: ", err)
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	_, err = stmt.Exec(email)
+	if err != nil {
+		fmt.Println("prepare 353: ", err)
+		return err
+	}
 	return nil
 }
 
@@ -351,7 +411,7 @@ func BanByAdmin(email, role string) error {
 		WHERE gmail = ?
 		`
 	default:
-		return errors.New("Invalid role")
+		return errors.New("invalid role")
 	}
 	err := SetStatusByAdmin(email, query)
 	if err != nil {
@@ -379,7 +439,7 @@ func UnbanByAdmin(email, role string) error {
 		WHERE gmail = ?
 		`
 	default:
-		return errors.New("Invalid role")
+		return errors.New("invalid role")
 	}
 	err := SetStatusByAdmin(email, query)
 	if err != nil {

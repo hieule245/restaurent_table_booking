@@ -44,7 +44,7 @@ func GetAllOwnerRestaurants(context *gin.Context) {
 	}
 	acc.Id = claims.UserID
 
-	err, restaurant := models.GetRestaurantByOwnerID(acc.Id)
+	restaurant, err := models.GetRestaurantByOwnerID(acc.Id)
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can't collect data"})
 		context.Abort()
@@ -67,6 +67,11 @@ func GetRestaurantByID(context *gin.Context) {
 func CreateRestaurant(context *gin.Context) {
 	var r models.Restaurant
 	err := context.ShouldBindBodyWithJSON(&r)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		context.Abort()
+		return
+	}
 	token, err := context.Cookie("token")
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "Can not get token from cookie"})
@@ -185,7 +190,11 @@ func UploadImageTables(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Can't take any image"})
 		return
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Println("Error closing file:", err)
+		}
+	}()
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
@@ -332,6 +341,11 @@ func GetReservationsByRestaurants(context *gin.Context) {
 	user_id := claims.UserID
 	var restaurant_id int
 	restaurant_id, err = strconv.Atoi(context.Param("restaurant_id"))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		context.Abort()
+		return
+	}
 	reservation, err := models.GetBookingByRestaurantId(claims.Gmail, user_id, restaurant_id)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -362,7 +376,11 @@ func ConfirmBookingFromRestaurant(context *gin.Context) {
 		fmt.Println("confirm 3-", err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-	pkg.ConfirmReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.NumberOfCustomer)
+	err = pkg.ConfirmReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.NumberOfCustomer)
+	if err != nil {
+		fmt.Println("confirm 4-: ", err)
+		return
+	}
 	context.JSON(http.StatusOK, gin.H{"message": "The reservation has been approved"})
 }
 
@@ -386,7 +404,11 @@ func CancelBookingFromRestaurant(context *gin.Context) {
 		fmt.Println("confirm 3-", err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-	pkg.CancelReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.NumberOfCustomer)
+	err = pkg.CancelReservation(r.CustomerEmail, res.UserBook, res.RestaurantName, r.BookDate, r.NumberOfCustomer)
+	if err != nil {
+		fmt.Println("395: ", err)
+		return
+	}
 	context.JSON(http.StatusOK, gin.H{"message": "The reservation has been approved"})
 }
 

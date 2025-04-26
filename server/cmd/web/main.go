@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -77,6 +78,14 @@ func main() {
 func AutoUpdateReservationStatuses() {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
+	var rows *sql.Rows
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing:", err)
+
+		}
+
+	}()
 
 	for {
 		<-ticker.C
@@ -85,7 +94,6 @@ func AutoUpdateReservationStatuses() {
 			log.Println("Failed to fetch reservations:", err)
 			continue
 		}
-		defer rows.Close()
 
 		now := time.Now().Unix()
 		hasUpdated := false
@@ -107,7 +115,7 @@ func AutoUpdateReservationStatuses() {
 			startSeconds := startFull.Unix()
 			endSeconds := endFull.Unix()
 
-			var newStatus int = -1
+			var newStatus = -1
 
 			if status == 1 && now >= startSeconds {
 				newStatus = 0
@@ -152,7 +160,11 @@ func updateStatusByAPI(reservationID int, newStatus int) {
 		log.Println("Failed to send update status:", err)
 		return
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			fmt.Println("Error closing resp.Body:", err)
+		}
+	}()
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
 		log.Printf("Failed update response: %d - %s\n", resp.StatusCode, string(body))
@@ -190,7 +202,11 @@ func chatHandler(c *gin.Context) {
 
 func readMessages(client *Client) {
 	defer func() {
-		client.Conn.Close()
+		err := client.Conn.Close()
+		if err != nil {
+			fmt.Println("195 - ", err)
+			return
+		}
 		delete(clients, fmt.Sprintf("%d-%s", client.ID, client.Role))
 	}()
 

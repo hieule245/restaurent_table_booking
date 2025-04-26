@@ -48,7 +48,11 @@ func SearchTables(name, tableType string, seats, restaurantID int) ([]Table, err
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing rows:", err)
+		}
+	}()
 
 	for rows.Next() {
 		var t Table
@@ -77,7 +81,11 @@ func GetAllTables(restaurantID int64) ([]Table, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing rows:", err)
+		}
+	}()
 
 	var tables []Table
 	for rows.Next() {
@@ -122,14 +130,14 @@ func (t *Table) CreateTable() error {
 		return err
 	}
 	if !exists {
-		return errors.New("Restaurant does not exist")
+		return errors.New("restaurant does not exist")
 	}
 	if err != nil {
 		fmt.Println("table 2-", err)
 		return err
 	}
 	if t.Seats <= 0 {
-		return errors.New("This table should have seat!!")
+		return errors.New("this table should have seat")
 	}
 
 	query := `INSERT INTO tables (name, type, seats, status, restaurant_id, description, image_id) VALUES (?, ?, ?, ?, ?, ?, ?)`
@@ -138,7 +146,11 @@ func (t *Table) CreateTable() error {
 		fmt.Println("table 3-", err)
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing:", err)
+		}
+	}()
 	t.Status = "active"
 	result, err := stmt.Exec(t.Name, t.Type, t.Seats, t.Status, t.RestaurantID, t.Description, t.ImageId)
 	if err != nil {
@@ -203,7 +215,11 @@ func SearchAvailableTables(restaurantID int, bookDate, desiredStart, desiredEnd 
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing file:", err)
+		}
+	}()
 
 	for rows.Next() {
 		var t Table
@@ -219,7 +235,7 @@ func SearchAvailableTables(restaurantID int, bookDate, desiredStart, desiredEnd 
 
 	// Nếu không có bàn nào, có thể trả về lỗi tùy chọn hoặc danh sách rỗng
 	if len(tables) == 0 {
-		return nil, errors.New("No available tables found")
+		return nil, errors.New("no available tables found")
 	}
 
 	return tables, nil

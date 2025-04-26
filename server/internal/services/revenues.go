@@ -18,7 +18,11 @@ func WeeklyRevenue() {
 		fmt.Println("1-", err)
 		return
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing:", err)
+		}
+	}()
 	for rows.Next() {
 		var ownerId int64
 		var ownerName, ownerGmail string
@@ -82,20 +86,28 @@ func MonthlyReport(gmail, name string, currentRevenue, lastRevenues *models.Reve
 	fmt.Printf("dif: %1.f, cur: %.1f, last: %.1f", RevenueChange, currentRevenue.WeeklyRevenue, lastRevenues.WeeklyRevenue)
 	var RevenueChangeStr string
 	if RevenueChange > 0 {
-		RevenueChangeStr = fmt.Sprintf("tăng %.1fVND", RevenueChange)
+		RevenueChangeStr = fmt.Sprintf("increase %.1fVND", RevenueChange)
 	} else if RevenueChange < 0 {
-		RevenueChangeStr = fmt.Sprintf("giảm %.1fVND", -RevenueChange)
+		RevenueChangeStr = fmt.Sprintf("decrease %.1fVND", -RevenueChange)
 	} else if RevenueChange == 0 {
-		RevenueChangeStr = "không thay đổi"
+		RevenueChangeStr = "Not change"
 	}
 
 	// Số lượng nhân viên mới
 	newStaff := (currentRevenue.ActiveStaff + currentRevenue.OutStaff) - (lastRevenues.ActiveStaff + lastRevenues.OutStaff)
 	newOutStaff := currentRevenue.OutStaff - lastRevenues.OutStaff
 
-	pkg.SendMailRevenues(gmail, name, RevenueChangeStr, currentRevenue.WeeklyRevenue, newStaff, newOutStaff, currentRevenue.OrderCustomer, currentRevenue.UsingCustomer)
+	err := pkg.SendMailRevenues(gmail, name, RevenueChangeStr, currentRevenue.WeeklyRevenue, newStaff, newOutStaff, currentRevenue.OrderCustomer, currentRevenue.UsingCustomer)
+	if err != nil {
+		fmt.Println("revenues 1: ", err)
+		return
+	}
 }
 
 func MonthlyNewReport(gmail, name string, currentRevenue *models.Revenues) {
-	pkg.SendMailRevenues(gmail, name, " đây là tuần đầu tiên", currentRevenue.WeeklyRevenue, currentRevenue.ActiveStaff, currentRevenue.OutStaff, currentRevenue.OrderCustomer, currentRevenue.UsingCustomer)
+	err := pkg.SendMailRevenues(gmail, name, "This is the first time", currentRevenue.WeeklyRevenue, currentRevenue.ActiveStaff, currentRevenue.OutStaff, currentRevenue.OrderCustomer, currentRevenue.UsingCustomer)
+	if err != nil {
+		fmt.Println("monthly new report: ", err)
+		return
+	}
 }

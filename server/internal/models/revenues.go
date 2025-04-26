@@ -151,7 +151,11 @@ func (rev *Revenues) SaveCurrentRevenues(ownerId int64) error {
 		return err
 	}
 
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 
 	_, err = stmt.Exec(rev.WeeklyRevenue, rev.ActiveStaff, rev.OutStaff, rev.BookNumber, rev.CanceledBook, rev.OrderCustomer, rev.UsingCustomer, ownerId)
 	if err != nil {
@@ -172,7 +176,11 @@ func (rev *Revenues) SaveNewCurrentRevenues(ownerId int64) error {
 		return err
 	}
 
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 
 	_, err = stmt.Exec(rev.WeeklyRevenue, rev.ActiveStaff, rev.OutStaff, rev.BookNumber, rev.CanceledBook, rev.OrderCustomer, rev.UsingCustomer, ownerId)
 	if err != nil {

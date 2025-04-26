@@ -36,7 +36,7 @@ var failedAttempts = sync.Map{}
 func (u *Account) RegisterCustomer() error {
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("Email already exists")
+		return errors.New("email already exists")
 	}
 	query := `INSERT INTO customers(name, gmail, phone, password, status) 
 		VALUES (?,?,?,?,?)`
@@ -44,7 +44,11 @@ func (u *Account) RegisterCustomer() error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	hashPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
 		return err
@@ -65,7 +69,7 @@ func (u *Account) RegisterCustomer() error {
 func (u *Account) RegisterOwner() error {
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("Email already exists")
+		return errors.New("email already exists")
 	}
 	query := `INSERT INTO owners(name, gmail, phone, password, status) 
 		VALUES (?,?,?,?,?)`
@@ -73,7 +77,11 @@ func (u *Account) RegisterOwner() error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	hashPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
 		return err
@@ -95,7 +103,7 @@ func (u *Account) RegisterOwner() error {
 func (u *Account) RegisterAdmin() error {
 	_, check := CheckAccount(u)
 	if !check {
-		return errors.New("Email already exists")
+		return errors.New("email already exists")
 	}
 	query := `INSERT INTO admin(name, gmail, phone, password) 
 		VALUES (?,?,?,?)`
@@ -103,7 +111,11 @@ func (u *Account) RegisterAdmin() error {
 	if err != nil {
 		return errors.New("failed to prepare the SQL statement for registering admin: " + err.Error())
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 
 	hashPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
@@ -138,7 +150,11 @@ func (u *Account) RegisterStaff() error {
 	if err != nil {
 		return errors.New("failed to prepare the SQL statement for registering staff")
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 
 	// Hash the password
 	hashPassword, err := utils.HashPassword(u.Password)
@@ -170,7 +186,7 @@ func (u *Account) Login() error {
 	// Check if the user exists
 	retrievedPassword, ok := CheckAccount(u)
 	if ok {
-		return errors.New("Email does not exist")
+		return errors.New("email does not exist")
 	}
 
 	if u.Status == "inactive" {
@@ -186,7 +202,7 @@ func (u *Account) Login() error {
 		if data.Attempt == 5 {
 			data.Attempt = 0
 			failedAttempts.Delete(u.Email)
-			return errors.New("This account is locked due to too many failed attempts. Check your email and contact us")
+			return errors.New("this account is locked due to too many failed attempts. Check your email and contact us")
 		}
 	}
 
@@ -209,9 +225,9 @@ func (u *Account) Login() error {
 			check.Attempt = 0
 			failedAttempts.Delete(u.Email)
 			if err != nil {
-				return errors.New("Failed to set account status to inactive: " + err.Error())
+				return errors.New("failed to set account status to inactive: " + err.Error())
 			}
-			return errors.New("This account is locked for security. Check your email and contact us")
+			return errors.New("this account is locked for security. Check your email and contact us")
 		}
 		return errors.New("invalid Password. You have " + fmt.Sprint(remainingAttempts) + " attempts left")
 	}
@@ -234,9 +250,7 @@ func CheckAccount(a *Account) (string, bool) {
 	for role, query := range queries {
 		var retrievedPassword string
 		var err error
-		var row *sql.Row
-		// Perform the query based on role
-		row = db.DB.QueryRow(query, a.Email)
+		row := db.DB.QueryRow(query, a.Email)
 
 		// Scan the result based on the role
 		switch role {
@@ -279,7 +293,11 @@ func (u *Account) ResetPassword() error {
 	if err != nil {
 		return errors.New("failed to prepare the SQL statement for resetting password: " + err.Error())
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	fmt.Println("ResetPassword", u.Email, u.Password)
 	hashPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
@@ -305,7 +323,11 @@ func GetAllAccounts() ([]Account, error) {
 	if err != nil {
 		return nil, errors.New("failed to execute the SQL query for retrieving all accounts: " + err.Error())
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing file:", err)
+		}
+	}()
 
 	var users []Account
 	for rows.Next() {
@@ -377,7 +399,11 @@ func SetAccountStatusInactive(email, role string) error {
 	if err != nil {
 		return errors.New("failed to prepare the SQL statement for setting account status: " + err.Error())
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 
 	_, err = stmt.Exec(email)
 	if err != nil {
@@ -393,13 +419,17 @@ func (u *Account) UpdateCustomer() error {
     WHERE gmail = ?`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	_, err = stmt.Exec(u.Name, u.Phone, u.Email)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
 	return nil
@@ -410,13 +440,17 @@ func (u *Account) UpdateOwner() error {
     WHERE gmail = ?`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	_, err = stmt.Exec(u.Name, u.Phone, u.Email)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
 	return nil
@@ -429,11 +463,15 @@ func (u *Account) UpdateStaff() error {
 	if err != nil {
 		return errors.New("failed to prepare the SQL statement for setting account status: " + err.Error())
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 
 	_, err = stmt.Exec(u.Name, u.Phone, u.Email)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
 	return err
@@ -446,11 +484,15 @@ func (u *Account) UpdateAdmin() error {
 	if err != nil {
 		return errors.New("failed to prepare the SQL statement for setting account status: " + err.Error())
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 
 	_, err = stmt.Exec(u.Name, u.Phone, u.Email)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
 	return err
@@ -460,11 +502,11 @@ func (acc *Account) ChangePassword(pass NewPassword) error {
 	retrievedPassword, _ := CheckAccount(acc)
 	ok := utils.PasswordVerify(pass.OldPassword, retrievedPassword)
 	if !ok {
-		return errors.New("Old password is not true!")
+		return errors.New("old password is not true")
 	}
 	hashPassword, err := utils.HashPassword(pass.NewPassword)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
 	query := `
@@ -474,13 +516,17 @@ func (acc *Account) ChangePassword(pass NewPassword) error {
 
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	_, err = stmt.Exec(hashPassword, acc.Email)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return err
 	}
 	return nil
@@ -498,7 +544,11 @@ func SaveImage(imageUrl string) (int64, error) {
 		return 0, nil
 	}
 
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 
 	result, err := stmt.Exec(imageUrl)
 	if err != nil {
@@ -534,7 +584,11 @@ func SaveImageAvatar(imageId int64, acc *Account) error {
 		fmt.Print("save image 4- ", err)
 		return nil
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	_, err = stmt.Exec(imageId, acc.Id)
 	return err
 }

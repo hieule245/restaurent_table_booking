@@ -16,7 +16,8 @@ type Restaurant struct {
 	Owner_id    int64
 	Status      string
 	Location    string
-	imageFile   string
+	ImageFile   string
+	ImageId     int
 }
 
 func SearchRestaurants(id int64, name, location string, ownerID int) ([]Restaurant, error) {
@@ -46,7 +47,11 @@ func SearchRestaurants(id int64, name, location string, ownerID int) ([]Restaura
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing rows:", err)
+		}
+	}()
 
 	for rows.Next() {
 		var r Restaurant
@@ -68,7 +73,11 @@ func GetAllRestaurants() ([]Restaurant, error) {
 	if err != nil {
 		return res, errors.New("can't catch any information")
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing rows:", err)
+		}
+	}()
 
 	for rows.Next() {
 		var e Restaurant
@@ -89,7 +98,11 @@ func (r *Restaurant) CreateRestaurant() error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 	r.Status = "active"
 	result, err := stmt.Exec(r.Name, r.Description, r.Status, r.Started, r.Ended, r.Location, r.Owner_id)
 	fmt.Print(r.Owner_id)
@@ -126,7 +139,11 @@ func (r *Restaurant) UpdateRestaurant() error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		if err := stmt.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 
 	_, err = stmt.Exec(r.Name, r.Description, r.Started, r.Ended, r.Id)
 	if err != nil {
@@ -158,30 +175,40 @@ func DeleteRestaurantByID(id int64) error {
 
 // alpha
 
-func GetRestaurantByOwnerID(id int64) (error, []Restaurant) {
+func GetRestaurantByOwnerID(id int64) ([]Restaurant, error) {
 	var res []Restaurant
 	// var image_id int64
 	query := `
-	SELECT id, name, description, time_start, time_end, location, owner_id FROM restaurants
+	SELECT id, name, description, time_start, time_end, location, owner_id, image_id FROM restaurants
 	WHERE owner_id = ? AND status = 'active'
 	`
 	rows, err := db.DB.Query(query, id)
 	if err != nil {
 		fmt.Println("Error scanning row 1:", err)
-		return err, nil
+		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing rows:", err)
+		}
+	}()
 
 	for rows.Next() {
 		var e Restaurant
-		err := rows.Scan(&e.Id, &e.Name, &e.Description, &e.Started, &e.Ended, &e.Location, &e.Owner_id)
+		err := rows.Scan(&e.Id, &e.Name, &e.Description, &e.Started, &e.Ended, &e.Location, &e.Owner_id, &e.ImageId)
 		if err != nil {
 			fmt.Println("Error scanning row 2:", err)
-			return err, nil
+			return nil, err
 		}
-		query = ` SELECT image FROM images WHERE id = ?`
+		query = `SELECT image FROM images WHERE id = ?`
+		row := db.DB.QueryRow(query, e.ImageId)
+		err = row.Scan(&e.ImageFile)
+		if err != nil {
+			fmt.Println("res", err)
+			return nil, err
+		}
 		res = append(res, e)
 	}
-	return nil, res
+	return res, err
 }

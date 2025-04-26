@@ -66,7 +66,11 @@ func GetAvailableTables(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing:", err)
+		}
+	}()
 
 	var availableTables []models.Table
 	for rows.Next() {

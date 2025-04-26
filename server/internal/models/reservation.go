@@ -1,6 +1,10 @@
 package models
 
-import "github.com/restaurent_table_booking/internal/db"
+import (
+	"fmt"
+
+	"github.com/restaurent_table_booking/internal/db"
+)
 
 // Reservation đại diện cho một lần đặt bàn
 type Reservation struct {
@@ -47,7 +51,11 @@ func GetReservationsByTableDate(tableID int, bookDate string) ([]Reservation, er
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing rows:", err)
+		}
+	}()
 
 	var reservations []Reservation
 	for rows.Next() {

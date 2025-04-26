@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -18,7 +19,11 @@ func GetAllStaffs(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 
 	var staffs []models.Staff
 	for rows.Next() {
@@ -115,7 +120,11 @@ func SearchStaffs(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println("Error closing stmt:", err)
+		}
+	}()
 
 	var staffs []models.Staff
 	for rows.Next() {

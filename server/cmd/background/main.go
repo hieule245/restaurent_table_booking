@@ -115,7 +115,11 @@ func handlerConnections(c *gin.Context) {
 		receiverKey := fmt.Sprintf("%d:%s", msg.ReceiverID, msg.ReceiverRole)
 		if receiver, ok := clients[receiverKey]; ok {
 			data, _ := json.Marshal(msg)
-			receiver.Conn.WriteMessage(websocket.TextMessage, data)
+			err := receiver.Conn.WriteMessage(websocket.TextMessage, data)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 		}
 		clientsLock.Unlock()
 	}
